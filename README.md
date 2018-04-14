@@ -1,2 +1,1 @@
-# minorthesis
-Last Year Thesis at UIT
+Just a Thesis :D
