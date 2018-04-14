@@ -38,10 +38,31 @@ module.exports = function(grunt) {
           }
         ]
       }
+    },
+    jest: {
+      options: {
+        coverage: true,
+        testPathPattern: /.*-test.js/
+      }
+    },
+    watch: {
+      script: {
+        files: "./src/engine/*.js",
+        tasks: ['babel']
+      },
+      style: {
+        files: './src/style/*.sass',
+        tasks: ['sass']
+      },
+      frame: {
+        files: './src/index.html',
+        tasks: ['copy']
+      }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-sass');
   grunt.loadNpmTasks('grunt-babel');
 

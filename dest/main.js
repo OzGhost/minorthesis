@@ -33,6 +33,11 @@ var App = function (_React$Component) {
           "h1",
           null,
           "Hello World!"
+        ),
+        _react2.default.createElement(
+          "h1",
+          null,
+          "Hi there!"
         )
       );
     }
