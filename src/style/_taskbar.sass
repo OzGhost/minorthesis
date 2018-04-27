@@ -1,0 +1,31 @@
+$taskbar-bottom-width: 6px
+$taskbar-slice-width: 10px
+$side-heigth: 30px
+
+.taskbar
+  position: absolute
+  width: 60px
+  top: 50vh
+  left: 0px
+  padding: 10px
+  box-sizing: border-box
+  margin: 0
+  transform: translateY(-50%)
+  border-top: $taskbar-slice-width solid transparent
+  border-left: $taskbar-bottom-width solid black
+  border-right: 0
+  border-bottom: $taskbar-slice-width solid transparent
+
+
+  img
+    width: 100%
+    display: block
+    margin: 5px 0
+    padding: 0
+    cursor: pointer
+    transition: all .2s ease
+
+    &:hover
+      width: 140%
+      margin: 10px 0
+

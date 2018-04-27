@@ -16,6 +16,7 @@ module.exports = function(grunt) {
       options: {
         presets: ['env', 'react', 'flow'],
         plugins: [
+          'transform-react-jsx',
           'transform-es2015-classes',
           'transform-es2015-spread',
           'transform-es2015-arrow-functions',
@@ -23,7 +24,8 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          './dest/main.js': './src/engine/app.js'
+          './dest/main.js': './src/engine/app.js',
+          './dest/**/*.js': './src/engine/**/*.js'
         }
       }
     },
@@ -33,22 +35,26 @@ module.exports = function(grunt) {
           {
             expand: true,
             cwd: 'src',
-            src: 'index.html',
+            src: ['index.html', '*.css'],
             dest: './dest/'
           }
         ]
       }
     },
-    jest: {
-      options: {
-        coverage: true,
-        testPathPattern: /.*-test.js/
+    browserify: {
+      dist: {
+        files: {
+          './dest/main.js': './src/engine/index.js',
+        },
+        options: {
+          transform: ['babelify']
+        }
       }
     },
     watch: {
       script: {
-        files: "./src/engine/*.js",
-        tasks: ['babel']
+        files: ["./src/engine/*.js", "./src/engine/**/*.js"],
+        tasks: ['browserify']
       },
       style: {
         files: './src/style/*.sass',
@@ -61,11 +67,11 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-sass');
-  grunt.loadNpmTasks('grunt-babel');
+  grunt.loadNpmTasks('grunt-browserify');
 
-  grunt.registerTask('default', ['sass', 'babel', 'copy']);
+  grunt.registerTask('default', ['sass', 'copy', 'browserify']);
 };
 
