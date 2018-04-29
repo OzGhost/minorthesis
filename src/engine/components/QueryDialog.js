@@ -1,46 +1,17 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-
-const drag = (env) => {
-  console.log('drag start')
-  var element = env.target
-  var style = window.getComputedStyle(element)
-  
-  env.dataTransfer.setData('noop', 'another')
-
-  window.dragging = true
-  window.theTag = element
-  window.tagPosition = {
-    top: style.getPropertyValue('top'),
-    left: style.getPropertyValue('left')
-  }
-  window.curPosition = {
-    top: env.pageX,
-    left: env.pageY
-  }
-
-  console.log(window)
-}
-
-const dragend = (env) => {
-  console.log('drag end')
-  window.dragging = false
-
-  document.onmousemove = undefined
-}
+import mouseStart from '../common/Dragger'
 
 const QueryDialog = ({
-  layerChange, layers,
-  fieldChange, fields,
-  valueChange, results,
+  layers, fields, values, results,
+  layerChange, fieldChange, valueChange,
   isActive
 }) => isActive ? (
   <div
       className="dialog query-dialog"
-      draggable={true}
-      onDragStart={drag}
-      onDragEnd={dragend}
+      style={{ top: '240px', left: '80px' }}
   >
+    <div className="dragger" onMouseDown={mouseStart}></div>
     <img className="dialog-icon" src="../res/icon_query.png" />
     <p className="dialog-title">Property Query</p>
     <hr/>
@@ -88,9 +59,22 @@ const QueryDialog = ({
 ) : <div className="hidden"></div>
 
 QueryDialog.propTypes = {
-  onSearch: PropTypes.func.required,
-  result: PropTypes.arrayOf(PropTypes.any).isRequired,
-  isActive: PropTypes.bool
+  layers: PropTypes.arrayOf(PropTypes.shape({
+      value: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired
+    })),
+  fields: PropTypes.arrayOf(PropTypes.shape({
+      value: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired
+    })),
+  values: PropTypes.arrayOf(PropTypes.any),
+  results: PropTypes.arrayOf(PropTypes.any),
+
+  layerChange: PropTypes.func.isRequired,
+  fieldChange: PropTypes.func.isRequired,
+  valueChange: PropTypes.func.isRequired,
+
+  isActive: PropTypes.bool.isRequired
 }
 
 export default QueryDialog

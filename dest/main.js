@@ -23229,6 +23229,67 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Dragger = function Dragger() {
+  var _this = this;
+
+  _classCallCheck(this, Dragger);
+
+  this.trap = function (e) {
+    _this._target = e.target.parentNode;
+    _this._prevTop = _this._target.style.top;
+    _this._prevLeft = _this._target.style.left;
+
+    _this._prevTop = +_this._prevTop.substring(0, _this._prevTop.length - 2);
+    _this._prevLeft = +_this._prevLeft.substring(0, _this._prevLeft.length - 2);
+
+    _this._prevCursorPosition = _this.getCursorPosition(e);
+
+    document.addEventListener('mousemove', _this.drag);
+    document.addEventListener('mouseup', _this.release);
+  };
+
+  this.getCursorPosition = function (event) {
+    return {
+      x: event.pageX,
+      y: event.pageY
+    };
+  };
+
+  this.drag = function (e) {
+    var currentCursorPosition = _this.getCursorPosition(e);
+
+    var dx = currentCursorPosition.x - _this._prevCursorPosition.x;
+    var dy = currentCursorPosition.y - _this._prevCursorPosition.y;
+
+    var nextTop = _this._prevTop + dy;
+    var nextLeft = _this._prevLeft + dx;
+
+    // moving target
+    _this._target.style.top = nextTop + 'px';
+    _this._target.style.left = nextLeft + 'px';
+
+    _this._prevTop = nextTop;
+    _this._prevLeft = nextLeft;
+    _this._prevCursorPosition = currentCursorPosition;
+  };
+
+  this.release = function () {
+    document.removeEventListener('mousemove', _this.drag);
+    document.removeEventListener('mouseup', _this.release);
+  };
+};
+
+exports.default = new Dragger().trap;
+
+},{}],63:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -23237,52 +23298,28 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
+var _Dragger = require('../common/Dragger');
+
+var _Dragger2 = _interopRequireDefault(_Dragger);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var drag = function drag(env) {
-  console.log('drag start');
-  var element = env.target;
-  var style = window.getComputedStyle(element);
-
-  env.dataTransfer.setData('noop', 'another');
-
-  window.dragging = true;
-  window.theTag = element;
-  window.tagPosition = {
-    top: style.getPropertyValue('top'),
-    left: style.getPropertyValue('left')
-  };
-  window.curPosition = {
-    top: env.pageX,
-    left: env.pageY
-  };
-
-  console.log(window);
-};
-
-var dragend = function dragend(env) {
-  console.log('drag end');
-  window.dragging = false;
-
-  document.onmousemove = undefined;
-};
-
 var QueryDialog = function QueryDialog(_ref) {
-  var layerChange = _ref.layerChange,
-      layers = _ref.layers,
-      fieldChange = _ref.fieldChange,
+  var layers = _ref.layers,
       fields = _ref.fields,
-      valueChange = _ref.valueChange,
+      values = _ref.values,
       results = _ref.results,
+      layerChange = _ref.layerChange,
+      fieldChange = _ref.fieldChange,
+      valueChange = _ref.valueChange,
       isActive = _ref.isActive;
   return isActive ? _react2.default.createElement(
     'div',
     {
       className: 'dialog query-dialog',
-      draggable: true,
-      onDragStart: drag,
-      onDragEnd: dragend
+      style: { top: '240px', left: '80px' }
     },
+    _react2.default.createElement('div', { className: 'dragger', onMouseDown: _Dragger2.default }),
     _react2.default.createElement('img', { className: 'dialog-icon', src: '../res/icon_query.png' }),
     _react2.default.createElement(
       'p',
@@ -23430,14 +23467,27 @@ var QueryDialog = function QueryDialog(_ref) {
 };
 
 QueryDialog.propTypes = {
-  onSearch: _propTypes2.default.func.required,
-  result: _propTypes2.default.arrayOf(_propTypes2.default.any).isRequired,
-  isActive: _propTypes2.default.bool
+  layers: _propTypes2.default.arrayOf(_propTypes2.default.shape({
+    value: _propTypes2.default.string.isRequired,
+    label: _propTypes2.default.string.isRequired
+  })),
+  fields: _propTypes2.default.arrayOf(_propTypes2.default.shape({
+    value: _propTypes2.default.string.isRequired,
+    label: _propTypes2.default.string.isRequired
+  })),
+  values: _propTypes2.default.arrayOf(_propTypes2.default.any),
+  results: _propTypes2.default.arrayOf(_propTypes2.default.any),
+
+  layerChange: _propTypes2.default.func.isRequired,
+  fieldChange: _propTypes2.default.func.isRequired,
+  valueChange: _propTypes2.default.func.isRequired,
+
+  isActive: _propTypes2.default.bool.isRequired
 };
 
 exports.default = QueryDialog;
 
-},{"prop-types":33,"react":55}],63:[function(require,module,exports){
+},{"../common/Dragger":62,"prop-types":33,"react":55}],64:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23480,7 +23530,7 @@ Taskbar.propTypes = {
 
 exports.default = Taskbar;
 
-},{"./TaskbarIcon":64,"prop-types":33,"react":55}],64:[function(require,module,exports){
+},{"./TaskbarIcon":65,"prop-types":33,"react":55}],65:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23510,7 +23560,7 @@ TaskbarIcon.propTypes = {
 
 exports.default = TaskbarIcon;
 
-},{"prop-types":33,"react":55}],65:[function(require,module,exports){
+},{"prop-types":33,"react":55}],66:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23665,7 +23715,7 @@ var mapStateToProps = function mapStateToProps(state) {
 
 exports.default = (0, _reactRedux.connect)(mapStateToProps)(App);
 
-},{"../actions":61,"../components/QueryDialog":62,"../components/Taskbar":63,"prop-types":33,"react":55,"react-redux":47}],66:[function(require,module,exports){
+},{"../actions":61,"../components/QueryDialog":63,"../components/Taskbar":64,"prop-types":33,"react":55,"react-redux":47}],67:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -23734,7 +23784,7 @@ var map = new _openlayers2.default.Map({
   })
 });
 
-},{"./containers/App":65,"./reducers":67,"openlayers":28,"react":55,"react-dom":37,"react-redux":47,"redux":58,"redux-logger":56,"redux-thunk":57}],67:[function(require,module,exports){
+},{"./containers/App":66,"./reducers":68,"openlayers":28,"react":55,"react-dom":37,"react-redux":47,"redux":58,"redux-logger":56,"redux-thunk":57}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23812,4 +23862,4 @@ var rootReducer = (0, _redux.combineReducers)({
 
 exports.default = rootReducer;
 
-},{"../actions":61,"redux":58}]},{},[66]);
+},{"../actions":61,"redux":58}]},{},[67]);
