@@ -1,13 +1,11 @@
 
-var app = require('express')();
+const { Pool, Client } = require('pg')
+var app = require('express')()
 
-const jsonResponse = (res, data) => {
-  res.writeHead(200, {
-    'ContentType': 'application/json',
-    'Access-Control-Allow-Origin': '*'
-  })
-  res.end(JSON.stringify(data))
-}
+app.all('*', (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  next()
+})
 
 app.get('/map/layers', (req, res) => {
   var layers = [
@@ -18,12 +16,12 @@ app.get('/map/layers', (req, res) => {
     { value: 'dattochuc', label: 'Dat To Chuc' },
     { value: 'datduan', label: 'Dat Du An' }
   ]
-  jsonResponse(res, layers)
+  res.json(layers)
 })
 
 const getFieldsByLayerName = layerName => {
   switch (layerName) {
-    case 'thuadat':
+    default:
       return [
         { value: 'ThuaID', label: 'Ma Thua' },
         { value: 'XaID', label: 'Ma Xa' },
@@ -37,65 +35,46 @@ const getFieldsByLayerName = layerName => {
         { value: 'TenDuong', label: 'Ten Duong' },
         { value: 'Phuong', label: 'Ma Phuong' }
       ]
-    case 'chusudung':
-      return [
-        { value: 'TenChu', label: 'Ten Chu' },
-        { value: 'DiaChi', label: 'Dia Chi' },
-        { value: 'HoTen', label: 'Ho Ten' },
-        { value: 'NamSinh', label: 'Nam Sinh' },
-        { value: 'SoCMND', label: 'So CMND' },
-        { value: 'NgayCap', label: 'Ngay Cap CMND' },
-        { value: 'NoiCap', label: 'Noi Cap CMND' },
-        { value: 'HoTen2', label: 'Ho Ten 2' },
-        { value: 'NamSinh2', label: 'Nam Sinh 2' },
-        { value: 'SoCMND2', label: 'So CMND 2' },
-        { value: 'NgayCap2', label: 'Ngay Cap CMND 2' },
-        { value: 'NoiCap2', label: 'Noi Cap CMND 2' },
-        { value: 'Phuong', label: 'Ma Phuong' }
-      ]
-    case 'giaychungnhan':
-      return [
-        { value: 'SHBANDO', label: 'So Hieu Ban Do' },
-        { value: 'SHThua', label: 'So Hieu Thua' },
-        { value: 'SHGiayCN', label: 'So Hieu Giay CN' },
-        { value: 'SeriCN', label: 'Seri CN' },
-        { value: 'NgayVS', label: 'Ngay Vao So' },
-        { value: 'ChinhLy', label: 'Chinh Ly' },
-        { value: 'DTPL', label: 'Dien Tich Phap Ly' },
-        { value: 'DTRieng', label: 'Dien Tich Rieng' },
-        { value: 'DTChung', label: 'Dien Tich Chung' },
-        { value: 'Phuong', label: 'Ma Phuong' }
-      ]
-    case 'quyhoach':
-      return [
-        { value: 'ObjectID', label: 'Ma Doi Tuong' },
-        { value: 'Ma_QH', label: 'Ma Qui Hoach' },
-        { value: 'LSD_QH', label: 'LSD_QH' },
-        { value: 'KyHieu_QH', label: 'Ky Hieu Qui Hoach' },
-      ]
-    case 'dattochuc':
-      return [
-        { value: 'TenToChuc', label: 'Ten To Chuc' },
-        { value: 'SoQD', label: 'So Quyet Dinh' },
-        { value: 'MucDichSD', label: 'Muc Dinh Su Dung' },
-        { value: 'Phuong', label: 'Ma Phuong' }
-      ]
-    case 'datduan':
-      return [
-        { value: 'RanhSo', label: 'Ranh So' },
-        { value: 'TenDuan', label: 'Ten Du An' },
-        { value: 'MucDichDua', label: 'Muc Dich Du An' },
-        { value: 'Phuong_Xa', label: 'Phuong Xa' },
-        { value: 'DienTich', label: 'Dien Tich' },
-        { value: 'So_QD', label: 'So Quyet Dinh' }
-      ]
-    default:
-      return []
   }
 }
 
 app.get('/map/layers/:layerName/fields', (req, res) => {
-  jsonResponse(res, getFieldsByLayerName( req.params.layerName ))
+  res.json(getFieldsByLayerName( req.params.layerName ))
+})
+
+app.get('/map/layers/:layerName/fields/:field/values', (req, res) => {
+  res.json([
+    "Dump value 01",
+    "Dump value 02"
+  ])
+})
+
+const connectString = 'postgresql://oz:ngaymai@localhost:5432/mydb'
+
+app.get('/map/layers/:layerName/fields/:field/values/:val', (req, res) => {
+  let qrs = []
+
+  const client = new pg.Client(connectString)
+  client.connect()
+  const query = client.query('SELECT gid, tenchu, kh2003 from thua_dat limit 3')
+
+  query.on('row', row => {
+    qrs = [...qrs, row]
+  })
+  
+  query.on('end', () => {
+    done();
+    return res.json(qrs)
+  })
+  
+})
+
+app.get('/noop', (req, res) => {
+  const pool = new Pool()
+  pool.query('select gid, tenchu, ST_asGeoJSON(geom) as geo from thua_dat limit 3', (err, result) => {
+    res.json(result.rows)
+    pool.end()
+  })
 })
 
 var server = app.listen(3000, () => {

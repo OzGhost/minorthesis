@@ -23160,6 +23160,14 @@ var host = 'http://localhost:3000';
 var REQUEST_LAYERS = exports.REQUEST_LAYERS = 'REQUEST LAYERS';
 var RECEIVE_LAYERS = exports.RECEIVE_LAYERS = 'RECEIVE LAYERS';
 
+var REQUEST_FIELDS = exports.REQUEST_FIELDS = 'REQUEST FIELDS';
+var RECEIVE_FIELDS = exports.RECEIVE_FIELDS = 'RECEIVE FIELDS';
+
+var REQUEST_VALUES = exports.REQUEST_VALUES = 'REQUEST VALUES';
+var RECEIVE_VALUES = exports.RECEIVE_VALUES = 'RECEIVE VALUES';
+
+var STORE_LAYER = exports.STORE_LAYER = 'STORE LAYER NAME';
+
 var fetchLayers = exports.fetchLayers = function fetchLayers() {
   return function (dispatch) {
     dispatch(requestLayers());
@@ -23181,6 +23189,61 @@ var receiveLayers = function receiveLayers(layers) {
   return {
     type: RECEIVE_LAYERS,
     layers: layers
+  };
+};
+
+var storeLayerName = exports.storeLayerName = function storeLayerName(layerName) {
+  return {
+    type: STORE_LAYER,
+    layerName: layerName
+  };
+};
+
+var fetchFields = exports.fetchFields = function fetchFields(layerName) {
+  return function (dispatch) {
+    dispatch(requestFields());
+    return fetch(host + '/map/layers/' + layerName + '/fields').then(function (res) {
+      return res.json();
+    }).then(function (json) {
+      return dispatch(receiveFields(json));
+    });
+  };
+};
+
+var requestFields = function requestFields() {
+  return {
+    type: REQUEST_FIELDS
+  };
+};
+
+var receiveFields = function receiveFields(fields) {
+  return {
+    type: RECEIVE_FIELDS,
+    fields: fields
+  };
+};
+
+var fetchValues = exports.fetchValues = function fetchValues(fieldName) {
+  return function (dispatch, getState) {
+    dispatch(requestValues());
+    return fetch(host + '/map/layers/' + getState().queryDialog.layerName + '/fields/' + fieldName + '/values').then(function (res) {
+      return res.json();
+    }).then(function (json) {
+      return dispatch(receiveValues(json));
+    });
+  };
+};
+
+var requestValues = function requestValues() {
+  return {
+    type: REQUEST_VALUES
+  };
+};
+
+var receiveValues = function receiveValues(values) {
+  return {
+    type: RECEIVE_VALUES,
+    values: values
   };
 };
 
@@ -23252,6 +23315,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -23274,7 +23339,10 @@ var QueryDialogView = function QueryDialogView(_ref) {
       layerChange = _ref.layerChange,
       fieldChange = _ref.fieldChange,
       valueChange = _ref.valueChange,
+      isLoading = _ref.isLoading,
       isActive = _ref.isActive;
+
+  var block = { disabled: isLoading };
   return isActive ? _react2.default.createElement(
     'div',
     {
@@ -23302,7 +23370,12 @@ var QueryDialogView = function QueryDialogView(_ref) {
         ),
         _react2.default.createElement(
           'select',
-          { className: 'w3-input w3-border' },
+          _extends({
+            onChange: function onChange(event) {
+              return layerChange(event.target.value);
+            },
+            className: 'w3-input w3-border'
+          }, block),
           layers.map(function (layer) {
             return _react2.default.createElement(
               'option',
@@ -23322,12 +23395,19 @@ var QueryDialogView = function QueryDialogView(_ref) {
         ),
         _react2.default.createElement(
           'select',
-          { className: 'w3-input w3-border' },
-          _react2.default.createElement(
-            'option',
-            null,
-            '...'
-          )
+          _extends({
+            onChange: function onChange(event) {
+              return fieldChange(event.target.value);
+            },
+            className: 'w3-input w3-border'
+          }, block),
+          fields.map(function (field) {
+            return _react2.default.createElement(
+              'option',
+              { key: field.value, value: field.value },
+              field.label
+            );
+          })
         )
       )
     ),
@@ -23344,12 +23424,19 @@ var QueryDialogView = function QueryDialogView(_ref) {
         ),
         _react2.default.createElement(
           'select',
-          { className: 'w3-input w3-border' },
-          _react2.default.createElement(
-            'option',
-            null,
-            '...'
-          )
+          _extends({
+            onChange: function onChange(event) {
+              return valueChange(event.target.value);
+            },
+            className: 'w3-input w3-border'
+          }, block),
+          values.map(function (val) {
+            return _react2.default.createElement(
+              'option',
+              { key: val },
+              val
+            );
+          })
         )
       )
     ),
@@ -23365,66 +23452,13 @@ var QueryDialogView = function QueryDialogView(_ref) {
       _react2.default.createElement(
         'ul',
         { className: 'w3-ul' },
-        _react2.default.createElement(
-          'li',
-          null,
-          'first'
-        ),
-        _react2.default.createElement(
-          'li',
-          null,
-          'second'
-        ),
-        _react2.default.createElement(
-          'li',
-          null,
-          'third'
-        ),
-        _react2.default.createElement(
-          'li',
-          null,
-          'last'
-        ),
-        _react2.default.createElement(
-          'li',
-          null,
-          'last'
-        ),
-        _react2.default.createElement(
-          'li',
-          null,
-          'last'
-        ),
-        _react2.default.createElement(
-          'li',
-          null,
-          'last'
-        ),
-        _react2.default.createElement(
-          'li',
-          null,
-          'last'
-        ),
-        _react2.default.createElement(
-          'li',
-          null,
-          'last'
-        ),
-        _react2.default.createElement(
-          'li',
-          null,
-          'last'
-        ),
-        _react2.default.createElement(
-          'li',
-          null,
-          'last'
-        ),
-        _react2.default.createElement(
-          'li',
-          null,
-          'last'
-        )
+        results.map(function (result) {
+          return _react2.default.createElement(
+            'li',
+            { key: result.gid },
+            result.name
+          );
+        })
       )
     )
   ) : _react2.default.createElement('div', { className: 'hidden' });
@@ -23446,6 +23480,7 @@ QueryDialogView.propTypes = {
   fieldChange: _propTypes2.default.func.isRequired,
   valueChange: _propTypes2.default.func.isRequired,
 
+  isLoading: _propTypes2.default.bool,
   isActive: _propTypes2.default.bool.isRequired
 };
 
@@ -23586,6 +23621,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _reactRedux = require('react-redux');
 
+var _actions = require('../actions');
+
 var _QueryDialogView = require('../components/QueryDialogView');
 
 var _QueryDialogView2 = _interopRequireDefault(_QueryDialogView);
@@ -23601,10 +23638,11 @@ var stateToProps = function stateToProps(state) {
 var actToProps = function actToProps(dispatch) {
   return {
     layerChange: function layerChange(layerName) {
-      console.log('layer change to: ' + layerName);
+      dispatch((0, _actions.storeLayerName)(layerName));
+      dispatch((0, _actions.fetchFields)(layerName));
     },
     fieldChange: function fieldChange(fieldName) {
-      console.log('field change to: ' + fieldName);
+      dispatch((0, _actions.fetchValues)(fieldName));
     },
     valueChange: function valueChange(value) {
       console.log('value change to: ' + value);
@@ -23614,7 +23652,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_QueryDialogView2.default);
 
-},{"../components/QueryDialogView":63,"react-redux":47}],68:[function(require,module,exports){
+},{"../actions":61,"../components/QueryDialogView":63,"react-redux":47}],68:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -23704,24 +23742,56 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
+var defaultSelect = {
+  value: '...',
+  label: '...'
+};
+
+var emptyResult = {
+  gid: -1,
+  name: '...'
+};
+
 var queryDialog = function queryDialog() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-    layers: [],
-    fields: [],
-    values: [],
-    results: []
+    layers: [defaultSelect],
+    fields: [defaultSelect],
+    values: ['...'],
+    results: [emptyResult]
   };
   var action = arguments[1];
 
   switch (action.type) {
     case _actions.REQUEST_LAYERS:
+    case _actions.REQUEST_FIELDS:
+    case _actions.REQUEST_VALUES:
       return _extends({}, state, {
-        loading: true
+        isLoading: true
       });
+
     case _actions.RECEIVE_LAYERS:
       return _extends({}, state, {
-        layers: [{ value: '...', label: '...' }].concat(_toConsumableArray(action.layers))
+        layers: [defaultSelect].concat(_toConsumableArray(action.layers)),
+        isLoading: false
       });
+
+    case _actions.RECEIVE_FIELDS:
+      return _extends({}, state, {
+        fields: [defaultSelect].concat(_toConsumableArray(action.fields)),
+        isLoading: false
+      });
+
+    case _actions.STORE_LAYER:
+      return _extends({}, state, {
+        layerName: action.layerName
+      });
+
+    case _actions.RECEIVE_VALUES:
+      return _extends({}, state, {
+        values: ['...'].concat(_toConsumableArray(action.values)),
+        isLoading: false
+      });
+
     default:
       return state;
   }
@@ -23733,7 +23803,7 @@ var dialogState = function dialogState() {
 
   switch (action.type) {
     default:
-      return _extends({}, state, _defineProperty({}, 'query', false));
+      return _extends({}, state, _defineProperty({}, 'query', true));
   }
 };
 
