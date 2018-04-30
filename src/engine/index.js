@@ -7,6 +7,7 @@ import { createLogger } from 'redux-logger'
 import reducer from './reducers'
 import ol from 'openlayers'
 import App from './containers/App'
+import { fetchLayers } from './actions'
 
 const middleware = [ thunk ]
 //if (process.env.NODE_ENV !== 'production') {
@@ -47,3 +48,6 @@ const map = new ol.Map({
     zoom: 17
   })
 })
+
+store.dispatch(fetchLayers())
+

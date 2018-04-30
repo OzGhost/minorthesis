@@ -23155,70 +23155,32 @@ function symbolObservablePonyfill(root) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var REQUEST_POSTS = exports.REQUEST_POSTS = 'REQUEST_POSTS';
-var RECEIVE_POSTS = exports.RECEIVE_POSTS = 'RECEIVE_POSTS';
-var SELECT_SUBREDDIT = exports.SELECT_SUBREDDIT = 'SELECT_SUBREDDIT';
-var INVALIDATE_SUREDDIT = exports.INVALIDATE_SUREDDIT = 'INVALIDATE_SUREDDIT';
+var host = 'http://localhost:3000';
 
-var selectSubreddit = exports.selectSubreddit = function selectSubreddit(subreddit) {
-  return {
-    type: SELECT_SUBREDDIT,
-    subreddit: subreddit
-  };
-};
+var REQUEST_LAYERS = exports.REQUEST_LAYERS = 'REQUEST LAYERS';
+var RECEIVE_LAYERS = exports.RECEIVE_LAYERS = 'RECEIVE LAYERS';
 
-var invalidateSubreddit = exports.invalidateSubreddit = function invalidateSubreddit(subreddit) {
-  return {
-    type: INVALIDATE_SUREDDIT,
-    subreddit: subreddit
-  };
-};
-
-var requestPosts = exports.requestPosts = function requestPosts(subreddit) {
-  return {
-    type: REQUEST_POSTS,
-    subreddit: subreddit
-  };
-};
-
-var receivePosts = exports.receivePosts = function receivePosts(subreddit, json) {
-  return {
-    type: RECEIVE_POSTS,
-    subreddit: subreddit,
-    posts: json.data.children.map(function (child) {
-      return child.data;
-    }),
-    receiveAt: Date.now()
-  };
-};
-
-var fetchPosts = function fetchPosts(subreddit) {
+var fetchLayers = exports.fetchLayers = function fetchLayers() {
   return function (dispatch) {
-    dispatch(requestPosts(subreddit));
-    return fetch('https://www.reddit.com/r/' + subreddit + '.json').then(function (response) {
-      return response.json();
+    dispatch(requestLayers());
+    return fetch(host + '/map/layers').then(function (res) {
+      return res.json();
     }).then(function (json) {
-      return dispatch(receivePosts(subreddit, json));
+      return dispatch(receiveLayers(json));
     });
   };
 };
 
-var shouldFetchPosts = function shouldFetchPosts(state, subreddit) {
-  var posts = state.postsBySubreddit[subreddit];
-  if (!posts) {
-    return true;
-  }
-  if (posts.isFetching) {
-    return false;
-  }
-  return posts.didInvalidate;
+var requestLayers = function requestLayers() {
+  return {
+    type: REQUEST_LAYERS
+  };
 };
 
-var fetchPostsIfNeeded = exports.fetchPostsIfNeeded = function fetchPostsIfNeeded(subreddit) {
-  return function (dispatch, getState) {
-    if (shouldFetchPosts(getState(), subreddit)) {
-      return dispatch(fetchPosts(subreddit));
-    }
+var receiveLayers = function receiveLayers(layers) {
+  return {
+    type: RECEIVE_LAYERS,
+    layers: layers
   };
 };
 
@@ -23304,7 +23266,7 @@ var _Dragger2 = _interopRequireDefault(_Dragger);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var QueryDialog = function QueryDialog(_ref) {
+var QueryDialogView = function QueryDialogView(_ref) {
   var layers = _ref.layers,
       fields = _ref.fields,
       values = _ref.values,
@@ -23341,11 +23303,13 @@ var QueryDialog = function QueryDialog(_ref) {
         _react2.default.createElement(
           'select',
           { className: 'w3-input w3-border' },
-          _react2.default.createElement(
-            'option',
-            null,
-            '...'
-          )
+          layers.map(function (layer) {
+            return _react2.default.createElement(
+              'option',
+              { key: layer.value, value: layer.value },
+              layer.label
+            );
+          })
         )
       ),
       _react2.default.createElement(
@@ -23466,7 +23430,7 @@ var QueryDialog = function QueryDialog(_ref) {
   ) : _react2.default.createElement('div', { className: 'hidden' });
 };
 
-QueryDialog.propTypes = {
+QueryDialogView.propTypes = {
   layers: _propTypes2.default.arrayOf(_propTypes2.default.shape({
     value: _propTypes2.default.string.isRequired,
     label: _propTypes2.default.string.isRequired
@@ -23485,7 +23449,7 @@ QueryDialog.propTypes = {
   isActive: _propTypes2.default.bool.isRequired
 };
 
-exports.default = QueryDialog;
+exports.default = QueryDialogView;
 
 },{"../common/Dragger":62,"prop-types":33,"react":55}],64:[function(require,module,exports){
 'use strict';
@@ -23567,8 +23531,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -23579,143 +23541,80 @@ var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _reactRedux = require('react-redux');
 
-var _actions = require('../actions');
-
 var _Taskbar = require('../components/Taskbar');
 
 var _Taskbar2 = _interopRequireDefault(_Taskbar);
 
-var _QueryDialog = require('../components/QueryDialog');
+var _QueryDialog = require('../containers/QueryDialog');
 
 var _QueryDialog2 = _interopRequireDefault(_QueryDialog);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var App = function (_Component) {
-  _inherits(App, _Component);
-
-  function App() {
-    var _ref;
-
-    var _temp, _this, _ret;
-
-    _classCallCheck(this, App);
-
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = App.__proto__ || Object.getPrototypeOf(App)).call.apply(_ref, [this].concat(args))), _this), _this.handleChange = function (nextSubreddit) {
-      _this.props.dispatch((0, _actions.selectSubreddit)(nextSubreddit));
-    }, _this.handeRefreshClick = function (e) {
-      e.preventDefault();
-
-      var _this$props = _this.props,
-          dispatch = _this$props.dispatch,
-          selectedSubreddit = _this$props.selectedSubreddit;
-
-      dispatch((0, _actions.invalidateSubreddit)(selectedSubreddit));
-      dispatch((0, _actions.fetchPostsIfNeeded)(selectedSubreddit));
-    }, _temp), _possibleConstructorReturn(_this, _ret);
+var indi = [{
+  icon: '../res/icon_query.png',
+  onClick: function onClick() {
+    return console.log('plan query clicked');
   }
+}, {
+  icon: '../res/icon_filter.png',
+  onClick: function onClick() {
+    return console.log('layer query clicked');
+  }
+}];
 
-  _createClass(App, [{
-    key: 'componentDidMount',
-    value: function componentDidMount() {
-      var _props = this.props,
-          dispatch = _props.dispatch,
-          selectedSubreddit = _props.selectedSubreddit;
-
-      dispatch((0, _actions.fetchPostsIfNeeded)(selectedSubreddit));
-    }
-  }, {
-    key: 'componentWillReceiveProps',
-    value: function componentWillReceiveProps(nextProps) {
-      if (nextProps.selectedSubreddit !== this.props.selectedSubreddit) {
-        var dispatch = nextProps.dispatch,
-            selectedSubreddit = nextProps.selectedSubreddit;
-
-        dispatch((0, _actions.fetchPostsIfNeeded)(selectedSubreddit));
-      }
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      var _props2 = this.props,
-          selectedSubreddit = _props2.selectedSubreddit,
-          posts = _props2.posts,
-          isFetching = _props2.isFetching,
-          lastUpdated = _props2.lastUpdated;
-
-      var isEmpty = posts.length === 0;
-      var indi = [{
-        icon: '../res/icon_query.png',
-        onClick: function onClick() {
-          return console.log('plan query clicked');
-        }
-      }, {
-        icon: '../res/icon_filter.png',
-        onClick: function onClick() {
-          return console.log('layer query clicked');
-        }
-      }];
-
-      return _react2.default.createElement(
-        'div',
-        null,
-        _react2.default.createElement('div', { id: 'map' }),
-        _react2.default.createElement(_Taskbar2.default, { indicate: indi }),
-        _react2.default.createElement(_QueryDialog2.default, {
-          onSearch: function onSearch() {
-            return console.log('noop');
-          },
-          isActive: true,
-          result: [] })
-      );
-    }
-  }]);
-
-  return App;
-}(_react.Component);
-
-App.propTypes = {
-  selectedSubreddit: _propTypes2.default.string.isRequired,
-  posts: _propTypes2.default.array.isRequired,
-  isFetching: _propTypes2.default.bool.isRequired,
-  lastUpdated: _propTypes2.default.number,
-  dispatch: _propTypes2.default.func.isRequired
+var App = function App() {
+  return _react2.default.createElement(
+    'div',
+    null,
+    _react2.default.createElement('div', { id: 'map' }),
+    _react2.default.createElement(_Taskbar2.default, { indicate: indi }),
+    _react2.default.createElement(_QueryDialog2.default, null)
+  );
 };
 
+exports.default = App;
 
-var mapStateToProps = function mapStateToProps(state) {
-  var selectedSubreddit = state.selectedSubreddit,
-      postsBySubreddit = state.postsBySubreddit;
+},{"../components/Taskbar":64,"../containers/QueryDialog":67,"prop-types":33,"react":55,"react-redux":47}],67:[function(require,module,exports){
+'use strict';
 
-  var _ref2 = postsBySubreddit[selectedSubreddit] || {
-    isFetching: true,
-    items: []
-  },
-      isFetching = _ref2.isFetching,
-      lastUpdated = _ref2.lastUpdated,
-      posts = _ref2.items;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _reactRedux = require('react-redux');
+
+var _QueryDialogView = require('../components/QueryDialogView');
+
+var _QueryDialogView2 = _interopRequireDefault(_QueryDialogView);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var stateToProps = function stateToProps(state) {
+  return _extends({}, state.queryDialog, {
+    isActive: state.dialogState['query']
+  });
+};
+
+var actToProps = function actToProps(dispatch) {
   return {
-    selectedSubreddit: selectedSubreddit,
-    posts: posts,
-    isFetching: isFetching,
-    lastUpdated: lastUpdated
+    layerChange: function layerChange(layerName) {
+      console.log('layer change to: ' + layerName);
+    },
+    fieldChange: function fieldChange(fieldName) {
+      console.log('field change to: ' + fieldName);
+    },
+    valueChange: function valueChange(value) {
+      console.log('value change to: ' + value);
+    }
   };
 };
 
-exports.default = (0, _reactRedux.connect)(mapStateToProps)(App);
+exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_QueryDialogView2.default);
 
-},{"../actions":61,"../components/QueryDialog":63,"../components/Taskbar":64,"prop-types":33,"react":55,"react-redux":47}],67:[function(require,module,exports){
+},{"../components/QueryDialogView":63,"react-redux":47}],68:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -23745,6 +23644,8 @@ var _openlayers2 = _interopRequireDefault(_openlayers);
 var _App = require('./containers/App');
 
 var _App2 = _interopRequireDefault(_App);
+
+var _actions = require('./actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -23784,7 +23685,9 @@ var map = new _openlayers2.default.Map({
   })
 });
 
-},{"./containers/App":66,"./reducers":68,"openlayers":28,"react":55,"react-dom":37,"react-redux":47,"redux":58,"redux-logger":56,"redux-thunk":57}],68:[function(require,module,exports){
+store.dispatch((0, _actions.fetchLayers)());
+
+},{"./actions":61,"./containers/App":66,"./reducers":69,"openlayers":28,"react":55,"react-dom":37,"react-redux":47,"redux":58,"redux-logger":56,"redux-thunk":57}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23799,67 +23702,46 @@ var _actions = require('../actions');
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var selectedSubreddit = function selectedSubreddit() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'reactjs';
-  var action = arguments[1];
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-  switch (action.type) {
-    case _actions.SELECT_SUBREDDIT:
-      return action.subreddit;
-    default:
-      return state;
-  }
-};
-
-var posts = function posts() {
+var queryDialog = function queryDialog() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-    isFetching: false,
-    didInvalidate: false,
-    items: []
+    layers: [],
+    fields: [],
+    values: [],
+    results: []
   };
   var action = arguments[1];
 
   switch (action.type) {
-    case _actions.INVALIDATE_SUREDDIT:
+    case _actions.REQUEST_LAYERS:
       return _extends({}, state, {
-        didInvalidate: true
+        loading: true
       });
-    case _actions.REQUEST_POSTS:
+    case _actions.RECEIVE_LAYERS:
       return _extends({}, state, {
-        isFetching: true,
-        didInvalidate: false
-      });
-    case _actions.RECEIVE_POSTS:
-      return _extends({}, state, {
-        isFetching: false,
-        didInvalidate: false,
-        items: action.posts,
-        lastUpdated: action.receiveAt
+        layers: [{ value: '...', label: '...' }].concat(_toConsumableArray(action.layers))
       });
     default:
       return state;
   }
 };
 
-var postsBySubreddit = function postsBySubreddit() {
+var dialogState = function dialogState() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var action = arguments[1];
 
   switch (action.type) {
-    case _actions.INVALIDATE_SUREDDIT:
-    case _actions.RECEIVE_POSTS:
-    case _actions.REQUEST_POSTS:
-      return _extends({}, state, _defineProperty({}, action.subreddit, posts(state[action.subreddit], action)));
     default:
-      return state;
+      return _extends({}, state, _defineProperty({}, 'query', false));
   }
 };
 
 var rootReducer = (0, _redux.combineReducers)({
-  postsBySubreddit: postsBySubreddit,
-  selectedSubreddit: selectedSubreddit
+  queryDialog: queryDialog,
+  dialogState: dialogState
 });
 
 exports.default = rootReducer;
 
-},{"../actions":61,"redux":58}]},{},[67]);
+},{"../actions":61,"redux":58}]},{},[68]);

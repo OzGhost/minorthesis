@@ -1,66 +1,47 @@
 
 import { combineReducers } from 'redux'
 import {
-  SELECT_SUBREDDIT, INVALIDATE_SUREDDIT,
-  REQUEST_POSTS, RECEIVE_POSTS
+  REQUEST_LAYERS, RECEIVE_LAYERS
 } from '../actions'
 
-const selectedSubreddit = (state = 'reactjs', action) => {
-  switch(action.type) {
-    case SELECT_SUBREDDIT:
-      return action.subreddit
-    default:
-      return state
-  }
-}
-
-const posts = (state = {
-  isFetching: false,
-  didInvalidate: false,
-  items: []
-}, action) => {
+const queryDialog = (state = {
+                                layers: [],
+                                fields: [],
+                                values: [],
+                                results: []
+                    }, action) => {
   switch (action.type) {
-    case INVALIDATE_SUREDDIT:
+    case REQUEST_LAYERS:
       return {
         ...state,
-        didInvalidate: true
+        loading: true
       }
-    case REQUEST_POSTS:
+    case RECEIVE_LAYERS:
       return {
         ...state,
-        isFetching: true,
-        didInvalidate: false
-      }
-    case RECEIVE_POSTS:
-      return {
-        ...state,
-        isFetching: false,
-        didInvalidate: false,
-        items: action.posts,
-        lastUpdated: action.receiveAt
+        layers: [
+          { value: '...', label: '...' },
+          ...action.layers
+        ]
       }
     default:
       return state
   }
 }
 
-const postsBySubreddit = (state = {}, action) => {
+const dialogState = (state = {}, action) => {
   switch (action.type) {
-    case INVALIDATE_SUREDDIT:
-    case RECEIVE_POSTS:
-    case REQUEST_POSTS:
+    default:
       return {
         ...state,
-        [action.subreddit]: posts(state[action.subreddit], action)
+        ['query']: false
       }
-    default:
-      return state
   }
 }
 
 const rootReducer = combineReducers({
-  postsBySubreddit,
-  selectedSubreddit
+  queryDialog,
+  dialogState
 })
 
 export default rootReducer

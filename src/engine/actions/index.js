@@ -1,52 +1,21 @@
-export const REQUEST_POSTS = 'REQUEST_POSTS'
-export const RECEIVE_POSTS = 'RECEIVE_POSTS'
-export const SELECT_SUBREDDIT = 'SELECT_SUBREDDIT'
-export const INVALIDATE_SUREDDIT = 'INVALIDATE_SUREDDIT'
+const host = 'http://localhost:3000'
 
-export const selectSubreddit = subreddit => ({
-  type: SELECT_SUBREDDIT,
-  subreddit
-})
+export const REQUEST_LAYERS = 'REQUEST LAYERS'
+export const RECEIVE_LAYERS = 'RECEIVE LAYERS'
 
-export const invalidateSubreddit = subreddit => ({
-  type: INVALIDATE_SUREDDIT,
-  subreddit
-})
-
-export const requestPosts = subreddit => ({
-  type: REQUEST_POSTS,
-  subreddit
-})
-
-export const receivePosts = (subreddit, json) => ({
-  type: RECEIVE_POSTS,
-  subreddit,
-  posts: json.data.children.map(child => child.data),
-  receiveAt: Date.now()
-})
-
-const fetchPosts = subreddit => dispatch => {
-  dispatch(requestPosts(subreddit))
-  return fetch('https://www.reddit.com/r/'+subreddit+'.json')
-    .then(response => response.json())
-    .then(json => dispatch(receivePosts(subreddit, json)))
+export const fetchLayers = () => dispatch => {
+  dispatch(requestLayers())
+  return fetch(host + '/map/layers')
+      .then(res => res.json())
+      .then(json => dispatch(receiveLayers(json)))
 }
 
-const shouldFetchPosts = (state, subreddit) => {
-  const posts = state.postsBySubreddit[subreddit]
-  if (!posts) {
-    return true
-  }
-  if (posts.isFetching) {
-    return false
-  }
-  return posts.didInvalidate
-}
+const requestLayers = () => ({
+  type: REQUEST_LAYERS
+})
 
-export const fetchPostsIfNeeded = subreddit => (dispatch, getState) => {
-  if (shouldFetchPosts(getState(), subreddit)) {
-    return dispatch(fetchPosts(subreddit))
-  }
-}
-
+const receiveLayers = layers => ({
+  type: RECEIVE_LAYERS,
+  layers
+})
 

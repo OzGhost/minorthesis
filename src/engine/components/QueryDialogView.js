@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import mouseStart from '../common/Dragger'
 
-const QueryDialog = ({
+const QueryDialogView = ({
   layers, fields, values, results,
   layerChange, fieldChange, valueChange,
   isActive
@@ -19,7 +19,9 @@ const QueryDialog = ({
       <div className="w3-col s6">
         <label>Layer:</label>
         <select className="w3-input w3-border">
-          <option>...</option>
+          { layers.map( layer => (
+            <option key={layer.value} value={layer.value}>{layer.label}</option>)
+          ) }
         </select>
       </div>
       <div className="w3-col s6">
@@ -58,7 +60,7 @@ const QueryDialog = ({
   </div>
 ) : <div className="hidden"></div>
 
-QueryDialog.propTypes = {
+QueryDialogView.propTypes = {
   layers: PropTypes.arrayOf(PropTypes.shape({
       value: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired
@@ -77,6 +79,6 @@ QueryDialog.propTypes = {
   isActive: PropTypes.bool.isRequired
 }
 
-export default QueryDialog
+export default QueryDialogView
 
 
