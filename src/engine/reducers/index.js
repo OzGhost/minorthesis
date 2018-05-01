@@ -4,14 +4,15 @@ import {
   REQUEST_LAYERS, RECEIVE_LAYERS,
   REQUEST_FIELDS, RECEIVE_FIELDS,
   REQUEST_VALUES, RECEIVE_VALUES,
-  STORE_LAYER
+  STORE_LAYER, STORE_FIELD,
+  OPEN_DIALOG, CLOSE_DIALOG,
+  QUERING, RECEIVE_QUERY_RESULT
 } from '../actions'
 
 const defaultSelect = {
   value: '...',
   label: '...'
 }
-
 const emptyResult = {
   gid: -1,
   name: '...'
@@ -27,6 +28,7 @@ const queryDialog = (state = {
     case REQUEST_LAYERS:
     case REQUEST_FIELDS:
     case REQUEST_VALUES:
+    case QUERING:
       return {
         ...state,
         isLoading: true
@@ -68,6 +70,19 @@ const queryDialog = (state = {
         isLoading: false
       }
 
+    case STORE_FIELD:
+      return {
+        ...state,
+        fieldName: action.fieldName
+      }
+
+    case RECEIVE_QUERY_RESULT:
+      return {
+        ...state,
+        results: action.results,
+        isLoading: false
+      }
+
     default:
       return state
   }
@@ -75,11 +90,21 @@ const queryDialog = (state = {
 
 const dialogState = (state = {}, action) => {
   switch (action.type) {
-    default:
+
+    case OPEN_DIALOG:
       return {
         ...state,
-        ['query']: true
+        [action.dialogName]: true
       }
+    
+    case CLOSE_DIALOG:
+      return {
+        ...state,
+        [action.dialogName]: false
+      }
+      
+    default:
+      return state
   }
 }
 

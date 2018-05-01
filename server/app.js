@@ -52,26 +52,8 @@ app.get('/map/layers/:layerName/fields/:field/values', (req, res) => {
 const connectString = 'postgresql://oz:ngaymai@localhost:5432/mydb'
 
 app.get('/map/layers/:layerName/fields/:field/values/:val', (req, res) => {
-  let qrs = []
-
-  const client = new pg.Client(connectString)
-  client.connect()
-  const query = client.query('SELECT gid, tenchu, kh2003 from thua_dat limit 3')
-
-  query.on('row', row => {
-    qrs = [...qrs, row]
-  })
-  
-  query.on('end', () => {
-    done();
-    return res.json(qrs)
-  })
-  
-})
-
-app.get('/noop', (req, res) => {
   const pool = new Pool()
-  pool.query('select gid, tenchu, ST_asGeoJSON(geom) as geo from thua_dat limit 3', (err, result) => {
+  pool.query('select gid, tenchu as name, ST_asGeoJSON(geom) as geo from thua_dat limit 3', (err, result) => {
     res.json(result.rows)
     pool.end()
   })

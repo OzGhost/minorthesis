@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import TaskbarIcon from './TaskbarIcon'
 
-const Taskbar = ({ indicate }) => (
+const TaskbarView = ({ indicate }) => (
   <div className="taskbar">
     { indicate.map( (obj, i) =>
       <TaskbarIcon key={i} {...obj} />
@@ -10,7 +10,7 @@ const Taskbar = ({ indicate }) => (
   </div>
 )
 
-Taskbar.propTypes = {
+TaskbarView.propTypes = {
   indicate: PropTypes.arrayOf(
     PropTypes.shape({
       icon: PropTypes.string.isRequired,
@@ -19,5 +19,5 @@ Taskbar.propTypes = {
   ).isRequired
 }
 
-export default Taskbar
+export default TaskbarView
 

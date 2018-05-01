@@ -23157,6 +23157,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 var host = 'http://localhost:3000';
 
+var OPEN_DIALOG = exports.OPEN_DIALOG = 'OPEN DIALGO';
+var CLOSE_DIALOG = exports.CLOSE_DIALOG = 'CLOSE DIALGO';
+
 var REQUEST_LAYERS = exports.REQUEST_LAYERS = 'REQUEST LAYERS';
 var RECEIVE_LAYERS = exports.RECEIVE_LAYERS = 'RECEIVE LAYERS';
 
@@ -23167,6 +23170,24 @@ var REQUEST_VALUES = exports.REQUEST_VALUES = 'REQUEST VALUES';
 var RECEIVE_VALUES = exports.RECEIVE_VALUES = 'RECEIVE VALUES';
 
 var STORE_LAYER = exports.STORE_LAYER = 'STORE LAYER NAME';
+var STORE_FIELD = exports.STORE_FIELD = 'STORE FIELD NAME';
+
+var QUERING = exports.QUERING = 'QUERY-ING';
+var RECEIVE_QUERY_RESULT = exports.RECEIVE_QUERY_RESULT = 'RECEIVE QUERY RESULT';
+
+var openDialog = exports.openDialog = function openDialog(dialogName) {
+  return {
+    type: OPEN_DIALOG,
+    dialogName: dialogName
+  };
+};
+
+var closeDialog = exports.closeDialog = function closeDialog(dialogName) {
+  return {
+    type: CLOSE_DIALOG,
+    dialogName: dialogName
+  };
+};
 
 var fetchLayers = exports.fetchLayers = function fetchLayers() {
   return function (dispatch) {
@@ -23223,6 +23244,13 @@ var receiveFields = function receiveFields(fields) {
   };
 };
 
+var storeFieldName = exports.storeFieldName = function storeFieldName(fieldName) {
+  return {
+    type: STORE_FIELD,
+    fieldName: fieldName
+  };
+};
+
 var fetchValues = exports.fetchValues = function fetchValues(fieldName) {
   return function (dispatch, getState) {
     dispatch(requestValues());
@@ -23244,6 +23272,31 @@ var receiveValues = function receiveValues(values) {
   return {
     type: RECEIVE_VALUES,
     values: values
+  };
+};
+
+var performQuery = exports.performQuery = function performQuery(value) {
+  return function (dispatch, getState) {
+    dispatch(queryPerforming());
+    var localState = getState().queryDialog;
+    return fetch(host + '/map/layers/' + localState.layerName + '/fields/' + localState.fieldName + '/values/' + value).then(function (res) {
+      return res.json();
+    }).then(function (json) {
+      return dispatch(receiveQueryResult(json));
+    });
+  };
+};
+
+var queryPerforming = function queryPerforming() {
+  return {
+    type: QUERING
+  };
+};
+
+var receiveQueryResult = function receiveQueryResult(results) {
+  return {
+    type: RECEIVE_QUERY_RESULT,
+    results: results
   };
 };
 
@@ -23315,6 +23368,87 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _openlayers = require('openlayers');
+
+var _openlayers2 = _interopRequireDefault(_openlayers);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Mapper = function Mapper() {
+  var _this = this;
+
+  _classCallCheck(this, Mapper);
+
+  this.map = {};
+  this.view = {};
+  this.mainLayer = {};
+  this.overlaySource = {};
+  this.format = new _openlayers2.default.format.GeoJSON();
+
+  this.init = function () {
+    _this.mainLayer = new _openlayers2.default.layer.Tile({
+      source: new _openlayers2.default.source.TileWMS({
+        url: 'http://localhost/cgi-bin/mapserv',
+        params: {
+          'map': '/zk/t/tmp/full/dbms.map',
+          'SERVICE': 'WMS',
+          'VERSION': '1.1.1',
+          'REQUEST': 'GetMap',
+          'LAYERS': 'thuadat',
+          'FORMAT': 'image/png'
+        }
+      })
+    });
+
+    _this.overlaySource = new _openlayers2.default.source.Vector({
+      format: _this.format
+    });
+
+    var overlay = new _openlayers2.default.layer.Vector({
+      source: _this.overlaySource,
+      opacity: 0.5,
+      style: new _openlayers2.default.style.Style({
+        fill: new _openlayers2.default.style.Fill({
+          color: 'red'
+        }),
+        stroke: new _openlayers2.default.style.Stroke({
+          color: 'green',
+          width: 1
+        })
+      })
+    });
+
+    _this.view = new _openlayers2.default.View({
+      center: [574500.4, 1320837.6],
+      zoom: 17
+    });
+
+    _this.map = new _openlayers2.default.Map({
+      layers: [_this.mainLayer, overlay],
+      target: 'map',
+      view: _this.view
+    });
+  };
+
+  this.viewTarget = function (target) {
+    var feature = _this.format.readFeature(JSON.parse(target.geo));
+    _this.overlaySource.clear();
+    _this.overlaySource.addFeature(feature);
+    _this.view.fit(feature.getGeometry(), { size: _this.map.getSize() });
+  };
+};
+
+exports.default = new Mapper();
+
+},{"openlayers":28}],64:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _react = require('react');
@@ -23339,16 +23473,20 @@ var QueryDialogView = function QueryDialogView(_ref) {
       layerChange = _ref.layerChange,
       fieldChange = _ref.fieldChange,
       valueChange = _ref.valueChange,
+      viewDetail = _ref.viewDetail,
+      onClose = _ref.onClose,
       isLoading = _ref.isLoading,
       isActive = _ref.isActive;
 
   var block = { disabled: isLoading };
-  return isActive ? _react2.default.createElement(
+  var styleClass = 'dialog query-dialog' + (isActive ? '' : ' hidden');
+  return _react2.default.createElement(
     'div',
     {
-      className: 'dialog query-dialog',
+      className: styleClass,
       style: { top: '240px', left: '80px' }
     },
+    _react2.default.createElement('span', { className: 'close-btn', onClick: onClose }),
     _react2.default.createElement('div', { className: 'dragger', onMouseDown: _Dragger2.default }),
     _react2.default.createElement('img', { className: 'dialog-icon', src: '../res/icon_query.png' }),
     _react2.default.createElement(
@@ -23455,13 +23593,15 @@ var QueryDialogView = function QueryDialogView(_ref) {
         results.map(function (result) {
           return _react2.default.createElement(
             'li',
-            { key: result.gid },
+            { key: result.gid, onClick: function onClick() {
+                return viewDetail(result);
+              } },
             result.name
           );
         })
       )
     )
-  ) : _react2.default.createElement('div', { className: 'hidden' });
+  );
 };
 
 QueryDialogView.propTypes = {
@@ -23479,57 +23619,16 @@ QueryDialogView.propTypes = {
   layerChange: _propTypes2.default.func.isRequired,
   fieldChange: _propTypes2.default.func.isRequired,
   valueChange: _propTypes2.default.func.isRequired,
+  viewDetail: _propTypes2.default.func.isRequired,
+  onClose: _propTypes2.default.func,
 
   isLoading: _propTypes2.default.bool,
-  isActive: _propTypes2.default.bool.isRequired
+  isActive: _propTypes2.default.bool
 };
 
 exports.default = QueryDialogView;
 
-},{"../common/Dragger":62,"prop-types":33,"react":55}],64:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _react = require('react');
-
-var _react2 = _interopRequireDefault(_react);
-
-var _propTypes = require('prop-types');
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
-var _TaskbarIcon = require('./TaskbarIcon');
-
-var _TaskbarIcon2 = _interopRequireDefault(_TaskbarIcon);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Taskbar = function Taskbar(_ref) {
-  var indicate = _ref.indicate;
-  return _react2.default.createElement(
-    'div',
-    { className: 'taskbar' },
-    indicate.map(function (obj, i) {
-      return _react2.default.createElement(_TaskbarIcon2.default, _extends({ key: i }, obj));
-    })
-  );
-};
-
-Taskbar.propTypes = {
-  indicate: _propTypes2.default.arrayOf(_propTypes2.default.shape({
-    icon: _propTypes2.default.string.isRequired,
-    onClick: _propTypes2.default.func.isRequired
-  }).isRequired).isRequired
-};
-
-exports.default = Taskbar;
-
-},{"./TaskbarIcon":65,"prop-types":33,"react":55}],65:[function(require,module,exports){
+},{"../common/Dragger":62,"prop-types":33,"react":55}],65:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23566,6 +23665,49 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _TaskbarIcon = require('./TaskbarIcon');
+
+var _TaskbarIcon2 = _interopRequireDefault(_TaskbarIcon);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var TaskbarView = function TaskbarView(_ref) {
+  var indicate = _ref.indicate;
+  return _react2.default.createElement(
+    'div',
+    { className: 'taskbar' },
+    indicate.map(function (obj, i) {
+      return _react2.default.createElement(_TaskbarIcon2.default, _extends({ key: i }, obj));
+    })
+  );
+};
+
+TaskbarView.propTypes = {
+  indicate: _propTypes2.default.arrayOf(_propTypes2.default.shape({
+    icon: _propTypes2.default.string.isRequired,
+    onClick: _propTypes2.default.func.isRequired
+  }).isRequired).isRequired
+};
+
+exports.default = TaskbarView;
+
+},{"./TaskbarIcon":65,"prop-types":33,"react":55}],67:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -23576,7 +23718,7 @@ var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _reactRedux = require('react-redux');
 
-var _Taskbar = require('../components/Taskbar');
+var _Taskbar = require('../containers/Taskbar');
 
 var _Taskbar2 = _interopRequireDefault(_Taskbar);
 
@@ -23586,31 +23728,19 @@ var _QueryDialog2 = _interopRequireDefault(_QueryDialog);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var indi = [{
-  icon: '../res/icon_query.png',
-  onClick: function onClick() {
-    return console.log('plan query clicked');
-  }
-}, {
-  icon: '../res/icon_filter.png',
-  onClick: function onClick() {
-    return console.log('layer query clicked');
-  }
-}];
-
 var App = function App() {
   return _react2.default.createElement(
     'div',
     null,
     _react2.default.createElement('div', { id: 'map' }),
-    _react2.default.createElement(_Taskbar2.default, { indicate: indi }),
+    _react2.default.createElement(_Taskbar2.default, null),
     _react2.default.createElement(_QueryDialog2.default, null)
   );
 };
 
 exports.default = App;
 
-},{"../components/Taskbar":64,"../containers/QueryDialog":67,"prop-types":33,"react":55,"react-redux":47}],67:[function(require,module,exports){
+},{"../containers/QueryDialog":68,"../containers/Taskbar":69,"prop-types":33,"react":55,"react-redux":47}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23627,6 +23757,10 @@ var _QueryDialogView = require('../components/QueryDialogView');
 
 var _QueryDialogView2 = _interopRequireDefault(_QueryDialogView);
 
+var _Mapper = require('../common/Mapper');
+
+var _Mapper2 = _interopRequireDefault(_Mapper);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var stateToProps = function stateToProps(state) {
@@ -23642,17 +23776,66 @@ var actToProps = function actToProps(dispatch) {
       dispatch((0, _actions.fetchFields)(layerName));
     },
     fieldChange: function fieldChange(fieldName) {
+      dispatch((0, _actions.storeFieldName)(fieldName));
       dispatch((0, _actions.fetchValues)(fieldName));
     },
     valueChange: function valueChange(value) {
-      console.log('value change to: ' + value);
+      dispatch((0, _actions.performQuery)(value));
+    },
+    viewDetail: function viewDetail(result) {
+      _Mapper2.default.viewTarget(result);
+    },
+    onClose: function onClose() {
+      return dispatch((0, _actions.closeDialog)('query'));
     }
   };
 };
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_QueryDialogView2.default);
 
-},{"../actions":61,"../components/QueryDialogView":63,"react-redux":47}],68:[function(require,module,exports){
+},{"../actions":61,"../common/Mapper":63,"../components/QueryDialogView":64,"react-redux":47}],69:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRedux = require('react-redux');
+
+var _TaskbarView = require('../components/TaskbarView');
+
+var _TaskbarView2 = _interopRequireDefault(_TaskbarView);
+
+var _actions = require('../actions');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var stateToProps = function stateToProps(state) {
+  return {};
+};
+
+var actToProps = function actToProps(dispatch) {
+  var indicate = [{
+    icon: '../res/icon_query.png',
+    onClick: function onClick() {
+      return dispatch((0, _actions.openDialog)('query'));
+    }
+  }, {
+    icon: '../res/icon_filter.png',
+    onClick: function onClick() {
+      return console.log('Filter icon clicked');
+    }
+  }];
+  return { indicate: indicate };
+};
+
+exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_TaskbarView2.default);
+
+},{"../actions":61,"../components/TaskbarView":66,"react":55,"react-redux":47}],70:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -23675,15 +23858,15 @@ var _reducers = require('./reducers');
 
 var _reducers2 = _interopRequireDefault(_reducers);
 
-var _openlayers = require('openlayers');
-
-var _openlayers2 = _interopRequireDefault(_openlayers);
-
 var _App = require('./containers/App');
 
 var _App2 = _interopRequireDefault(_App);
 
 var _actions = require('./actions');
+
+var _Mapper = require('./common/Mapper');
+
+var _Mapper2 = _interopRequireDefault(_Mapper);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -23700,32 +23883,11 @@ var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.a
   _react2.default.createElement(_App2.default, null)
 ), document.getElementById('frame'));
 
-var wmsLayer = new _openlayers2.default.layer.Tile({
-  source: new _openlayers2.default.source.TileWMS({
-    url: 'http://localhost/cgi-bin/mapserv',
-    params: {
-      'map': '/zk/t/tmp/full/dbms.map',
-      'SERVICE': 'WMS',
-      'VERSION': '1.1.1',
-      'REQUEST': 'GetMap',
-      'LAYERS': 'thuadat',
-      'FORMAT': 'image/png'
-    }
-  })
-});
-
-var map = new _openlayers2.default.Map({
-  layers: [wmsLayer],
-  target: 'map',
-  view: new _openlayers2.default.View({
-    center: [574500.4, 1320837.6],
-    zoom: 17
-  })
-});
-
 store.dispatch((0, _actions.fetchLayers)());
 
-},{"./actions":61,"./containers/App":66,"./reducers":69,"openlayers":28,"react":55,"react-dom":37,"react-redux":47,"redux":58,"redux-logger":56,"redux-thunk":57}],69:[function(require,module,exports){
+_Mapper2.default.init();
+
+},{"./actions":61,"./common/Mapper":63,"./containers/App":67,"./reducers":71,"react":55,"react-dom":37,"react-redux":47,"redux":58,"redux-logger":56,"redux-thunk":57}],71:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23746,7 +23908,6 @@ var defaultSelect = {
   value: '...',
   label: '...'
 };
-
 var emptyResult = {
   gid: -1,
   name: '...'
@@ -23765,6 +23926,7 @@ var queryDialog = function queryDialog() {
     case _actions.REQUEST_LAYERS:
     case _actions.REQUEST_FIELDS:
     case _actions.REQUEST_VALUES:
+    case _actions.QUERING:
       return _extends({}, state, {
         isLoading: true
       });
@@ -23792,6 +23954,17 @@ var queryDialog = function queryDialog() {
         isLoading: false
       });
 
+    case _actions.STORE_FIELD:
+      return _extends({}, state, {
+        fieldName: action.fieldName
+      });
+
+    case _actions.RECEIVE_QUERY_RESULT:
+      return _extends({}, state, {
+        results: action.results,
+        isLoading: false
+      });
+
     default:
       return state;
   }
@@ -23802,8 +23975,15 @@ var dialogState = function dialogState() {
   var action = arguments[1];
 
   switch (action.type) {
+
+    case _actions.OPEN_DIALOG:
+      return _extends({}, state, _defineProperty({}, action.dialogName, true));
+
+    case _actions.CLOSE_DIALOG:
+      return _extends({}, state, _defineProperty({}, action.dialogName, false));
+
     default:
-      return _extends({}, state, _defineProperty({}, 'query', true));
+      return state;
   }
 };
 
@@ -23814,4 +23994,4 @@ var rootReducer = (0, _redux.combineReducers)({
 
 exports.default = rootReducer;
 
-},{"../actions":61,"redux":58}]},{},[68]);
+},{"../actions":61,"redux":58}]},{},[70]);

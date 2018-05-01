@@ -1,7 +1,18 @@
 .hidden {
   display: none; }
 
-.noselect, .dialog .dialog-title {
+.noselect, .taskbar img, .dialog .dialog-title {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none; }
+
+.hidden {
+  display: none; }
+
+.noselect, .taskbar img, .dialog .dialog-title {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -36,7 +47,7 @@
 .hidden {
   display: none; }
 
-.noselect, .dialog .dialog-title {
+.noselect, .taskbar img, .dialog .dialog-title {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -74,6 +85,25 @@
     width: 100%;
     height: 45px;
     z-index: 11; }
+  .dialog .close-btn {
+    display: block;
+    position: absolute;
+    z-index: 12;
+    top: -3px;
+    right: 8px; }
+    .dialog .close-btn:before, .dialog .close-btn:after {
+      content: "";
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 15px;
+      height: 5px;
+      background: red; }
+    .dialog .close-btn:before {
+      transform: rotate(-45deg); }
+    .dialog .close-btn:after {
+      transform: rotate(45deg); }
   .dialog hr {
     margin: 8px 0; }
 

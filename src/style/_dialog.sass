@@ -36,6 +36,29 @@
     height: 45px
     z-index: $dialog-normal-layer + 1
 
+  .close-btn
+    display: block
+    position: absolute
+    z-index: $dialog-normal-layer + 2
+    top: -3px
+    right: 8px
+
+    &:before, &:after
+      content: ""
+      display: block
+      position: absolute
+      top: 0
+      left: 0
+      width: 15px
+      height: 5px
+      background: red
+
+    &:before
+      transform: rotate(-45deg)
+
+    &:after
+      transform: rotate(45deg)
+
   hr
     margin: 8px 0
     

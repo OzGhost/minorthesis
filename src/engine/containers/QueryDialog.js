@@ -1,6 +1,11 @@
 import { connect } from 'react-redux'
-import { fetchFields, storeLayerName, fetchValues } from '../actions'
+import {
+  fetchFields, storeLayerName, fetchValues, storeFieldName,
+  performQuery,
+  closeDialog
+} from '../actions'
 import QueryDialogView from '../components/QueryDialogView'
+import Mapper from '../common/Mapper'
 
 const stateToProps = state => ({
   ...state.queryDialog,
@@ -12,8 +17,15 @@ const actToProps = dispatch => ({
     dispatch(storeLayerName(layerName))
     dispatch(fetchFields(layerName))
   },
-  fieldChange: (fieldName) => { dispatch(fetchValues(fieldName)) },
-  valueChange: (value) => { console.log('value change to: ' + value) }
+  fieldChange: (fieldName) => {
+    dispatch(storeFieldName(fieldName))
+    dispatch(fetchValues(fieldName))
+  },
+  valueChange: value => { dispatch(performQuery(value)) },
+  viewDetail: result => {
+    Mapper.viewTarget(result)
+  },
+  onClose: () => dispatch(closeDialog('query'))
 })
 
 export default connect(stateToProps, actToProps)(QueryDialogView)

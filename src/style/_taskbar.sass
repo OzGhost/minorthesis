@@ -1,3 +1,5 @@
+@import common
+
 $taskbar-bottom-width: 6px
 $taskbar-slice-width: 10px
 $side-heigth: 30px
@@ -24,6 +26,7 @@ $side-heigth: 30px
     padding: 0
     cursor: pointer
     transition: all .2s ease
+    @extend %ban-select
 
     &:hover
       width: 140%

@@ -4,15 +4,17 @@ import mouseStart from '../common/Dragger'
 
 const QueryDialogView = ({
   layers, fields, values, results,
-  layerChange, fieldChange, valueChange,
+  layerChange, fieldChange, valueChange, viewDetail, onClose,
   isLoading, isActive
 }) => {
   const block = { disabled: isLoading }
-  return isActive ? (
+  const styleClass = 'dialog query-dialog' + (isActive ? '' : ' hidden')
+  return (
     <div
-        className="dialog query-dialog"
+        className={styleClass}
         style={{ top: '240px', left: '80px' }}
     >
+      <span className="close-btn" onClick={onClose}></span>
       <div className="dragger" onMouseDown={mouseStart}></div>
       <img className="dialog-icon" src="../res/icon_query.png" />
       <p className="dialog-title">Property Query</p>
@@ -62,12 +64,14 @@ const QueryDialogView = ({
         <label>Results:</label>
         <ul className="w3-ul">
           { results.map( result => (
-            <li key={result.gid}>{result.name}</li>
+            <li key={result.gid} onClick={ () => viewDetail(result) }>
+              {result.name}
+            </li>
           ) ) }
         </ul>
       </div>
     </div>
-    ) : <div className="hidden"></div>
+  )
 }
   
 QueryDialogView.propTypes = {
@@ -85,9 +89,11 @@ layers: PropTypes.arrayOf(PropTypes.shape({
   layerChange: PropTypes.func.isRequired,
   fieldChange: PropTypes.func.isRequired,
   valueChange: PropTypes.func.isRequired,
+  viewDetail: PropTypes.func.isRequired,
+  onClose: PropTypes.func,
 
   isLoading: PropTypes.bool,
-  isActive: PropTypes.bool.isRequired
+  isActive: PropTypes.bool
 }
 
 export default QueryDialogView
