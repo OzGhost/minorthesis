@@ -30,7 +30,7 @@ class Mapper {
 
     const overlay = new ol.layer.Vector({
       source: this.overlaySource,
-      opacity: 0.5,
+      opacity: 0.3,
       style: new ol.style.Style({
         fill: new ol.style.Fill({
           color: 'red'
