@@ -18,6 +18,10 @@ export const STORE_FIELD = 'STORE FIELD NAME'
 export const QUERING = 'QUERY-ING'
 export const RECEIVE_QUERY_RESULT = 'RECEIVE QUERY RESULT'
 
+export const OPEN_DETAIL = 'OPEN DETAIL DIALOG'
+
+export const TOGGLE_LAYER = 'TOGGLE LAYER'
+
 export const openDialog = dialogName => ({
   type: OPEN_DIALOG,
   dialogName
@@ -112,3 +116,13 @@ const receiveQueryResult = results => ({
   results
 })
 
+export const openDetail = object => ({
+  type: OPEN_DETAIL,
+  object
+})
+
+
+export const toggleLayer = layer => ({
+  type: TOGGLE_LAYER,
+  layer
+})

@@ -10,11 +10,7 @@ app.all('*', (req, res, next) => {
 app.get('/map/layers', (req, res) => {
   var layers = [
     { value: 'thuadat', label: 'Thua Dat' },
-    { value: 'chusudung', label: 'Chu Su Dung' },
-    { value: 'giaychungnhan', label: 'Giay Chung Nhan' },
-    { value: 'quyhoach', label: 'Qui Hoach' },
-    { value: 'dattochuc', label: 'Dat To Chuc' },
-    { value: 'datduan', label: 'Dat Du An' }
+    { value: 'gt', label: 'Giao Thong' }
   ]
   res.json(layers)
 })

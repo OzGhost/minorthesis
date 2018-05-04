@@ -23175,6 +23175,10 @@ var STORE_FIELD = exports.STORE_FIELD = 'STORE FIELD NAME';
 var QUERING = exports.QUERING = 'QUERY-ING';
 var RECEIVE_QUERY_RESULT = exports.RECEIVE_QUERY_RESULT = 'RECEIVE QUERY RESULT';
 
+var OPEN_DETAIL = exports.OPEN_DETAIL = 'OPEN DETAIL DIALOG';
+
+var TOGGLE_LAYER = exports.TOGGLE_LAYER = 'TOGGLE LAYER';
+
 var openDialog = exports.openDialog = function openDialog(dialogName) {
   return {
     type: OPEN_DIALOG,
@@ -23300,6 +23304,20 @@ var receiveQueryResult = function receiveQueryResult(results) {
   };
 };
 
+var openDetail = exports.openDetail = function openDetail(object) {
+  return {
+    type: OPEN_DETAIL,
+    object: object
+  };
+};
+
+var toggleLayer = exports.toggleLayer = function toggleLayer(layer) {
+  return {
+    type: TOGGLE_LAYER,
+    layer: layer
+  };
+};
+
 },{}],62:[function(require,module,exports){
 'use strict';
 
@@ -23387,19 +23405,9 @@ var Mapper = function Mapper() {
   this.overlaySource = {};
   this.format = new _openlayers2.default.format.GeoJSON();
 
-  this.init = function () {
+  this.init = function (layers) {
     _this.mainLayer = new _openlayers2.default.layer.Tile({
-      source: new _openlayers2.default.source.TileWMS({
-        url: 'http://localhost/cgi-bin/mapserv',
-        params: {
-          'map': '/zk/t/tmp/full/dbms.map',
-          'SERVICE': 'WMS',
-          'VERSION': '1.1.1',
-          'REQUEST': 'GetMap',
-          'LAYERS': 'thuadat',
-          'FORMAT': 'image/png'
-        }
-      })
+      source: _this.createMainLayerSource(layers)
     });
 
     _this.overlaySource = new _openlayers2.default.source.Vector({
@@ -23408,7 +23416,7 @@ var Mapper = function Mapper() {
 
     var overlay = new _openlayers2.default.layer.Vector({
       source: _this.overlaySource,
-      opacity: 0.5,
+      opacity: 0.3,
       style: new _openlayers2.default.style.Style({
         fill: new _openlayers2.default.style.Fill({
           color: 'red'
@@ -23432,17 +23440,236 @@ var Mapper = function Mapper() {
     });
   };
 
+  this.createMainLayerSource = function (layers) {
+    var params = {
+      'map': '/zk/t/tmp/full/dbms.map',
+      'SERVICE': 'WMS',
+      'VERSION': '1.1.1',
+      'REQUEST': 'GetMap',
+      'FORMAT': 'image/png',
+      'LAYERS': layers ? layers.join(',') : 'thuadat'
+    };
+    return new _openlayers2.default.source.TileWMS({
+      url: 'http://localhost/cgi-bin/mapserv',
+      params: params
+    });
+  };
+
   this.viewTarget = function (target) {
     var feature = _this.format.readFeature(JSON.parse(target.geo));
     _this.overlaySource.clear();
     _this.overlaySource.addFeature(feature);
     _this.view.fit(feature.getGeometry(), { size: _this.map.getSize() });
   };
+
+  this.filterLayer = function (layersFiltered) {
+    _this.mainLayer.setSource(_this.createMainLayerSource(layersFiltered));
+  };
 };
 
 exports.default = new Mapper();
 
 },{"openlayers":28}],64:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _Dragger = require('../common/Dragger');
+
+var _Dragger2 = _interopRequireDefault(_Dragger);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var DetailDialogView = function DetailDialogView(_ref) {
+  var obj = _ref.obj,
+      onClose = _ref.onClose,
+      isActive = _ref.isActive;
+
+  var styleClass = 'dialog detail-dialog' + (isActive ? '' : ' hidden');
+  return _react2.default.createElement(
+    'div',
+    {
+      className: styleClass,
+      style: { top: '240px', left: '80px' }
+    },
+    _react2.default.createElement('span', { className: 'close-btn', onClick: onClose }),
+    _react2.default.createElement('div', { className: 'dragger', onMouseDown: _Dragger2.default }),
+    _react2.default.createElement('img', { className: 'dialog-icon', src: '../res/icon_detail.png' }),
+    _react2.default.createElement(
+      'p',
+      { className: 'dialog-title' },
+      'Details'
+    ),
+    _react2.default.createElement('hr', null),
+    _react2.default.createElement(
+      'div',
+      { className: 'w3-row w3-border-bottom' },
+      _react2.default.createElement(
+        'div',
+        { className: 'w3-col s3 w3-right-align w3-padding-small' },
+        _react2.default.createElement(
+          'b',
+          null,
+          'Field'
+        )
+      ),
+      _react2.default.createElement(
+        'div',
+        { className: 'w3-col s9 w3-padding-small' },
+        _react2.default.createElement(
+          'b',
+          null,
+          'Value'
+        )
+      )
+    ),
+    objectDump(obj).map(function (row) {
+      return _react2.default.createElement(
+        'div',
+        { key: row.key, className: 'w3-row w3-border-bottom' },
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-col s3 w3-right-align w3-padding-small' },
+          row.key
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-col s9 w3-padding-small' },
+          row.value
+        )
+      );
+    })
+  );
+};
+
+var objectDump = function objectDump(obj) {
+  return Object.keys(obj).filter(function (key) {
+    return !isSkipField(key);
+  }).map(function (key) {
+    return { key: key, value: obj[key] };
+  });
+};
+
+var isSkipField = function isSkipField(fieldName) {
+  if (fieldName == 'geo') return true;
+  return false;
+};
+
+DetailDialogView.propTypes = {
+  obj: _propTypes2.default.object.isRequired,
+  onClose: _propTypes2.default.func.isRequired,
+  isActive: _propTypes2.default.bool
+};
+
+exports.default = DetailDialogView;
+
+},{"../common/Dragger":62,"prop-types":33,"react":55}],65:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _Dragger = require('../common/Dragger');
+
+var _Dragger2 = _interopRequireDefault(_Dragger);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var FilterDialogView = function FilterDialogView(_ref) {
+  var layers = _ref.layers,
+      onToggle = _ref.onToggle,
+      onClose = _ref.onClose,
+      isActive = _ref.isActive;
+
+  var styleClass = 'dialog filter-dialog' + (isActive ? '' : ' hidden');
+  return _react2.default.createElement(
+    'div',
+    {
+      className: styleClass,
+      style: { top: '240px', left: '80px' }
+    },
+    _react2.default.createElement('span', { className: 'close-btn', onClick: onClose }),
+    _react2.default.createElement('div', { className: 'dragger', onMouseDown: _Dragger2.default }),
+    _react2.default.createElement('img', { className: 'dialog-icon', src: '../res/icon_filter.png' }),
+    _react2.default.createElement(
+      'p',
+      { className: 'dialog-title' },
+      'Layer Filter'
+    ),
+    _react2.default.createElement('hr', null),
+    _react2.default.createElement(
+      'div',
+      { className: 'w3-row w3-border-bottom' },
+      _react2.default.createElement(
+        'div',
+        { className: 'w3-col', style: { width: "26px" } },
+        _react2.default.createElement('input', { className: 'hidden w3-input', type: 'checkbox' })
+      ),
+      _react2.default.createElement(
+        'div',
+        { className: 'w3-rest' },
+        'Layers'
+      )
+    ),
+    layers.map(function (layer) {
+      return _react2.default.createElement(
+        'div',
+        { className: 'w3-row', key: layer.value },
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-col', style: { width: "26px" } },
+          _react2.default.createElement('input', {
+            onChange: function onChange() {
+              return onToggle(layer.value);
+            },
+            className: 'w3-input',
+            type: 'checkbox',
+            checked: layer.isChecked
+          })
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-rest' },
+          layer.label
+        )
+      );
+    })
+  );
+};
+
+FilterDialogView.propTypes = {
+  layers: _propTypes2.default.arrayOf(_propTypes2.default.shape({
+    value: _propTypes2.default.string.isRequired,
+    label: _propTypes2.default.string.isRequired,
+    isChecked: _propTypes2.default.bool
+  })).isRequired,
+  onToggle: _propTypes2.default.func.isRequired,
+  onClose: _propTypes2.default.func.isRequired,
+  isActive: _propTypes2.default.bool
+};
+
+exports.default = FilterDialogView;
+
+},{"../common/Dragger":62,"prop-types":33,"react":55}],66:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23628,7 +23855,7 @@ QueryDialogView.propTypes = {
 
 exports.default = QueryDialogView;
 
-},{"../common/Dragger":62,"prop-types":33,"react":55}],65:[function(require,module,exports){
+},{"../common/Dragger":62,"prop-types":33,"react":55}],67:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23658,7 +23885,7 @@ TaskbarIcon.propTypes = {
 
 exports.default = TaskbarIcon;
 
-},{"prop-types":33,"react":55}],66:[function(require,module,exports){
+},{"prop-types":33,"react":55}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23701,7 +23928,7 @@ TaskbarView.propTypes = {
 
 exports.default = TaskbarView;
 
-},{"./TaskbarIcon":65,"prop-types":33,"react":55}],67:[function(require,module,exports){
+},{"./TaskbarIcon":67,"prop-types":33,"react":55}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23726,6 +23953,14 @@ var _QueryDialog = require('../containers/QueryDialog');
 
 var _QueryDialog2 = _interopRequireDefault(_QueryDialog);
 
+var _DetailDialog = require('../containers/DetailDialog');
+
+var _DetailDialog2 = _interopRequireDefault(_DetailDialog);
+
+var _FilterDialog = require('../containers/FilterDialog');
+
+var _FilterDialog2 = _interopRequireDefault(_FilterDialog);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var App = function App() {
@@ -23734,13 +23969,94 @@ var App = function App() {
     null,
     _react2.default.createElement('div', { id: 'map' }),
     _react2.default.createElement(_Taskbar2.default, null),
-    _react2.default.createElement(_QueryDialog2.default, null)
+    _react2.default.createElement(_QueryDialog2.default, null),
+    _react2.default.createElement(_DetailDialog2.default, null),
+    _react2.default.createElement(_FilterDialog2.default, null)
   );
 };
 
 exports.default = App;
 
-},{"../containers/QueryDialog":68,"../containers/Taskbar":69,"prop-types":33,"react":55,"react-redux":47}],68:[function(require,module,exports){
+},{"../containers/DetailDialog":70,"../containers/FilterDialog":71,"../containers/QueryDialog":72,"../containers/Taskbar":73,"prop-types":33,"react":55,"react-redux":47}],70:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRedux = require('react-redux');
+
+var _actions = require('../actions');
+
+var _DetailDialogView = require('../components/DetailDialogView');
+
+var _DetailDialogView2 = _interopRequireDefault(_DetailDialogView);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var stateToProps = function stateToProps(state) {
+  return _extends({}, state.detailDialog, {
+    isActive: state.dialogState['detail']
+  });
+};
+
+var actToProps = function actToProps(dispatch) {
+  return {
+    onClose: function onClose() {
+      return dispatch((0, _actions.closeDialog)('detail'));
+    }
+  };
+};
+
+exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_DetailDialogView2.default);
+
+},{"../actions":61,"../components/DetailDialogView":64,"react":55,"react-redux":47}],71:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRedux = require('react-redux');
+
+var _actions = require('../actions');
+
+var _FilterDialogView = require('../components/FilterDialogView');
+
+var _FilterDialogView2 = _interopRequireDefault(_FilterDialogView);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var stateToProps = function stateToProps(state) {
+  return {
+    layers: state.filterDialog,
+    isActive: state.dialogState['filter']
+  };
+};
+var actToProps = function actToProps(dispatch) {
+  return {
+    onToggle: function onToggle(layer) {
+      return dispatch((0, _actions.toggleLayer)(layer));
+    },
+    onClose: function onClose() {
+      return dispatch((0, _actions.closeDialog)('filter'));
+    }
+  };
+};
+
+exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_FilterDialogView2.default);
+
+},{"../actions":61,"../components/FilterDialogView":65,"react":55,"react-redux":47}],72:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23784,6 +24100,8 @@ var actToProps = function actToProps(dispatch) {
     },
     viewDetail: function viewDetail(result) {
       _Mapper2.default.viewTarget(result);
+      dispatch((0, _actions.openDetail)(result));
+      dispatch((0, _actions.openDialog)('detail'));
     },
     onClose: function onClose() {
       return dispatch((0, _actions.closeDialog)('query'));
@@ -23793,7 +24111,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_QueryDialogView2.default);
 
-},{"../actions":61,"../common/Mapper":63,"../components/QueryDialogView":64,"react-redux":47}],69:[function(require,module,exports){
+},{"../actions":61,"../common/Mapper":63,"../components/QueryDialogView":66,"react-redux":47}],73:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23827,7 +24145,7 @@ var actToProps = function actToProps(dispatch) {
   }, {
     icon: '../res/icon_filter.png',
     onClick: function onClick() {
-      return console.log('Filter icon clicked');
+      return dispatch((0, _actions.openDialog)('filter'));
     }
   }];
   return { indicate: indicate };
@@ -23835,7 +24153,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_TaskbarView2.default);
 
-},{"../actions":61,"../components/TaskbarView":66,"react":55,"react-redux":47}],70:[function(require,module,exports){
+},{"../actions":61,"../components/TaskbarView":68,"react":55,"react-redux":47}],74:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -23864,10 +24182,6 @@ var _App2 = _interopRequireDefault(_App);
 
 var _actions = require('./actions');
 
-var _Mapper = require('./common/Mapper');
-
-var _Mapper2 = _interopRequireDefault(_Mapper);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var middleware = [_reduxThunk2.default];
@@ -23885,9 +24199,7 @@ var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.a
 
 store.dispatch((0, _actions.fetchLayers)());
 
-_Mapper2.default.init();
-
-},{"./actions":61,"./common/Mapper":63,"./containers/App":67,"./reducers":71,"react":55,"react-dom":37,"react-redux":47,"redux":58,"redux-logger":56,"redux-thunk":57}],71:[function(require,module,exports){
+},{"./actions":61,"./containers/App":69,"./reducers":75,"react":55,"react-dom":37,"react-redux":47,"redux":58,"redux-logger":56,"redux-thunk":57}],75:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23899,6 +24211,12 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 var _redux = require('redux');
 
 var _actions = require('../actions');
+
+var _Mapper = require('../common/Mapper');
+
+var _Mapper2 = _interopRequireDefault(_Mapper);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -23987,11 +24305,59 @@ var dialogState = function dialogState() {
   }
 };
 
+var detailDialog = function detailDialog() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { obj: {} };
+  var action = arguments[1];
+
+  switch (action.type) {
+
+    case _actions.OPEN_DETAIL:
+      return _extends({}, state, {
+        obj: action.object
+      });
+
+    default:
+      return state;
+  }
+};
+
+var filterDialog = function filterDialog() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  var action = arguments[1];
+
+  switch (action.type) {
+
+    case _actions.RECEIVE_LAYERS:
+      _Mapper2.default.init(action.layers.map(function (layer) {
+        return layer.value;
+      }));
+      return action.layers.map(function (layer) {
+        return _extends({}, layer, { isChecked: true });
+      });
+
+    case _actions.TOGGLE_LAYER:
+      var newState = state.map(function (layer) {
+        return layer.value === action.layer ? _extends({}, layer, { isChecked: !layer.isChecked }) : layer;
+      });
+      _Mapper2.default.filterLayer(newState.filter(function (layer) {
+        return layer.isChecked;
+      }).map(function (layer) {
+        return layer.value;
+      }));
+      return newState;
+
+    default:
+      return state;
+  }
+};
+
 var rootReducer = (0, _redux.combineReducers)({
+  dialogState: dialogState,
   queryDialog: queryDialog,
-  dialogState: dialogState
+  detailDialog: detailDialog,
+  filterDialog: filterDialog
 });
 
 exports.default = rootReducer;
 
-},{"../actions":61,"redux":58}]},{},[70]);
+},{"../actions":61,"../common/Mapper":63,"redux":58}]},{},[74]);

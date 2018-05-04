@@ -9,19 +9,9 @@ class Mapper {
   format = new ol.format.GeoJSON()
   
 
-  init = () => {
+  init = layers => {
     this.mainLayer = new ol.layer.Tile({
-      source: new ol.source.TileWMS({
-        url: 'http://localhost/cgi-bin/mapserv',
-        params: {
-          'map': '/zk/t/tmp/full/dbms.map',
-          'SERVICE': 'WMS',
-          'VERSION': '1.1.1',
-          'REQUEST': 'GetMap',
-          'LAYERS': 'thuadat',
-          'FORMAT': 'image/png'
-        }
-      })
+      source: this.createMainLayerSource(layers)
     })
 
     this.overlaySource = new ol.source.Vector({
@@ -54,11 +44,30 @@ class Mapper {
     })
   }
 
+  createMainLayerSource = layers => {
+    let params = {
+      'map': '/zk/t/tmp/full/dbms.map',
+      'SERVICE': 'WMS',
+      'VERSION': '1.1.1',
+      'REQUEST': 'GetMap',
+      'FORMAT': 'image/png',
+      'LAYERS': layers ? layers.join(',') : 'thuadat'
+    }
+    return new ol.source.TileWMS({
+      url: 'http://localhost/cgi-bin/mapserv',
+      params
+    })
+  }
+
   viewTarget = target => {
     const feature = this.format.readFeature( JSON.parse(target.geo) )
     this.overlaySource.clear()
     this.overlaySource.addFeature(feature)
     this.view.fit(feature.getGeometry(), { size: this.map.getSize() })
+  }
+
+  filterLayer = layersFiltered => {
+    this.mainLayer.setSource(this.createMainLayerSource(layersFiltered))
   }
 
 }

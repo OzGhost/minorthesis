@@ -2,7 +2,8 @@ import { connect } from 'react-redux'
 import {
   fetchFields, storeLayerName, fetchValues, storeFieldName,
   performQuery,
-  closeDialog
+  closeDialog, openDialog,
+  openDetail
 } from '../actions'
 import QueryDialogView from '../components/QueryDialogView'
 import Mapper from '../common/Mapper'
@@ -24,6 +25,8 @@ const actToProps = dispatch => ({
   valueChange: value => { dispatch(performQuery(value)) },
   viewDetail: result => {
     Mapper.viewTarget(result)
+    dispatch(openDetail(result))
+    dispatch(openDialog('detail'))
   },
   onClose: () => dispatch(closeDialog('query'))
 })

@@ -15,7 +15,7 @@ const actToProps = dispatch => {
     },
     {
       icon: '../res/icon_filter.png',
-      onClick: () => console.log('Filter icon clicked')
+      onClick: () => dispatch(openDialog('filter'))
     }
   ]
   return { indicate }

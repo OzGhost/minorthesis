@@ -6,8 +6,11 @@ import {
   REQUEST_VALUES, RECEIVE_VALUES,
   STORE_LAYER, STORE_FIELD,
   OPEN_DIALOG, CLOSE_DIALOG,
-  QUERING, RECEIVE_QUERY_RESULT
+  QUERING, RECEIVE_QUERY_RESULT,
+  OPEN_DETAIL,
+  TOGGLE_LAYER
 } from '../actions'
+import Mapper from '../common/Mapper'
 
 const defaultSelect = {
   value: '...',
@@ -108,9 +111,50 @@ const dialogState = (state = {}, action) => {
   }
 }
 
+const detailDialog = (state = { obj: {} }, action) => {
+  switch (action.type) {
+
+    case OPEN_DETAIL:
+      return {
+        ...state,
+        obj: action.object
+      }
+
+    default:
+      return state
+  }
+}
+
+const filterDialog = (state = [], action) => {
+  switch (action.type) {
+
+    case RECEIVE_LAYERS:
+      Mapper.init(action.layers.map(layer => layer.value))
+      return action.layers.map(layer => ({...layer, isChecked: true}))
+
+    case TOGGLE_LAYER:
+      const newState = state.map( layer => 
+        layer.value === action.layer
+          ? { ...layer, isChecked: !layer.isChecked }
+          : layer
+      )
+      Mapper.filterLayer(
+        newState
+          .filter(layer => layer.isChecked)
+          .map(layer => layer.value)
+      )
+      return newState
+  
+    default:
+      return state
+  }
+}
+
 const rootReducer = combineReducers({
+  dialogState,
   queryDialog,
-  dialogState
+  detailDialog,
+  filterDialog
 })
 
 export default rootReducer

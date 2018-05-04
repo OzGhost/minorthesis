@@ -76,7 +76,7 @@
     margin-top: -32px;
     font-size: 20px;
     font-weight: bold;
-    text-transform: uppercase;
+    text-transform: capitalize;
     text-shadow: 0 0 12px white; }
   .dialog .dragger {
     position: absolute;
@@ -89,14 +89,18 @@
     display: block;
     position: absolute;
     z-index: 12;
-    top: -3px;
-    right: 8px; }
+    top: -13px;
+    right: -13px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    box-shadow: 0 0 6px grey; }
     .dialog .close-btn:before, .dialog .close-btn:after {
       content: "";
       display: block;
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 10px;
+      left: 5px;
       width: 15px;
       height: 5px;
       background: red; }
@@ -116,6 +120,14 @@
 .query-result {
   max-height: 200px;
   overflow-y: auto; }
+
+.detail-dialog {
+  min-width: 320px; }
+
+.filter-dialog {
+  min-width: 220px; }
+  .filter-dialog input[type="checkbox"] {
+    margin-top: 4px; }
 
 body, #map {
   height: 100vh; }
