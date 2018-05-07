@@ -35,14 +35,28 @@
   border-bottom: 10px solid transparent; }
   .taskbar img {
     width: 100%;
-    display: block;
     margin: 5px 0;
     padding: 0;
-    cursor: pointer;
+    cursor: pointer; }
+  .taskbar label {
+    background: white;
+    box-shadow: 4px 4px 6px lightgrey;
+    padding: 6px 12px;
+    width: 140px;
+    position: absolute;
+    top: 50%;
+    left: 100%;
+    transform: translateY(-50%);
+    display: none; }
+  .taskbar .taskbar-icon {
+    position: relative;
+    width: 100%;
     transition: all .2s ease; }
-    .taskbar img:hover {
-      width: 140%;
-      margin: 10px 0; }
+  .taskbar .taskbar-icon:hover {
+    width: 140%;
+    margin: 10px 0; }
+    .taskbar .taskbar-icon:hover label {
+      display: block; }
 
 .hidden {
   display: none; }
@@ -64,6 +78,8 @@
   background: white;
   padding: 8px;
   z-index: 10; }
+  .dialog:hover {
+    z-index: 11; }
   .dialog .dialog-icon {
     width: 60px;
     top: -30px;
@@ -84,11 +100,11 @@
     left: 0;
     width: 100%;
     height: 45px;
-    z-index: 11; }
+    z-index: 12; }
   .dialog .close-btn {
     display: block;
     position: absolute;
-    z-index: 12;
+    z-index: 13;
     top: -13px;
     right: -13px;
     width: 25px;

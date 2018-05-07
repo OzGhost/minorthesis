@@ -18,17 +18,33 @@ $side-heigth: 30px
   border-right: 0
   border-bottom: $taskbar-slice-width solid transparent
 
-
   img
     width: 100%
-    display: block
     margin: 5px 0
     padding: 0
     cursor: pointer
-    transition: all .2s ease
     @extend %ban-select
 
-    &:hover
-      width: 140%
-      margin: 10px 0
+  label
+    background: white
+    box-shadow: 4px 4px 6px lightgrey
+    padding: 6px 12px
+    width: 140px
+    position: absolute
+    top: 50%
+    left: 100%
+    transform: translateY(-50%)
+    display: none
+
+  .taskbar-icon
+    position: relative
+    width: 100%
+    transition: all .2s ease
+
+  .taskbar-icon:hover
+    width:  140%
+    margin: 10px 0
+
+    label
+      display: block
 

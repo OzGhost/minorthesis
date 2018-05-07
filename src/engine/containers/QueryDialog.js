@@ -23,10 +23,10 @@ const actToProps = dispatch => ({
     dispatch(fetchValues(fieldName))
   },
   valueChange: value => { dispatch(performQuery(value)) },
-  viewDetail: result => {
+  viewDetail: (event, result) => {
     Mapper.viewTarget(result)
     dispatch(openDetail(result))
-    dispatch(openDialog('detail'))
+    dispatch(openDialog(event, 'detail'))
   },
   onClose: () => dispatch(closeDialog('query'))
 })

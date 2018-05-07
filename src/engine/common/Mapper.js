@@ -51,7 +51,8 @@ class Mapper {
       'VERSION': '1.1.1',
       'REQUEST': 'GetMap',
       'FORMAT': 'image/png',
-      'LAYERS': layers ? layers.join(',') : 'thuadat'
+      'LAYERS': 'thuadat'
+      //'LAYERS': layers ? layers.join(',') : 'thuadat'
     }
     return new ol.source.TileWMS({
       url: 'http://localhost/cgi-bin/mapserv',

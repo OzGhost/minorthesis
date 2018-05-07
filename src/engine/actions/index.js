@@ -1,3 +1,5 @@
+import MouseTrapper from '../common/MouseTrapper'
+
 const host = 'http://localhost:3000'
 
 export const OPEN_DIALOG = 'OPEN DIALGO'
@@ -22,10 +24,13 @@ export const OPEN_DETAIL = 'OPEN DETAIL DIALOG'
 
 export const TOGGLE_LAYER = 'TOGGLE LAYER'
 
-export const openDialog = dialogName => ({
-  type: OPEN_DIALOG,
-  dialogName
-})
+export const openDialog = (event, dialogName) => {
+  MouseTrapper.trap(event)
+  return {
+    type: OPEN_DIALOG,
+    dialogName
+  }
+}
 
 export const closeDialog = dialogName => ({
   type: CLOSE_DIALOG,

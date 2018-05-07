@@ -23155,6 +23155,14 @@ function symbolObservablePonyfill(root) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.toggleLayer = exports.openDetail = exports.performQuery = exports.fetchValues = exports.storeFieldName = exports.fetchFields = exports.storeLayerName = exports.fetchLayers = exports.closeDialog = exports.openDialog = exports.TOGGLE_LAYER = exports.OPEN_DETAIL = exports.RECEIVE_QUERY_RESULT = exports.QUERING = exports.STORE_FIELD = exports.STORE_LAYER = exports.RECEIVE_VALUES = exports.REQUEST_VALUES = exports.RECEIVE_FIELDS = exports.REQUEST_FIELDS = exports.RECEIVE_LAYERS = exports.REQUEST_LAYERS = exports.CLOSE_DIALOG = exports.OPEN_DIALOG = undefined;
+
+var _MouseTrapper = require('../common/MouseTrapper');
+
+var _MouseTrapper2 = _interopRequireDefault(_MouseTrapper);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 var host = 'http://localhost:3000';
 
 var OPEN_DIALOG = exports.OPEN_DIALOG = 'OPEN DIALGO';
@@ -23179,7 +23187,8 @@ var OPEN_DETAIL = exports.OPEN_DETAIL = 'OPEN DETAIL DIALOG';
 
 var TOGGLE_LAYER = exports.TOGGLE_LAYER = 'TOGGLE LAYER';
 
-var openDialog = exports.openDialog = function openDialog(dialogName) {
+var openDialog = exports.openDialog = function openDialog(event, dialogName) {
+  _MouseTrapper2.default.trap(event);
   return {
     type: OPEN_DIALOG,
     dialogName: dialogName
@@ -23318,7 +23327,7 @@ var toggleLayer = exports.toggleLayer = function toggleLayer(layer) {
   };
 };
 
-},{}],62:[function(require,module,exports){
+},{"../common/MouseTrapper":64}],62:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23447,7 +23456,8 @@ var Mapper = function Mapper() {
       'VERSION': '1.1.1',
       'REQUEST': 'GetMap',
       'FORMAT': 'image/png',
-      'LAYERS': layers ? layers.join(',') : 'thuadat'
+      'LAYERS': 'thuadat'
+      //'LAYERS': layers ? layers.join(',') : 'thuadat'
     };
     return new _openlayers2.default.source.TileWMS({
       url: 'http://localhost/cgi-bin/mapserv',
@@ -23470,6 +23480,39 @@ var Mapper = function Mapper() {
 exports.default = new Mapper();
 
 },{"openlayers":28}],64:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var MouseTrapper = function MouseTrapper() {
+  var _this = this;
+
+  _classCallCheck(this, MouseTrapper);
+
+  this.position = undefined;
+
+  this.trap = function (event) {
+    _this.position = {};
+    _this.position.x = event.pageX;
+    _this.position.y = event.pageY;
+  };
+
+  this.getTrappedPosition = function () {
+    var pos = _extends({}, _this.position);
+    _this.position = undefined;
+    return pos;
+  };
+};
+
+exports.default = new MouseTrapper();
+
+},{}],65:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23488,6 +23531,10 @@ var _Dragger = require('../common/Dragger');
 
 var _Dragger2 = _interopRequireDefault(_Dragger);
 
+var _MouseTrapper = require('../common/MouseTrapper');
+
+var _MouseTrapper2 = _interopRequireDefault(_MouseTrapper);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var DetailDialogView = function DetailDialogView(_ref) {
@@ -23496,11 +23543,13 @@ var DetailDialogView = function DetailDialogView(_ref) {
       isActive = _ref.isActive;
 
   var styleClass = 'dialog detail-dialog' + (isActive ? '' : ' hidden');
+  var mousePos = _MouseTrapper2.default.getTrappedPosition();
+  var dialogPos = mousePos ? { top: mousePos.y + 'px', left: mousePos.x + 'px' } : { top: '240px', left: '80px' };
   return _react2.default.createElement(
     'div',
     {
       className: styleClass,
-      style: { top: '240px', left: '80px' }
+      style: dialogPos
     },
     _react2.default.createElement('span', { className: 'close-btn', onClick: onClose }),
     _react2.default.createElement('div', { className: 'dragger', onMouseDown: _Dragger2.default }),
@@ -23573,7 +23622,7 @@ DetailDialogView.propTypes = {
 
 exports.default = DetailDialogView;
 
-},{"../common/Dragger":62,"prop-types":33,"react":55}],65:[function(require,module,exports){
+},{"../common/Dragger":62,"../common/MouseTrapper":64,"prop-types":33,"react":55}],66:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23592,69 +23641,173 @@ var _Dragger = require('../common/Dragger');
 
 var _Dragger2 = _interopRequireDefault(_Dragger);
 
+var _MouseTrapper = require('../common/MouseTrapper');
+
+var _MouseTrapper2 = _interopRequireDefault(_MouseTrapper);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var FilterDialogView = function FilterDialogView(_ref) {
-  var layers = _ref.layers,
-      onToggle = _ref.onToggle,
-      onClose = _ref.onClose,
-      isActive = _ref.isActive;
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-  var styleClass = 'dialog filter-dialog' + (isActive ? '' : ' hidden');
-  return _react2.default.createElement(
-    'div',
-    {
-      className: styleClass,
-      style: { top: '240px', left: '80px' }
-    },
-    _react2.default.createElement('span', { className: 'close-btn', onClick: onClose }),
-    _react2.default.createElement('div', { className: 'dragger', onMouseDown: _Dragger2.default }),
-    _react2.default.createElement('img', { className: 'dialog-icon', src: '../res/icon_filter.png' }),
-    _react2.default.createElement(
-      'p',
-      { className: 'dialog-title' },
-      'Layer Filter'
-    ),
-    _react2.default.createElement('hr', null),
-    _react2.default.createElement(
-      'div',
-      { className: 'w3-row w3-border-bottom' },
-      _react2.default.createElement(
-        'div',
-        { className: 'w3-col', style: { width: "26px" } },
-        _react2.default.createElement('input', { className: 'hidden w3-input', type: 'checkbox' })
-      ),
-      _react2.default.createElement(
-        'div',
-        { className: 'w3-rest' },
-        'Layers'
-      )
-    ),
-    layers.map(function (layer) {
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Dialog = function (_React$Component) {
+  _inherits(Dialog, _React$Component);
+
+  function Dialog() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, Dialog);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Dialog.__proto__ || Object.getPrototypeOf(Dialog)).call.apply(_ref, [this].concat(args))), _this), _this.getMetaData = function () {
+      return {};
+    }, _this.buildDialogContent = function () {
+      return _react2.default.createElement('div', null);
+    }, _this.render = function () {
+      var mousePos = _MouseTrapper2.default.getTrappedPosition();
+      var dialogPos = mousePos ? { top: mousePos.y + 'px', left: mousePos.x + 'px' } : { top: '240px', left: '80px' };
+      var _this$props = _this.props,
+          isActive = _this$props.isActive,
+          onClose = _this$props.onClose;
+
+      var meta = _this.getMetaData();
+      var styleClass = meta.styleClass + ' dialog ' + (isActive ? '' : ' hidden');
+
       return _react2.default.createElement(
         'div',
-        { className: 'w3-row', key: layer.value },
+        {
+          className: styleClass,
+          style: dialogPos
+        },
+        _react2.default.createElement('span', { className: 'close-btn', onClick: onClose }),
+        _react2.default.createElement('div', { className: 'dragger', onMouseDown: _Dragger2.default }),
+        _react2.default.createElement('img', { className: 'dialog-icon', src: meta.icon }),
         _react2.default.createElement(
-          'div',
-          { className: 'w3-col', style: { width: "26px" } },
-          _react2.default.createElement('input', {
-            onChange: function onChange() {
-              return onToggle(layer.value);
-            },
-            className: 'w3-input',
-            type: 'checkbox',
-            checked: layer.isChecked
-          })
+          'p',
+          { className: 'dialog-title' },
+          meta.title
         ),
+        _react2.default.createElement('hr', null),
+        _this.buildDialogContent()
+      );
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  return Dialog;
+}(_react2.default.Component);
+
+Dialog.propTypes = {
+  onClose: _propTypes2.default.func.isRequired,
+  isActive: _propTypes2.default.bool
+};
+exports.default = Dialog;
+
+},{"../common/Dragger":62,"../common/MouseTrapper":64,"prop-types":33,"react":55}],67:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _Dialog2 = require('./Dialog');
+
+var _Dialog3 = _interopRequireDefault(_Dialog2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var FilterDialogView = function (_Dialog) {
+  _inherits(FilterDialogView, _Dialog);
+
+  function FilterDialogView() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, FilterDialogView);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = FilterDialogView.__proto__ || Object.getPrototypeOf(FilterDialogView)).call.apply(_ref, [this].concat(args))), _this), _this.getMetaData = function () {
+      return {
+        styleClass: 'filter-dialog',
+        title: 'Layer Filter',
+        icon: '../res/icon_filter.png'
+      };
+    }, _this.buildDialogContent = function () {
+      var _this$props = _this.props,
+          layers = _this$props.layers,
+          onToggle = _this$props.onToggle;
+
+      return _react2.default.createElement(
+        'div',
+        null,
         _react2.default.createElement(
           'div',
-          { className: 'w3-rest' },
-          layer.label
-        )
+          { className: 'w3-row w3-border-bottom' },
+          _react2.default.createElement(
+            'div',
+            { className: 'w3-col', style: { width: "26px" } },
+            _react2.default.createElement('input', { className: 'hidden w3-input', type: 'checkbox' })
+          ),
+          _react2.default.createElement(
+            'div',
+            { className: 'w3-rest' },
+            'Layers'
+          )
+        ),
+        layers.map(function (layer) {
+          return _react2.default.createElement(
+            'div',
+            { className: 'w3-row', key: layer.value },
+            _react2.default.createElement(
+              'div',
+              { className: 'w3-col', style: { width: "26px" } },
+              _react2.default.createElement('input', {
+                onChange: function onChange() {
+                  return onToggle(layer.value);
+                },
+                className: 'w3-input',
+                type: 'checkbox',
+                checked: layer.isChecked
+              })
+            ),
+            _react2.default.createElement(
+              'div',
+              { className: 'w3-rest' },
+              layer.label
+            )
+          );
+        })
       );
-    })
-  );
-};
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  return FilterDialogView;
+}(_Dialog3.default);
 
 FilterDialogView.propTypes = {
   layers: _propTypes2.default.arrayOf(_propTypes2.default.shape({
@@ -23666,10 +23819,9 @@ FilterDialogView.propTypes = {
   onClose: _propTypes2.default.func.isRequired,
   isActive: _propTypes2.default.bool
 };
-
 exports.default = FilterDialogView;
 
-},{"../common/Dragger":62,"prop-types":33,"react":55}],66:[function(require,module,exports){
+},{"./Dialog":66,"prop-types":33,"react":55}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23686,150 +23838,166 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _Dragger = require('../common/Dragger');
+var _Dialog2 = require('./Dialog');
 
-var _Dragger2 = _interopRequireDefault(_Dragger);
+var _Dialog3 = _interopRequireDefault(_Dialog2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var QueryDialogView = function QueryDialogView(_ref) {
-  var layers = _ref.layers,
-      fields = _ref.fields,
-      values = _ref.values,
-      results = _ref.results,
-      layerChange = _ref.layerChange,
-      fieldChange = _ref.fieldChange,
-      valueChange = _ref.valueChange,
-      viewDetail = _ref.viewDetail,
-      onClose = _ref.onClose,
-      isLoading = _ref.isLoading,
-      isActive = _ref.isActive;
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-  var block = { disabled: isLoading };
-  var styleClass = 'dialog query-dialog' + (isActive ? '' : ' hidden');
-  return _react2.default.createElement(
-    'div',
-    {
-      className: styleClass,
-      style: { top: '240px', left: '80px' }
-    },
-    _react2.default.createElement('span', { className: 'close-btn', onClick: onClose }),
-    _react2.default.createElement('div', { className: 'dragger', onMouseDown: _Dragger2.default }),
-    _react2.default.createElement('img', { className: 'dialog-icon', src: '../res/icon_query.png' }),
-    _react2.default.createElement(
-      'p',
-      { className: 'dialog-title' },
-      'Property Query'
-    ),
-    _react2.default.createElement('hr', null),
-    _react2.default.createElement(
-      'div',
-      { className: 'w3-row' },
-      _react2.default.createElement(
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var QueryDialogView = function (_Dialog) {
+  _inherits(QueryDialogView, _Dialog);
+
+  function QueryDialogView() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, QueryDialogView);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = QueryDialogView.__proto__ || Object.getPrototypeOf(QueryDialogView)).call.apply(_ref, [this].concat(args))), _this), _this.getMetaData = function () {
+      return {
+        title: 'Property Query',
+        icon: '../res/icon_query.png',
+        styleClass: 'query-dialog'
+      };
+    }, _this.buildDialogContent = function () {
+      var _this$props = _this.props,
+          layers = _this$props.layers,
+          fields = _this$props.fields,
+          values = _this$props.values,
+          results = _this$props.results,
+          viewDetail = _this$props.viewDetail,
+          layerChange = _this$props.layerChange,
+          fieldChange = _this$props.fieldChange,
+          valueChange = _this$props.valueChange,
+          isLoading = _this$props.isLoading;
+
+      var block = { disabled: isLoading };
+      return _react2.default.createElement(
         'div',
-        { className: 'w3-col s6' },
-        _react2.default.createElement(
-          'label',
-          null,
-          'Layer:'
-        ),
-        _react2.default.createElement(
-          'select',
-          _extends({
-            onChange: function onChange(event) {
-              return layerChange(event.target.value);
-            },
-            className: 'w3-input w3-border'
-          }, block),
-          layers.map(function (layer) {
-            return _react2.default.createElement(
-              'option',
-              { key: layer.value, value: layer.value },
-              layer.label
-            );
-          })
-        )
-      ),
-      _react2.default.createElement(
-        'div',
-        { className: 'w3-col s6' },
-        _react2.default.createElement(
-          'label',
-          null,
-          'Field:'
-        ),
-        _react2.default.createElement(
-          'select',
-          _extends({
-            onChange: function onChange(event) {
-              return fieldChange(event.target.value);
-            },
-            className: 'w3-input w3-border'
-          }, block),
-          fields.map(function (field) {
-            return _react2.default.createElement(
-              'option',
-              { key: field.value, value: field.value },
-              field.label
-            );
-          })
-        )
-      )
-    ),
-    _react2.default.createElement(
-      'div',
-      { className: 'w3-row' },
-      _react2.default.createElement(
-        'div',
-        { className: 'w3-col s12' },
-        _react2.default.createElement(
-          'label',
-          null,
-          'Value:'
-        ),
-        _react2.default.createElement(
-          'select',
-          _extends({
-            onChange: function onChange(event) {
-              return valueChange(event.target.value);
-            },
-            className: 'w3-input w3-border'
-          }, block),
-          values.map(function (val) {
-            return _react2.default.createElement(
-              'option',
-              { key: val },
-              val
-            );
-          })
-        )
-      )
-    ),
-    _react2.default.createElement('hr', null),
-    _react2.default.createElement(
-      'div',
-      { className: 'query-result' },
-      _react2.default.createElement(
-        'label',
         null,
-        'Results:'
-      ),
-      _react2.default.createElement(
-        'ul',
-        { className: 'w3-ul' },
-        results.map(function (result) {
-          return _react2.default.createElement(
-            'li',
-            { key: result.gid, onClick: function onClick() {
-                return viewDetail(result);
-              } },
-            result.name
-          );
-        })
-      )
-    )
-  );
-};
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-row' },
+          _react2.default.createElement(
+            'div',
+            { className: 'w3-col s6' },
+            _react2.default.createElement(
+              'label',
+              null,
+              'Layer:'
+            ),
+            _react2.default.createElement(
+              'select',
+              _extends({
+                onChange: function onChange(event) {
+                  return layerChange(event.target.value);
+                },
+                className: 'w3-input w3-border'
+              }, block),
+              layers.map(function (layer) {
+                return _react2.default.createElement(
+                  'option',
+                  { key: layer.value, value: layer.value },
+                  layer.label
+                );
+              })
+            )
+          ),
+          _react2.default.createElement(
+            'div',
+            { className: 'w3-col s6' },
+            _react2.default.createElement(
+              'label',
+              null,
+              'Field:'
+            ),
+            _react2.default.createElement(
+              'select',
+              _extends({
+                onChange: function onChange(event) {
+                  return fieldChange(event.target.value);
+                },
+                className: 'w3-input w3-border'
+              }, block),
+              fields.map(function (field) {
+                return _react2.default.createElement(
+                  'option',
+                  { key: field.value, value: field.value },
+                  field.label
+                );
+              })
+            )
+          )
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-row' },
+          _react2.default.createElement(
+            'div',
+            { className: 'w3-col s12' },
+            _react2.default.createElement(
+              'label',
+              null,
+              'Value:'
+            ),
+            _react2.default.createElement(
+              'select',
+              _extends({
+                onChange: function onChange(event) {
+                  return valueChange(event.target.value);
+                },
+                className: 'w3-input w3-border'
+              }, block),
+              values.map(function (val) {
+                return _react2.default.createElement(
+                  'option',
+                  { key: val },
+                  val
+                );
+              })
+            )
+          )
+        ),
+        _react2.default.createElement('hr', null),
+        _react2.default.createElement(
+          'div',
+          { className: 'query-result' },
+          _react2.default.createElement(
+            'label',
+            null,
+            'Results:'
+          ),
+          _react2.default.createElement(
+            'ul',
+            { className: 'w3-ul' },
+            results.map(function (result) {
+              return _react2.default.createElement(
+                'li',
+                { key: result.gid, onClick: function onClick(event) {
+                    viewDetail(event, result);
+                  } },
+                result.name
+              );
+            })
+          )
+        )
+      );
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  return QueryDialogView;
+}(_Dialog3.default);
 
 QueryDialogView.propTypes = {
   layers: _propTypes2.default.arrayOf(_propTypes2.default.shape({
@@ -23852,10 +24020,9 @@ QueryDialogView.propTypes = {
   isLoading: _propTypes2.default.bool,
   isActive: _propTypes2.default.bool
 };
-
 exports.default = QueryDialogView;
 
-},{"../common/Dragger":62,"prop-types":33,"react":55}],67:[function(require,module,exports){
+},{"./Dialog":66,"prop-types":33,"react":55}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23874,18 +24041,29 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var TaskbarIcon = function TaskbarIcon(_ref) {
   var icon = _ref.icon,
+      label = _ref.label,
       onClick = _ref.onClick;
-  return _react2.default.createElement('img', { src: icon, onClick: onClick });
+  return _react2.default.createElement(
+    'div',
+    { className: 'taskbar-icon' },
+    _react2.default.createElement(
+      'label',
+      null,
+      label
+    ),
+    _react2.default.createElement('img', { src: icon, onClick: onClick })
+  );
 };
 
 TaskbarIcon.propTypes = {
   icon: _propTypes2.default.string.isRequired,
+  label: _propTypes2.default.string.isRequired,
   onClick: _propTypes2.default.func.isRequired
 };
 
 exports.default = TaskbarIcon;
 
-},{"prop-types":33,"react":55}],68:[function(require,module,exports){
+},{"prop-types":33,"react":55}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23928,7 +24106,7 @@ TaskbarView.propTypes = {
 
 exports.default = TaskbarView;
 
-},{"./TaskbarIcon":67,"prop-types":33,"react":55}],69:[function(require,module,exports){
+},{"./TaskbarIcon":69,"prop-types":33,"react":55}],71:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23977,7 +24155,7 @@ var App = function App() {
 
 exports.default = App;
 
-},{"../containers/DetailDialog":70,"../containers/FilterDialog":71,"../containers/QueryDialog":72,"../containers/Taskbar":73,"prop-types":33,"react":55,"react-redux":47}],70:[function(require,module,exports){
+},{"../containers/DetailDialog":72,"../containers/FilterDialog":73,"../containers/QueryDialog":74,"../containers/Taskbar":75,"prop-types":33,"react":55,"react-redux":47}],72:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24016,7 +24194,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_DetailDialogView2.default);
 
-},{"../actions":61,"../components/DetailDialogView":64,"react":55,"react-redux":47}],71:[function(require,module,exports){
+},{"../actions":61,"../components/DetailDialogView":65,"react":55,"react-redux":47}],73:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24056,7 +24234,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_FilterDialogView2.default);
 
-},{"../actions":61,"../components/FilterDialogView":65,"react":55,"react-redux":47}],72:[function(require,module,exports){
+},{"../actions":61,"../components/FilterDialogView":67,"react":55,"react-redux":47}],74:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24098,10 +24276,10 @@ var actToProps = function actToProps(dispatch) {
     valueChange: function valueChange(value) {
       dispatch((0, _actions.performQuery)(value));
     },
-    viewDetail: function viewDetail(result) {
+    viewDetail: function viewDetail(event, result) {
       _Mapper2.default.viewTarget(result);
       dispatch((0, _actions.openDetail)(result));
-      dispatch((0, _actions.openDialog)('detail'));
+      dispatch((0, _actions.openDialog)(event, 'detail'));
     },
     onClose: function onClose() {
       return dispatch((0, _actions.closeDialog)('query'));
@@ -24111,7 +24289,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_QueryDialogView2.default);
 
-},{"../actions":61,"../common/Mapper":63,"../components/QueryDialogView":66,"react-redux":47}],73:[function(require,module,exports){
+},{"../actions":61,"../common/Mapper":63,"../components/QueryDialogView":68,"react-redux":47}],75:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24130,6 +24308,10 @@ var _TaskbarView2 = _interopRequireDefault(_TaskbarView);
 
 var _actions = require('../actions');
 
+var _MouseTrapper = require('../common/MouseTrapper');
+
+var _MouseTrapper2 = _interopRequireDefault(_MouseTrapper);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var stateToProps = function stateToProps(state) {
@@ -24139,13 +24321,21 @@ var stateToProps = function stateToProps(state) {
 var actToProps = function actToProps(dispatch) {
   var indicate = [{
     icon: '../res/icon_query.png',
-    onClick: function onClick() {
-      return dispatch((0, _actions.openDialog)('query'));
+    label: 'Query Plan',
+    onClick: function onClick(event) {
+      return dispatch((0, _actions.openDialog)(event, 'query'));
     }
   }, {
     icon: '../res/icon_filter.png',
-    onClick: function onClick() {
-      return dispatch((0, _actions.openDialog)('filter'));
+    label: 'Filter Layer',
+    onClick: function onClick(event) {
+      return dispatch((0, _actions.openDialog)(event, 'filter'));
+    }
+  }, {
+    icon: '../res/icon_authen.png',
+    label: 'Login',
+    onClick: function onClick(event) {
+      return dispatch((0, _actions.openDialog)(event, 'login'));
     }
   }];
   return { indicate: indicate };
@@ -24153,7 +24343,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_TaskbarView2.default);
 
-},{"../actions":61,"../components/TaskbarView":68,"react":55,"react-redux":47}],74:[function(require,module,exports){
+},{"../actions":61,"../common/MouseTrapper":64,"../components/TaskbarView":70,"react":55,"react-redux":47}],76:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -24199,7 +24389,7 @@ var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.a
 
 store.dispatch((0, _actions.fetchLayers)());
 
-},{"./actions":61,"./containers/App":69,"./reducers":75,"react":55,"react-dom":37,"react-redux":47,"redux":58,"redux-logger":56,"redux-thunk":57}],75:[function(require,module,exports){
+},{"./actions":61,"./containers/App":71,"./reducers":77,"react":55,"react-dom":37,"react-redux":47,"redux":58,"redux-logger":56,"redux-thunk":57}],77:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24360,4 +24550,4 @@ var rootReducer = (0, _redux.combineReducers)({
 
 exports.default = rootReducer;
 
-},{"../actions":61,"../common/Mapper":63,"redux":58}]},{},[74]);
+},{"../actions":61,"../common/Mapper":63,"redux":58}]},{},[76]);
