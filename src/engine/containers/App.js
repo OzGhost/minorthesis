@@ -5,6 +5,7 @@ import Taskbar from '../containers/Taskbar'
 import QueryDialog from '../containers/QueryDialog'
 import DetailDialog from '../containers/DetailDialog'
 import FilterDialog from '../containers/FilterDialog'
+import LoginDialog from '../containers/LoginDialog'
 
 const App = () => (
   <div>
@@ -13,6 +14,7 @@ const App = () => (
     <QueryDialog />
     <DetailDialog />
     <FilterDialog />
+    <LoginDialog />
   </div>
 )
 

@@ -23828,6 +23828,116 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _Dialog2 = require('./Dialog');
+
+var _Dialog3 = _interopRequireDefault(_Dialog2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var LoginDialogView = function (_Dialog) {
+  _inherits(LoginDialogView, _Dialog);
+
+  function LoginDialogView() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, LoginDialogView);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = LoginDialogView.__proto__ || Object.getPrototypeOf(LoginDialogView)).call.apply(_ref, [this].concat(args))), _this), _this.getMetaData = function () {
+      return {
+        title: 'Login',
+        icon: '../res/icon_authen.png',
+        styleClass: 'login-dialog'
+      };
+    }, _this.buildDialogContent = function () {
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-row w3-padding-small' },
+          _react2.default.createElement(
+            'label',
+            { className: 'w3-col s4' },
+            'Username: '
+          ),
+          _react2.default.createElement('input', {
+            type: 'text',
+            className: 'w3-input w3-col s8 w3-white',
+            onChange: function onChange(event) {
+              return _this.props.userNameChange(event.target.value);
+            } })
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-row w3-padding-small' },
+          _react2.default.createElement(
+            'label',
+            { className: 'w3-col s4' },
+            'Password: '
+          ),
+          _react2.default.createElement('input', {
+            type: 'password',
+            className: 'w3-input w3-col s8 w3-white',
+            onChange: function onChange(event) {
+              return _this.props.passwordChange(event.target.value);
+            } })
+        ),
+        _react2.default.createElement('hr', null),
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-row w3-padding-small' },
+          _react2.default.createElement(
+            'button',
+            {
+              className: 'w3-btn w3-block w3-teal',
+              onClick: _this.onSubmit
+            },
+            'Login'
+          )
+        )
+      );
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  return LoginDialogView;
+}(_Dialog3.default);
+
+LoginDialogView.propTypes = {
+  userNameChange: _propTypes2.default.func.isRequired,
+  passwordChange: _propTypes2.default.func.isRequired,
+  onSubmit: _propTypes2.default.func.isRequired,
+  isActive: _propTypes2.default.bool.isRequired,
+  onClose: _propTypes2.default.func.isRequired
+};
+exports.default = LoginDialogView;
+
+},{"./Dialog":66,"prop-types":33,"react":55}],69:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _react = require('react');
@@ -24022,7 +24132,7 @@ QueryDialogView.propTypes = {
 };
 exports.default = QueryDialogView;
 
-},{"./Dialog":66,"prop-types":33,"react":55}],69:[function(require,module,exports){
+},{"./Dialog":66,"prop-types":33,"react":55}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24063,7 +24173,7 @@ TaskbarIcon.propTypes = {
 
 exports.default = TaskbarIcon;
 
-},{"prop-types":33,"react":55}],70:[function(require,module,exports){
+},{"prop-types":33,"react":55}],71:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24106,7 +24216,7 @@ TaskbarView.propTypes = {
 
 exports.default = TaskbarView;
 
-},{"./TaskbarIcon":69,"prop-types":33,"react":55}],71:[function(require,module,exports){
+},{"./TaskbarIcon":70,"prop-types":33,"react":55}],72:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24139,6 +24249,10 @@ var _FilterDialog = require('../containers/FilterDialog');
 
 var _FilterDialog2 = _interopRequireDefault(_FilterDialog);
 
+var _LoginDialog = require('../containers/LoginDialog');
+
+var _LoginDialog2 = _interopRequireDefault(_LoginDialog);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var App = function App() {
@@ -24149,13 +24263,14 @@ var App = function App() {
     _react2.default.createElement(_Taskbar2.default, null),
     _react2.default.createElement(_QueryDialog2.default, null),
     _react2.default.createElement(_DetailDialog2.default, null),
-    _react2.default.createElement(_FilterDialog2.default, null)
+    _react2.default.createElement(_FilterDialog2.default, null),
+    _react2.default.createElement(_LoginDialog2.default, null)
   );
 };
 
 exports.default = App;
 
-},{"../containers/DetailDialog":72,"../containers/FilterDialog":73,"../containers/QueryDialog":74,"../containers/Taskbar":75,"prop-types":33,"react":55,"react-redux":47}],72:[function(require,module,exports){
+},{"../containers/DetailDialog":73,"../containers/FilterDialog":74,"../containers/LoginDialog":75,"../containers/QueryDialog":76,"../containers/Taskbar":77,"prop-types":33,"react":55,"react-redux":47}],73:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24194,7 +24309,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_DetailDialogView2.default);
 
-},{"../actions":61,"../components/DetailDialogView":65,"react":55,"react-redux":47}],73:[function(require,module,exports){
+},{"../actions":61,"../components/DetailDialogView":65,"react":55,"react-redux":47}],74:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24234,7 +24349,53 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_FilterDialogView2.default);
 
-},{"../actions":61,"../components/FilterDialogView":67,"react":55,"react-redux":47}],74:[function(require,module,exports){
+},{"../actions":61,"../components/FilterDialogView":67,"react":55,"react-redux":47}],75:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRedux = require('react-redux');
+
+var _actions = require('../actions');
+
+var _LoginDialogView = require('../components/LoginDialogView');
+
+var _LoginDialogView2 = _interopRequireDefault(_LoginDialogView);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var stateToProps = function stateToProps(state) {
+  return {
+    isActive: true
+  };
+};
+
+var actToProps = function actToProps(dispatch) {
+  return {
+    onClose: function onClose() {
+      return dispatch('dialog');
+    },
+    userNameChange: function userNameChange(username) {
+      return console.log('username: ' + username);
+    },
+    passwordChange: function passwordChange(password) {
+      return console.log('password: ' + password);
+    },
+    onSubmit: function onSubmit() {
+      return console.log('submit already');
+    }
+  };
+};
+
+exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_LoginDialogView2.default);
+
+},{"../actions":61,"../components/LoginDialogView":68,"react":55,"react-redux":47}],76:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24289,7 +24450,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_QueryDialogView2.default);
 
-},{"../actions":61,"../common/Mapper":63,"../components/QueryDialogView":68,"react-redux":47}],75:[function(require,module,exports){
+},{"../actions":61,"../common/Mapper":63,"../components/QueryDialogView":69,"react-redux":47}],77:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24343,7 +24504,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_TaskbarView2.default);
 
-},{"../actions":61,"../common/MouseTrapper":64,"../components/TaskbarView":70,"react":55,"react-redux":47}],76:[function(require,module,exports){
+},{"../actions":61,"../common/MouseTrapper":64,"../components/TaskbarView":71,"react":55,"react-redux":47}],78:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -24389,7 +24550,7 @@ var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.a
 
 store.dispatch((0, _actions.fetchLayers)());
 
-},{"./actions":61,"./containers/App":71,"./reducers":77,"react":55,"react-dom":37,"react-redux":47,"redux":58,"redux-logger":56,"redux-thunk":57}],77:[function(require,module,exports){
+},{"./actions":61,"./containers/App":72,"./reducers":79,"react":55,"react-dom":37,"react-redux":47,"redux":58,"redux-logger":56,"redux-thunk":57}],79:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24550,4 +24711,4 @@ var rootReducer = (0, _redux.combineReducers)({
 
 exports.default = rootReducer;
 
-},{"../actions":61,"../common/Mapper":63,"redux":58}]},{},[76]);
+},{"../actions":61,"../common/Mapper":63,"redux":58}]},{},[78]);
