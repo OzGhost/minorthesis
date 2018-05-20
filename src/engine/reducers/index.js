@@ -8,7 +8,8 @@ import {
   OPEN_DIALOG, CLOSE_DIALOG,
   QUERING, RECEIVE_QUERY_RESULT,
   OPEN_DETAIL,
-  TOGGLE_LAYER
+  TOGGLE_LAYER,
+  IN_USERNAME, IN_PASSWORD, IN_LOGIN, LOGIN_RESULT, ROLE_CHANGED
 } from '../actions'
 import Mapper from '../common/Mapper'
 
@@ -105,7 +106,7 @@ const dialogState = (state = {}, action) => {
         ...state,
         [action.dialogName]: false
       }
-      
+
     default:
       return state
   }
@@ -150,11 +151,70 @@ const filterDialog = (state = [], action) => {
   }
 }
 
+const userIdentify = (state = {username: '', password: ''}, action) => {
+  switch(action.type) {
+    
+    case IN_USERNAME:
+      return {
+        ...state,
+        username: action.username
+      }
+
+    case IN_PASSWORD:
+      return {
+        ...state,
+        password: action.password
+      }
+
+    case IN_LOGIN:
+      return {
+        ...state,
+        isLoading: true
+      }
+
+    case LOGIN_RESULT:
+      if (action.authenResult.isPass) {
+        return {
+          ...state,
+          username: '',
+          password: '',
+          isLoading: false,
+          result: action.authenResult
+        }
+      } else {
+        return {
+          ...state,
+          isLoading: false,
+          result: action.authenResult
+        }
+      }
+
+    default:
+      return state
+  }
+}
+
+const taskbar = (state = {role: 'guest'}, action) => {
+  switch(action.type) {
+
+    case ROLE_CHANGED:
+      return {
+        ...state,
+        role: action.newRole
+      }
+      
+    default:
+      return state
+  }
+}
+
 const rootReducer = combineReducers({
   dialogState,
   queryDialog,
   detailDialog,
-  filterDialog
+  filterDialog,
+  userIdentify,
+  taskbar
 })
 
 export default rootReducer

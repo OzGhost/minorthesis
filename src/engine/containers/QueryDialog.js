@@ -3,10 +3,10 @@ import {
   fetchFields, storeLayerName, fetchValues, storeFieldName,
   performQuery,
   closeDialog, openDialog,
-  openDetail
+  openDetail,
+  showFeatureTarget
 } from '../actions'
 import QueryDialogView from '../components/QueryDialogView'
-import Mapper from '../common/Mapper'
 
 const stateToProps = state => ({
   ...state.queryDialog,
@@ -22,12 +22,8 @@ const actToProps = dispatch => ({
     dispatch(storeFieldName(fieldName))
     dispatch(fetchValues(fieldName))
   },
-  valueChange: value => { dispatch(performQuery(value)) },
-  viewDetail: (event, result) => {
-    Mapper.viewTarget(result)
-    dispatch(openDetail(result))
-    dispatch(openDialog(event, 'detail'))
-  },
+  valueChange: value => dispatch(performQuery(value)),
+  viewDetail: (event, result) => dispatch(showFeatureTarget(event, result)),
   onClose: () => dispatch(closeDialog('query'))
 })
 

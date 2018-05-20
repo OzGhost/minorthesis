@@ -1,18 +1,21 @@
 import ol from 'openlayers'
+import store from '../store'
+import { receiveTargetId } from '../actions'
 
 class Mapper {
 
   map = {}
   view = {}
   mainLayer = {}
+  mainSource = {}
   overlaySource = {}
   format = new ol.format.GeoJSON()
   
 
   init = layers => {
-    this.mainLayer = new ol.layer.Tile({
-      source: this.createMainLayerSource(layers)
-    })
+    this.mainSource = this.createMainLayerSource(layers)
+
+    this.mainLayer = new ol.layer.Tile({ source: this.mainSource })
 
     this.overlaySource = new ol.source.Vector({
       format: this.format
@@ -38,10 +41,45 @@ class Mapper {
     })
 
     this.map = new ol.Map({
+      interactions: ol.interaction.defaults({doubleClickZoom: false}),
       layers: [this.mainLayer, overlay],
       target: 'map',
       view: this.view
     })
+
+    this.map.on('dblclick', this.handleFeatureSelecting)
+    this.map.on('pointermove', this.handleFeatureHovering)
+  }
+
+  handleFeatureSelecting = evt => {
+      if (! this.isFeatureWasHit(evt))
+        return
+
+      let resolution = +this.view.getResolution()
+      let url = this.mainSource.getGetFeatureInfoUrl(
+        evt.coordinate,
+        resolution,
+        'EPSG:3857',
+        {'INFO_FORMAT': 'text/javascript'}
+      )
+      fetch(url.replace('GetMap', 'GetFeatureInfo'))
+        .then(res => res.json())
+        .then(target => store.dispatch(
+          receiveTargetId(evt.originalEvent, target.id)
+        ))
+  }
+
+  isFeatureWasHit = evt => {
+    let pixel = this.map.getEventPixel(evt.originalEvent)
+    return this.map.forEachLayerAtPixel(pixel, () => true)
+  }
+
+  handleFeatureHovering = evt => {
+    if (evt.dragging)
+      return
+    this.map.getTargetElement().style.cursor = this.isFeatureWasHit(evt)
+      ? 'pointer'
+      : ''
   }
 
   createMainLayerSource = layers => {
@@ -56,6 +94,8 @@ class Mapper {
     }
     return new ol.source.TileWMS({
       url: 'http://localhost/cgi-bin/mapserv',
+      serverType: 'mapserver',
+      crossOrigin: 'anonymous',
       params
     })
   }

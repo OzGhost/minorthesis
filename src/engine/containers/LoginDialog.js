@@ -1,17 +1,21 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { closeDialog } from '../actions'
+import { closeDialog, inUsername, inPassword, inLogin } from '../actions'
 import LoginDialogView from '../components/LoginDialogView'
 
 const stateToProps = state => ({
-  isActive: true
+  ...state.userIdentify,
+  isActive: !!state.dialogState['login'],
 })
 
 const actToProps = dispatch => ({
-  onClose: () => dispatch('dialog'),
-  userNameChange: username => console.log('username: ' + username),
-  passwordChange: password => console.log('password: ' + password),
-  onSubmit: () => console.log('submit already')
+  onClose: () => dispatch(closeDialog('login')),
+  userNameChange: username => dispatch(inUsername(username)),
+  passwordChange: password => dispatch(inPassword(password)),
+  onSubmit: (event) => {
+    event.preventDefault()
+    dispatch(inLogin())
+  }
 })
 
 export default connect(stateToProps, actToProps)(LoginDialogView)

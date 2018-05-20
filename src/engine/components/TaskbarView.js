@@ -1,22 +1,22 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import TaskbarIcon from './TaskbarIcon'
+import { openDialog } from '../actions'
 
-const TaskbarView = ({ indicate }) => (
+const TaskbarView = ({ items, dispatch }) => (
   <div className="taskbar">
-    { indicate.map( (obj, i) =>
-      <TaskbarIcon key={i} {...obj} />
+    { items.map( (item, i) =>
+      <TaskbarIcon key={i}
+        icon={'../res/' + item.icon}
+        label={item.label}
+        onClick={event => { dispatch(openDialog(event, item.name)) }}
+      />
     )}
   </div>
 )
 
 TaskbarView.propTypes = {
-  indicate: PropTypes.arrayOf(
-    PropTypes.shape({
-      icon: PropTypes.string.isRequired,
-      onClick: PropTypes.func.isRequired
-    }).isRequired
-  ).isRequired
+  items: PropTypes.array.isRequired
 }
 
 export default TaskbarView

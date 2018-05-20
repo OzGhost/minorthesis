@@ -136,6 +136,8 @@
 .query-result {
   max-height: 200px;
   overflow-y: auto; }
+  .query-result li {
+    cursor: pointer; }
 
 .detail-dialog {
   min-width: 320px; }

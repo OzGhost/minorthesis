@@ -23155,11 +23155,15 @@ function symbolObservablePonyfill(root) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.toggleLayer = exports.openDetail = exports.performQuery = exports.fetchValues = exports.storeFieldName = exports.fetchFields = exports.storeLayerName = exports.fetchLayers = exports.closeDialog = exports.openDialog = exports.TOGGLE_LAYER = exports.OPEN_DETAIL = exports.RECEIVE_QUERY_RESULT = exports.QUERING = exports.STORE_FIELD = exports.STORE_LAYER = exports.RECEIVE_VALUES = exports.REQUEST_VALUES = exports.RECEIVE_FIELDS = exports.REQUEST_FIELDS = exports.RECEIVE_LAYERS = exports.REQUEST_LAYERS = exports.CLOSE_DIALOG = exports.OPEN_DIALOG = undefined;
+exports.roleChanged = exports.authenDone = exports.receiveAuthenResult = exports.requestAuthen = exports.inLogin = exports.inPassword = exports.inUsername = exports.toggleLayer = exports.openDetail = exports.showFeatureTarget = exports.receiveTargetId = exports.performQuery = exports.fetchValues = exports.storeFieldName = exports.fetchFields = exports.storeLayerName = exports.fetchLayers = exports.closeDialog = exports.openDialog = exports.ROLE_CHANGED = exports.IDENTIFY_CLEAN = exports.LOGIN_RESULT = exports.IN_LOGIN = exports.IN_PASSWORD = exports.IN_USERNAME = exports.TOGGLE_LAYER = exports.OPEN_DETAIL = exports.RECEIVE_QUERY_RESULT = exports.QUERING = exports.STORE_FIELD = exports.STORE_LAYER = exports.RECEIVE_VALUES = exports.REQUEST_VALUES = exports.RECEIVE_FIELDS = exports.REQUEST_FIELDS = exports.RECEIVE_LAYERS = exports.REQUEST_LAYERS = exports.CLOSE_DIALOG = exports.OPEN_DIALOG = undefined;
 
 var _MouseTrapper = require('../common/MouseTrapper');
 
 var _MouseTrapper2 = _interopRequireDefault(_MouseTrapper);
+
+var _Mapper = require('../common/Mapper');
+
+var _Mapper2 = _interopRequireDefault(_Mapper);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -23187,6 +23191,13 @@ var OPEN_DETAIL = exports.OPEN_DETAIL = 'OPEN DETAIL DIALOG';
 
 var TOGGLE_LAYER = exports.TOGGLE_LAYER = 'TOGGLE LAYER';
 
+var IN_USERNAME = exports.IN_USERNAME = 'USER INPUT USERNAME';
+var IN_PASSWORD = exports.IN_PASSWORD = 'USER INPUT PASSWORD';
+var IN_LOGIN = exports.IN_LOGIN = 'USER TRY TO LOGIN';
+var LOGIN_RESULT = exports.LOGIN_RESULT = 'LOGIN RESULT';
+var IDENTIFY_CLEAN = exports.IDENTIFY_CLEAN = 'IDENTIFY CLEAN';
+var ROLE_CHANGED = exports.ROLE_CHANGED = 'ROLE CHANGE';
+
 var openDialog = exports.openDialog = function openDialog(event, dialogName) {
   _MouseTrapper2.default.trap(event);
   return {
@@ -23194,7 +23205,6 @@ var openDialog = exports.openDialog = function openDialog(event, dialogName) {
     dialogName: dialogName
   };
 };
-
 var closeDialog = exports.closeDialog = function closeDialog(dialogName) {
   return {
     type: CLOSE_DIALOG,
@@ -23212,27 +23222,23 @@ var fetchLayers = exports.fetchLayers = function fetchLayers() {
     });
   };
 };
-
 var requestLayers = function requestLayers() {
   return {
     type: REQUEST_LAYERS
   };
 };
-
 var receiveLayers = function receiveLayers(layers) {
   return {
     type: RECEIVE_LAYERS,
     layers: layers
   };
 };
-
 var storeLayerName = exports.storeLayerName = function storeLayerName(layerName) {
   return {
     type: STORE_LAYER,
     layerName: layerName
   };
 };
-
 var fetchFields = exports.fetchFields = function fetchFields(layerName) {
   return function (dispatch) {
     dispatch(requestFields());
@@ -23243,27 +23249,23 @@ var fetchFields = exports.fetchFields = function fetchFields(layerName) {
     });
   };
 };
-
 var requestFields = function requestFields() {
   return {
     type: REQUEST_FIELDS
   };
 };
-
 var receiveFields = function receiveFields(fields) {
   return {
     type: RECEIVE_FIELDS,
     fields: fields
   };
 };
-
 var storeFieldName = exports.storeFieldName = function storeFieldName(fieldName) {
   return {
     type: STORE_FIELD,
     fieldName: fieldName
   };
 };
-
 var fetchValues = exports.fetchValues = function fetchValues(fieldName) {
   return function (dispatch, getState) {
     dispatch(requestValues());
@@ -23274,20 +23276,17 @@ var fetchValues = exports.fetchValues = function fetchValues(fieldName) {
     });
   };
 };
-
 var requestValues = function requestValues() {
   return {
     type: REQUEST_VALUES
   };
 };
-
 var receiveValues = function receiveValues(values) {
   return {
     type: RECEIVE_VALUES,
     values: values
   };
 };
-
 var performQuery = exports.performQuery = function performQuery(value) {
   return function (dispatch, getState) {
     dispatch(queryPerforming());
@@ -23299,17 +23298,32 @@ var performQuery = exports.performQuery = function performQuery(value) {
     });
   };
 };
-
 var queryPerforming = function queryPerforming() {
   return {
     type: QUERING
   };
 };
-
 var receiveQueryResult = function receiveQueryResult(results) {
   return {
     type: RECEIVE_QUERY_RESULT,
     results: results
+  };
+};
+
+var receiveTargetId = exports.receiveTargetId = function receiveTargetId(event, targetId) {
+  return function (dispatch) {
+    fetch(host + '/map/layers/' + 'thuadat' + '/features/' + targetId).then(function (res) {
+      return res.json();
+    }).then(function (json) {
+      return dispatch(showFeatureTarget(event, json));
+    });
+  };
+};
+var showFeatureTarget = exports.showFeatureTarget = function showFeatureTarget(event, target) {
+  return function (dispatch) {
+    _Mapper2.default.viewTarget(target);
+    dispatch(openDetail(target));
+    dispatch(openDialog(event, 'detail'));
   };
 };
 
@@ -23327,7 +23341,61 @@ var toggleLayer = exports.toggleLayer = function toggleLayer(layer) {
   };
 };
 
-},{"../common/MouseTrapper":64}],62:[function(require,module,exports){
+var inUsername = exports.inUsername = function inUsername(username) {
+  return {
+    type: IN_USERNAME,
+    username: username
+  };
+};
+var inPassword = exports.inPassword = function inPassword(password) {
+  return {
+    type: IN_PASSWORD,
+    password: password
+  };
+};
+var inLogin = exports.inLogin = function inLogin() {
+  return function (dispatch, getState) {
+    dispatch(requestAuthen());
+    console.log(getState().userIdentify);
+    fetch(host + '/login', {
+      method: 'POST',
+      body: JSON.stringify(getState().userIdentify),
+      headers: new Headers({ 'Content-Type': 'application/json' })
+    }).then(function (res) {
+      return res.json();
+    }).then(function (json) {
+      return dispatch(receiveAuthenResult(json));
+    });
+  };
+};
+var requestAuthen = exports.requestAuthen = function requestAuthen() {
+  return {
+    type: IN_LOGIN
+  };
+};
+var receiveAuthenResult = exports.receiveAuthenResult = function receiveAuthenResult(authenResult) {
+  return function (dispatch) {
+    dispatch(authenDone(authenResult));
+    if (authenResult.isPass) {
+      dispatch(closeDialog('login'));
+      dispatch(roleChanged(authenResult.role));
+    }
+  };
+};
+var authenDone = exports.authenDone = function authenDone(authenResult) {
+  return {
+    type: LOGIN_RESULT,
+    authenResult: authenResult
+  };
+};
+var roleChanged = exports.roleChanged = function roleChanged(newRole) {
+  return {
+    type: ROLE_CHANGED,
+    newRole: newRole
+  };
+};
+
+},{"../common/Mapper":63,"../common/MouseTrapper":64}],62:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23399,6 +23467,12 @@ var _openlayers = require('openlayers');
 
 var _openlayers2 = _interopRequireDefault(_openlayers);
 
+var _store = require('../store');
+
+var _store2 = _interopRequireDefault(_store);
+
+var _actions = require('../actions');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -23411,13 +23485,14 @@ var Mapper = function Mapper() {
   this.map = {};
   this.view = {};
   this.mainLayer = {};
+  this.mainSource = {};
   this.overlaySource = {};
   this.format = new _openlayers2.default.format.GeoJSON();
 
   this.init = function (layers) {
-    _this.mainLayer = new _openlayers2.default.layer.Tile({
-      source: _this.createMainLayerSource(layers)
-    });
+    _this.mainSource = _this.createMainLayerSource(layers);
+
+    _this.mainLayer = new _openlayers2.default.layer.Tile({ source: _this.mainSource });
 
     _this.overlaySource = new _openlayers2.default.source.Vector({
       format: _this.format
@@ -23443,10 +23518,38 @@ var Mapper = function Mapper() {
     });
 
     _this.map = new _openlayers2.default.Map({
+      interactions: _openlayers2.default.interaction.defaults({ doubleClickZoom: false }),
       layers: [_this.mainLayer, overlay],
       target: 'map',
       view: _this.view
     });
+
+    _this.map.on('dblclick', _this.handleFeatureSelecting);
+    _this.map.on('pointermove', _this.handleFeatureHovering);
+  };
+
+  this.handleFeatureSelecting = function (evt) {
+    if (!_this.isFeatureWasHit(evt)) return;
+
+    var resolution = +_this.view.getResolution();
+    var url = _this.mainSource.getGetFeatureInfoUrl(evt.coordinate, resolution, 'EPSG:3857', { 'INFO_FORMAT': 'text/javascript' });
+    fetch(url.replace('GetMap', 'GetFeatureInfo')).then(function (res) {
+      return res.json();
+    }).then(function (target) {
+      return _store2.default.dispatch((0, _actions.receiveTargetId)(evt.originalEvent, target.id));
+    });
+  };
+
+  this.isFeatureWasHit = function (evt) {
+    var pixel = _this.map.getEventPixel(evt.originalEvent);
+    return _this.map.forEachLayerAtPixel(pixel, function () {
+      return true;
+    });
+  };
+
+  this.handleFeatureHovering = function (evt) {
+    if (evt.dragging) return;
+    _this.map.getTargetElement().style.cursor = _this.isFeatureWasHit(evt) ? 'pointer' : '';
   };
 
   this.createMainLayerSource = function (layers) {
@@ -23461,6 +23564,8 @@ var Mapper = function Mapper() {
     };
     return new _openlayers2.default.source.TileWMS({
       url: 'http://localhost/cgi-bin/mapserv',
+      serverType: 'mapserver',
+      crossOrigin: 'anonymous',
       params: params
     });
   };
@@ -23479,7 +23584,7 @@ var Mapper = function Mapper() {
 
 exports.default = new Mapper();
 
-},{"openlayers":28}],64:[function(require,module,exports){
+},{"../actions":61,"../store":80,"openlayers":28}],64:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23869,9 +23974,10 @@ var LoginDialogView = function (_Dialog) {
         styleClass: 'login-dialog'
       };
     }, _this.buildDialogContent = function () {
+      var btnStyle = 'w3-btn w3-block w3-teal' + (_this.props.isLoading ? ' w3-disabled' : '');
       return _react2.default.createElement(
-        'div',
-        null,
+        'form',
+        { onSubmit: _this.props.onSubmit },
         _react2.default.createElement(
           'div',
           { className: 'w3-row w3-padding-small' },
@@ -23882,6 +23988,7 @@ var LoginDialogView = function (_Dialog) {
           ),
           _react2.default.createElement('input', {
             type: 'text',
+            value: _this.props.username,
             className: 'w3-input w3-col s8 w3-white',
             onChange: function onChange(event) {
               return _this.props.userNameChange(event.target.value);
@@ -23897,10 +24004,20 @@ var LoginDialogView = function (_Dialog) {
           ),
           _react2.default.createElement('input', {
             type: 'password',
+            value: _this.props.password,
             className: 'w3-input w3-col s8 w3-white',
             onChange: function onChange(event) {
               return _this.props.passwordChange(event.target.value);
             } })
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-row w3-center' },
+          typeof _this.props.result === 'undefined' ? '' : _this.props.result.isPass ? '' : _react2.default.createElement(
+            'label',
+            { className: 'w3-padding-small w3-text-red' },
+            'Either username or password is incorrect!'
+          )
         ),
         _react2.default.createElement('hr', null),
         _react2.default.createElement(
@@ -23908,11 +24025,8 @@ var LoginDialogView = function (_Dialog) {
           { className: 'w3-row w3-padding-small' },
           _react2.default.createElement(
             'button',
-            {
-              className: 'w3-btn w3-block w3-teal',
-              onClick: _this.onSubmit
-            },
-            'Login'
+            { className: btnStyle, type: 'submit' },
+            ' Login '
           )
         )
       );
@@ -23923,11 +24037,15 @@ var LoginDialogView = function (_Dialog) {
 }(_Dialog3.default);
 
 LoginDialogView.propTypes = {
+  username: _propTypes2.default.string.isRequired,
+  password: _propTypes2.default.string.isRequired,
   userNameChange: _propTypes2.default.func.isRequired,
   passwordChange: _propTypes2.default.func.isRequired,
   onSubmit: _propTypes2.default.func.isRequired,
   isActive: _propTypes2.default.bool.isRequired,
-  onClose: _propTypes2.default.func.isRequired
+  onClose: _propTypes2.default.func.isRequired,
+  isLoading: _propTypes2.default.bool,
+  result: _propTypes2.default.object
 };
 exports.default = LoginDialogView;
 
@@ -24180,8 +24298,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -24194,29 +24310,35 @@ var _TaskbarIcon = require('./TaskbarIcon');
 
 var _TaskbarIcon2 = _interopRequireDefault(_TaskbarIcon);
 
+var _actions = require('../actions');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var TaskbarView = function TaskbarView(_ref) {
-  var indicate = _ref.indicate;
+  var items = _ref.items,
+      dispatch = _ref.dispatch;
   return _react2.default.createElement(
     'div',
     { className: 'taskbar' },
-    indicate.map(function (obj, i) {
-      return _react2.default.createElement(_TaskbarIcon2.default, _extends({ key: i }, obj));
+    items.map(function (item, i) {
+      return _react2.default.createElement(_TaskbarIcon2.default, { key: i,
+        icon: '../res/' + item.icon,
+        label: item.label,
+        onClick: function onClick(event) {
+          dispatch((0, _actions.openDialog)(event, item.name));
+        }
+      });
     })
   );
 };
 
 TaskbarView.propTypes = {
-  indicate: _propTypes2.default.arrayOf(_propTypes2.default.shape({
-    icon: _propTypes2.default.string.isRequired,
-    onClick: _propTypes2.default.func.isRequired
-  }).isRequired).isRequired
+  items: _propTypes2.default.array.isRequired
 };
 
 exports.default = TaskbarView;
 
-},{"./TaskbarIcon":70,"prop-types":33,"react":55}],72:[function(require,module,exports){
+},{"../actions":61,"./TaskbarIcon":70,"prop-types":33,"react":55}],72:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24356,6 +24478,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
@@ -24371,24 +24495,25 @@ var _LoginDialogView2 = _interopRequireDefault(_LoginDialogView);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var stateToProps = function stateToProps(state) {
-  return {
-    isActive: true
-  };
+  return _extends({}, state.userIdentify, {
+    isActive: !!state.dialogState['login']
+  });
 };
 
 var actToProps = function actToProps(dispatch) {
   return {
     onClose: function onClose() {
-      return dispatch('dialog');
+      return dispatch((0, _actions.closeDialog)('login'));
     },
     userNameChange: function userNameChange(username) {
-      return console.log('username: ' + username);
+      return dispatch((0, _actions.inUsername)(username));
     },
     passwordChange: function passwordChange(password) {
-      return console.log('password: ' + password);
+      return dispatch((0, _actions.inPassword)(password));
     },
-    onSubmit: function onSubmit() {
-      return console.log('submit already');
+    onSubmit: function onSubmit(event) {
+      event.preventDefault();
+      dispatch((0, _actions.inLogin)());
     }
   };
 };
@@ -24412,10 +24537,6 @@ var _QueryDialogView = require('../components/QueryDialogView');
 
 var _QueryDialogView2 = _interopRequireDefault(_QueryDialogView);
 
-var _Mapper = require('../common/Mapper');
-
-var _Mapper2 = _interopRequireDefault(_Mapper);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var stateToProps = function stateToProps(state) {
@@ -24435,12 +24556,10 @@ var actToProps = function actToProps(dispatch) {
       dispatch((0, _actions.fetchValues)(fieldName));
     },
     valueChange: function valueChange(value) {
-      dispatch((0, _actions.performQuery)(value));
+      return dispatch((0, _actions.performQuery)(value));
     },
     viewDetail: function viewDetail(event, result) {
-      _Mapper2.default.viewTarget(result);
-      dispatch((0, _actions.openDetail)(result));
-      dispatch((0, _actions.openDialog)(event, 'detail'));
+      return dispatch((0, _actions.showFeatureTarget)(event, result));
     },
     onClose: function onClose() {
       return dispatch((0, _actions.closeDialog)('query'));
@@ -24450,7 +24569,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_QueryDialogView2.default);
 
-},{"../actions":61,"../common/Mapper":63,"../components/QueryDialogView":69,"react-redux":47}],77:[function(require,module,exports){
+},{"../actions":61,"../components/QueryDialogView":69,"react-redux":47}],77:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24467,44 +24586,39 @@ var _TaskbarView = require('../components/TaskbarView');
 
 var _TaskbarView2 = _interopRequireDefault(_TaskbarView);
 
-var _actions = require('../actions');
-
-var _MouseTrapper = require('../common/MouseTrapper');
-
-var _MouseTrapper2 = _interopRequireDefault(_MouseTrapper);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var baseEntries = [{ icon: 'icon_query.png', label: 'Query Plan', name: 'query' }, { icon: 'icon_filter.png', label: 'Filter Layer', name: 'filter' }];
+var guestEntry = [{ icon: 'icon_authen.png', label: 'Login', name: 'login' }];
+var adminEntries = [{ icon: 'icon_logout.png', label: 'Logout', name: 'logout' }];
+var superAdminEntries = [];
+
 var stateToProps = function stateToProps(state) {
-  return {};
+  var items = [];
+  switch (state.taskbar.role) {
+
+    case 'admin':
+      items = [].concat(baseEntries, adminEntries);
+      break;
+
+    case 'superAdmin':
+      items = [].concat(baseEntries, superAdminEntries, adminEntries);
+      break;
+
+    default:
+      items = [].concat(baseEntries, guestEntry);
+      break;
+  }
+  return { items: items };
 };
 
 var actToProps = function actToProps(dispatch) {
-  var indicate = [{
-    icon: '../res/icon_query.png',
-    label: 'Query Plan',
-    onClick: function onClick(event) {
-      return dispatch((0, _actions.openDialog)(event, 'query'));
-    }
-  }, {
-    icon: '../res/icon_filter.png',
-    label: 'Filter Layer',
-    onClick: function onClick(event) {
-      return dispatch((0, _actions.openDialog)(event, 'filter'));
-    }
-  }, {
-    icon: '../res/icon_authen.png',
-    label: 'Login',
-    onClick: function onClick(event) {
-      return dispatch((0, _actions.openDialog)(event, 'login'));
-    }
-  }];
-  return { indicate: indicate };
+  return {};
 };
 
-exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_TaskbarView2.default);
+exports.default = (0, _reactRedux.connect)(stateToProps)(_TaskbarView2.default);
 
-},{"../actions":61,"../common/MouseTrapper":64,"../components/TaskbarView":71,"react":55,"react-redux":47}],78:[function(require,module,exports){
+},{"../components/TaskbarView":71,"react":55,"react-redux":47}],78:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -24513,44 +24627,29 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactDom = require('react-dom');
 
-var _redux = require('redux');
-
 var _reactRedux = require('react-redux');
-
-var _reduxThunk = require('redux-thunk');
-
-var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
-
-var _reduxLogger = require('redux-logger');
-
-var _reducers = require('./reducers');
-
-var _reducers2 = _interopRequireDefault(_reducers);
 
 var _App = require('./containers/App');
 
 var _App2 = _interopRequireDefault(_App);
 
+var _store = require('./store');
+
+var _store2 = _interopRequireDefault(_store);
+
 var _actions = require('./actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var middleware = [_reduxThunk2.default];
-//if (process.env.NODE_ENV !== 'production') {
-middleware.push((0, _reduxLogger.createLogger)());
-//}
-
-var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.apply(undefined, middleware));
-
 (0, _reactDom.render)(_react2.default.createElement(
   _reactRedux.Provider,
-  { store: store },
+  { store: _store2.default },
   _react2.default.createElement(_App2.default, null)
 ), document.getElementById('frame'));
 
-store.dispatch((0, _actions.fetchLayers)());
+_store2.default.dispatch((0, _actions.fetchLayers)());
 
-},{"./actions":61,"./containers/App":72,"./reducers":79,"react":55,"react-dom":37,"react-redux":47,"redux":58,"redux-logger":56,"redux-thunk":57}],79:[function(require,module,exports){
+},{"./actions":61,"./containers/App":72,"./store":80,"react":55,"react-dom":37,"react-redux":47}],79:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24702,13 +24801,99 @@ var filterDialog = function filterDialog() {
   }
 };
 
+var userIdentify = function userIdentify() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { username: '', password: '' };
+  var action = arguments[1];
+
+  switch (action.type) {
+
+    case _actions.IN_USERNAME:
+      return _extends({}, state, {
+        username: action.username
+      });
+
+    case _actions.IN_PASSWORD:
+      return _extends({}, state, {
+        password: action.password
+      });
+
+    case _actions.IN_LOGIN:
+      return _extends({}, state, {
+        isLoading: true
+      });
+
+    case _actions.LOGIN_RESULT:
+      if (action.authenResult.isPass) {
+        return _extends({}, state, {
+          username: '',
+          password: '',
+          isLoading: false,
+          result: action.authenResult
+        });
+      } else {
+        return _extends({}, state, {
+          isLoading: false,
+          result: action.authenResult
+        });
+      }
+
+    default:
+      return state;
+  }
+};
+
+var taskbar = function taskbar() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { role: 'guest' };
+  var action = arguments[1];
+
+  switch (action.type) {
+
+    case _actions.ROLE_CHANGED:
+      return _extends({}, state, {
+        role: action.newRole
+      });
+
+    default:
+      return state;
+  }
+};
+
 var rootReducer = (0, _redux.combineReducers)({
   dialogState: dialogState,
   queryDialog: queryDialog,
   detailDialog: detailDialog,
-  filterDialog: filterDialog
+  filterDialog: filterDialog,
+  userIdentify: userIdentify,
+  taskbar: taskbar
 });
 
 exports.default = rootReducer;
 
-},{"../actions":61,"../common/Mapper":63,"redux":58}]},{},[78]);
+},{"../actions":61,"../common/Mapper":63,"redux":58}],80:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _redux = require('redux');
+
+var _reduxThunk = require('redux-thunk');
+
+var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
+
+var _reduxLogger = require('redux-logger');
+
+var _reducers = require('./reducers');
+
+var _reducers2 = _interopRequireDefault(_reducers);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var middleware = [_reduxThunk2.default, (0, _reduxLogger.createLogger)()];
+
+var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.apply(undefined, middleware));
+
+exports.default = store;
+
+},{"./reducers":79,"redux":58,"redux-logger":56,"redux-thunk":57}]},{},[78]);
