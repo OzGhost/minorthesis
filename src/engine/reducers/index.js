@@ -1,5 +1,6 @@
-
 import { combineReducers } from 'redux'
+import Mapper from '../common/Mapper'
+import Ruler from '../common/Ruler'
 import {
   REQUEST_LAYERS, RECEIVE_LAYERS,
   REQUEST_FIELDS, RECEIVE_FIELDS,
@@ -11,7 +12,6 @@ import {
   TOGGLE_LAYER,
   IN_USERNAME, IN_PASSWORD, IN_LOGIN, LOGIN_RESULT, ROLE_CHANGED
 } from '../actions'
-import Mapper from '../common/Mapper'
 
 const defaultSelect = {
   value: '...',
@@ -93,6 +93,9 @@ const queryDialog = (state = {
 }
 
 const dialogState = (state = {}, action) => {
+  if (action.dialogName === 'measuring') {
+    Ruler.addInteraction('area', Mapper.getMap(), Mapper.getSource())
+  }
   switch (action.type) {
 
     case OPEN_DIALOG:

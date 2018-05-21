@@ -93,7 +93,7 @@
     font-size: 20px;
     font-weight: bold;
     text-transform: capitalize;
-    text-shadow: 0 0 12px white; }
+    text-shadow: 0 0 6px white, 0 0 12px crimson; }
   .dialog .dragger {
     position: absolute;
     top: -15px;

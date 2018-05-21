@@ -1,5 +1,6 @@
 import ol from 'openlayers'
 import store from '../store'
+import Ruler from './Ruler'
 import { receiveTargetId } from '../actions'
 
 class Mapper {
@@ -10,30 +11,13 @@ class Mapper {
   mainSource = {}
   overlaySource = {}
   format = new ol.format.GeoJSON()
-  
 
   init = layers => {
     this.mainSource = this.createMainLayerSource(layers)
-
     this.mainLayer = new ol.layer.Tile({ source: this.mainSource })
+    this.overlaySource = new ol.source.Vector({ format: this.format })
 
-    this.overlaySource = new ol.source.Vector({
-      format: this.format
-    })
-
-    const overlay = new ol.layer.Vector({
-      source: this.overlaySource,
-      opacity: 0.3,
-      style: new ol.style.Style({
-        fill: new ol.style.Fill({
-          color: 'red'
-        }),
-        stroke: new ol.style.Stroke({
-          color: 'green',
-          width: 1
-        })
-      })
-    })
+    const overlay = this.createOverlayLayer()
 
     this.view = new ol.View({
       center: [574500.4, 1320837.6],
@@ -48,11 +32,48 @@ class Mapper {
     })
 
     this.map.on('dblclick', this.handleFeatureSelecting)
-    this.map.on('pointermove', this.handleFeatureHovering)
+    this.map.on('pointermove', evt => {
+      this.handleFeatureHovering(evt)
+      Ruler.handleMeasurePointerMove(evt)
+    })
   }
 
+  createMainLayerSource = layers => {
+    let params = {
+      'map': '/zk/t/tmp/full/dbms.map',
+      'SERVICE': 'WMS',
+      'VERSION': '1.1.1',
+      'REQUEST': 'GetMap',
+      'FORMAT': 'image/png',
+      'LAYERS': 'thuadat'
+      //'LAYERS': layers ? layers.join(',') : 'thuadat'
+    }
+    return new ol.source.TileWMS({
+      url: 'http://localhost/cgi-bin/mapserv',
+      serverType: 'mapserver',
+      crossOrigin: 'anonymous',
+      params
+    })
+  }
+
+  createOverlayLayer = () => (
+    new ol.layer.Vector({
+      source: this.overlaySource,
+      opacity: 0.3,
+      style: new ol.style.Style({
+        fill: new ol.style.Fill({
+          color: 'red'
+        }),
+        stroke: new ol.style.Stroke({
+          color: 'green',
+          width: 1
+        })
+      })
+    })
+  )
+
   handleFeatureSelecting = evt => {
-      if (! this.isFeatureWasHit(evt))
+      if (! this.isFeatureWasHit(evt) || Ruler.isMeasuring())
         return
 
       let resolution = +this.view.getResolution()
@@ -82,24 +103,6 @@ class Mapper {
       : ''
   }
 
-  createMainLayerSource = layers => {
-    let params = {
-      'map': '/zk/t/tmp/full/dbms.map',
-      'SERVICE': 'WMS',
-      'VERSION': '1.1.1',
-      'REQUEST': 'GetMap',
-      'FORMAT': 'image/png',
-      'LAYERS': 'thuadat'
-      //'LAYERS': layers ? layers.join(',') : 'thuadat'
-    }
-    return new ol.source.TileWMS({
-      url: 'http://localhost/cgi-bin/mapserv',
-      serverType: 'mapserver',
-      crossOrigin: 'anonymous',
-      params
-    })
-  }
-
   viewTarget = target => {
     const feature = this.format.readFeature( JSON.parse(target.geo) )
     this.overlaySource.clear()
@@ -111,6 +114,9 @@ class Mapper {
     this.mainLayer.setSource(this.createMainLayerSource(layersFiltered))
   }
 
+  getMap = () => this.map
+
+  getSource = () => this.mainSource
 }
 
 export default new Mapper

@@ -126,8 +126,8 @@ export const receiveTargetId = (event, targetId) => dispatch => {
 }
 export const showFeatureTarget = (event, target) => dispatch => {
   Mapper.viewTarget(target)
-  dispatch(openDetail(target))
   dispatch(openDialog(event, 'detail'))
+  dispatch(openDetail(target))
 }
 
 export const openDetail = object => ({

@@ -23322,8 +23322,8 @@ var receiveTargetId = exports.receiveTargetId = function receiveTargetId(event, 
 var showFeatureTarget = exports.showFeatureTarget = function showFeatureTarget(event, target) {
   return function (dispatch) {
     _Mapper2.default.viewTarget(target);
-    dispatch(openDetail(target));
     dispatch(openDialog(event, 'detail'));
+    dispatch(openDetail(target));
   };
 };
 
@@ -23471,6 +23471,10 @@ var _store = require('../store');
 
 var _store2 = _interopRequireDefault(_store);
 
+var _Ruler = require('./Ruler');
+
+var _Ruler2 = _interopRequireDefault(_Ruler);
+
 var _actions = require('../actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -23491,26 +23495,10 @@ var Mapper = function Mapper() {
 
   this.init = function (layers) {
     _this.mainSource = _this.createMainLayerSource(layers);
-
     _this.mainLayer = new _openlayers2.default.layer.Tile({ source: _this.mainSource });
+    _this.overlaySource = new _openlayers2.default.source.Vector({ format: _this.format });
 
-    _this.overlaySource = new _openlayers2.default.source.Vector({
-      format: _this.format
-    });
-
-    var overlay = new _openlayers2.default.layer.Vector({
-      source: _this.overlaySource,
-      opacity: 0.3,
-      style: new _openlayers2.default.style.Style({
-        fill: new _openlayers2.default.style.Fill({
-          color: 'red'
-        }),
-        stroke: new _openlayers2.default.style.Stroke({
-          color: 'green',
-          width: 1
-        })
-      })
-    });
+    var overlay = _this.createOverlayLayer();
 
     _this.view = new _openlayers2.default.View({
       center: [574500.4, 1320837.6],
@@ -23525,11 +23513,48 @@ var Mapper = function Mapper() {
     });
 
     _this.map.on('dblclick', _this.handleFeatureSelecting);
-    _this.map.on('pointermove', _this.handleFeatureHovering);
+    _this.map.on('pointermove', function (evt) {
+      _this.handleFeatureHovering(evt);
+      _Ruler2.default.handleMeasurePointerMove(evt);
+    });
+  };
+
+  this.createMainLayerSource = function (layers) {
+    var params = {
+      'map': '/zk/t/tmp/full/dbms.map',
+      'SERVICE': 'WMS',
+      'VERSION': '1.1.1',
+      'REQUEST': 'GetMap',
+      'FORMAT': 'image/png',
+      'LAYERS': 'thuadat'
+      //'LAYERS': layers ? layers.join(',') : 'thuadat'
+    };
+    return new _openlayers2.default.source.TileWMS({
+      url: 'http://localhost/cgi-bin/mapserv',
+      serverType: 'mapserver',
+      crossOrigin: 'anonymous',
+      params: params
+    });
+  };
+
+  this.createOverlayLayer = function () {
+    return new _openlayers2.default.layer.Vector({
+      source: _this.overlaySource,
+      opacity: 0.3,
+      style: new _openlayers2.default.style.Style({
+        fill: new _openlayers2.default.style.Fill({
+          color: 'red'
+        }),
+        stroke: new _openlayers2.default.style.Stroke({
+          color: 'green',
+          width: 1
+        })
+      })
+    });
   };
 
   this.handleFeatureSelecting = function (evt) {
-    if (!_this.isFeatureWasHit(evt)) return;
+    if (!_this.isFeatureWasHit(evt) || _Ruler2.default.isMeasuring()) return;
 
     var resolution = +_this.view.getResolution();
     var url = _this.mainSource.getGetFeatureInfoUrl(evt.coordinate, resolution, 'EPSG:3857', { 'INFO_FORMAT': 'text/javascript' });
@@ -23552,24 +23577,6 @@ var Mapper = function Mapper() {
     _this.map.getTargetElement().style.cursor = _this.isFeatureWasHit(evt) ? 'pointer' : '';
   };
 
-  this.createMainLayerSource = function (layers) {
-    var params = {
-      'map': '/zk/t/tmp/full/dbms.map',
-      'SERVICE': 'WMS',
-      'VERSION': '1.1.1',
-      'REQUEST': 'GetMap',
-      'FORMAT': 'image/png',
-      'LAYERS': 'thuadat'
-      //'LAYERS': layers ? layers.join(',') : 'thuadat'
-    };
-    return new _openlayers2.default.source.TileWMS({
-      url: 'http://localhost/cgi-bin/mapserv',
-      serverType: 'mapserver',
-      crossOrigin: 'anonymous',
-      params: params
-    });
-  };
-
   this.viewTarget = function (target) {
     var feature = _this.format.readFeature(JSON.parse(target.geo));
     _this.overlaySource.clear();
@@ -23580,11 +23587,19 @@ var Mapper = function Mapper() {
   this.filterLayer = function (layersFiltered) {
     _this.mainLayer.setSource(_this.createMainLayerSource(layersFiltered));
   };
+
+  this.getMap = function () {
+    return _this.map;
+  };
+
+  this.getSource = function () {
+    return _this.mainSource;
+  };
 };
 
 exports.default = new Mapper();
 
-},{"../actions":61,"../store":80,"openlayers":28}],64:[function(require,module,exports){
+},{"../actions":61,"../store":81,"./Ruler":65,"openlayers":28}],64:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23618,6 +23633,158 @@ var MouseTrapper = function MouseTrapper() {
 exports.default = new MouseTrapper();
 
 },{}],65:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _openlayers = require('openlayers');
+
+var _openlayers2 = _interopRequireDefault(_openlayers);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Ruler = function Ruler() {
+  var _this = this;
+
+  _classCallCheck(this, Ruler);
+
+  this.isMeasuring = function () {
+    return _this.isActive;
+  };
+
+  this.handleMeasurePointerMove = function (evt) {
+    if (evt.dragging || !_this.isActive) return;
+    var helpMsg = 'Click to start measuring';
+    if (_this.sketch) {
+      var geom = _this.sketch.getGeometry();
+      if (geom instanceof _openlayers2.default.geom.Polygon) helpMsg = 'polygon mode';else if (geom instanceof _openlayers2.default.geom.LineString) helpMsg = 'line mode';
+    }
+
+    if (_this.helpTooltipElement) {
+      _this.helpTooltipElement.innerHTML = helpMsg;
+      _this.helpTooltipElement.classList.remove('hidden');
+    }
+    _this.helpTooltip && _this.helpTooltip.setPosition(evt.coordinate);
+  };
+
+  this.addInteraction = function (deserveType, map, source) {
+    _this.isActive = true;
+    var type = deserveType === 'area' ? 'Polygon' : 'LineString';
+    _this.draw = new _openlayers2.default.interaction.Draw({
+      source: source,
+      type: type,
+      style: _this.getRuleStyle()
+    });
+    map.addInteraction(_this.draw);
+
+    _this.createMeasureTooltip(map);
+    _this.createHelpTooltip(map);
+
+    _this.draw.on('drawstart', _this.handleStartMeasuring);
+    _this.draw.on('drawend', _this.handleEndMeasuring);
+
+    map.getViewport().addEventListener('mouseout', function () {
+      _this.helpTooltipElement && _this.helpTooltipElement.classList.add('hidden');
+    });
+  };
+
+  this.getRuleStyle = function () {
+    return new _openlayers2.default.style.Style({
+      fill: new _openlayers2.default.style.Fill({
+        color: 'rgba(255, 255, 255, 0.2)'
+      }),
+      stroke: new _openlayers2.default.style.Stroke({
+        color: 'rgba(0, 0, 0, 0.5)',
+        lineDash: [10, 10],
+        width: 2
+      }),
+      image: new _openlayers2.default.style.Circle({
+        radius: 5,
+        stroke: new _openlayers2.default.style.Stroke({
+          color: 'rgba(0, 0, 0, 0.7)'
+        }),
+        fill: new _openlayers2.default.style.Fill({
+          color: 'rgba(255, 255, 255, 0.2)'
+        })
+      })
+    });
+  };
+
+  this.createHelpTooltip = function (map) {
+    var e = _this.helpTooltipElement;
+    if (e) e.parentNode.removeChild(e);
+    e = document.createElement('div');
+    e.className = 'tooltip hidden';
+    _this.helpTooltip = new _openlayers2.default.Overlay({
+      element: e,
+      offset: [15, 0],
+      positioning: 'center-left'
+    });
+    _this.helpTooltipElement = e;
+    map.addOverlay(_this.helpTooltip);
+  };
+
+  this.createMeasureTooltip = function (map) {
+    var e = _this.measureTooltipElement;
+    if (e) e.parentNode.removeChild(e);
+    e = document.createElement('div');
+    e.className = 'tooltip tooltip-measure';
+    _this.measureTooltip = new _openlayers2.default.Overlay({
+      element: e,
+      offset: [0, -15],
+      positioning: 'bottom-center'
+    });
+    _this.measureTooltipElement = e;
+    map.addOverlay(_this.measureTooltip);
+  };
+
+  this.handleStartMeasuring = function (evt) {
+    _this.sketch = evt.feature;
+    var tooltipCoord = evt.coordinate;
+    _this.listener = evt.feature.getGeometry().on('change', function (e) {
+      var geom = e.target;
+      var output = '';
+      if (geom instanceof _openlayers2.default.geom.Polygon) {
+        output = _this.formatArea(geom);
+        tooltipCoord = geom.getInteriorPoint().getCoordinates();
+      } else if (geom instanceof _openlayers2.default.geom.LineString) {
+        output = _this.formatLength(geom);
+        tooltipCoord = geom.getLastCoordinate();
+      }
+      _this.measureTooltipElement.innerHTML = output;
+      _this.measureTooltip.setPosition(tooltipCoord);
+    });
+  };
+
+  this.formatLength = function (line) {
+    var length = _openlayers2.default.Sphere.getLength(line);
+    return length > 100 ? Math.round(length / 1000 * 100) / 100 + ' km' : Math.round(length * 100) / 100 + ' m';
+  };
+
+  this.formatArea = function (polygon) {
+    var area = _openlayers2.default.Sphere.getArea(polygon);
+    return area > 10000 ? Math.round(area / 1000000 * 100) / 100 + ' km<sup>2</sup>' : Math.round(area * 100) / 100 + ' m<sup>2</sup>';
+  };
+
+  this.handleEndMeasuring = function () {
+    _this.measureTooltip.setOffset([0, -7]);
+    _this.sketch = null;
+    _openlayers2.default.Observable.unByKey(_this.listener);
+  };
+
+  this.deactive = function (map) {
+    _this.isActive = false;
+    map.removeInteraction(_this.draw);
+  };
+};
+
+exports.default = new Ruler();
+
+},{"openlayers":28}],66:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23727,7 +23894,7 @@ DetailDialogView.propTypes = {
 
 exports.default = DetailDialogView;
 
-},{"../common/Dragger":62,"../common/MouseTrapper":64,"prop-types":33,"react":55}],66:[function(require,module,exports){
+},{"../common/Dragger":62,"../common/MouseTrapper":64,"prop-types":33,"react":55}],67:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23815,7 +23982,7 @@ Dialog.propTypes = {
 };
 exports.default = Dialog;
 
-},{"../common/Dragger":62,"../common/MouseTrapper":64,"prop-types":33,"react":55}],67:[function(require,module,exports){
+},{"../common/Dragger":62,"../common/MouseTrapper":64,"prop-types":33,"react":55}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23926,7 +24093,7 @@ FilterDialogView.propTypes = {
 };
 exports.default = FilterDialogView;
 
-},{"./Dialog":66,"prop-types":33,"react":55}],68:[function(require,module,exports){
+},{"./Dialog":67,"prop-types":33,"react":55}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24049,7 +24216,7 @@ LoginDialogView.propTypes = {
 };
 exports.default = LoginDialogView;
 
-},{"./Dialog":66,"prop-types":33,"react":55}],69:[function(require,module,exports){
+},{"./Dialog":67,"prop-types":33,"react":55}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24250,7 +24417,7 @@ QueryDialogView.propTypes = {
 };
 exports.default = QueryDialogView;
 
-},{"./Dialog":66,"prop-types":33,"react":55}],70:[function(require,module,exports){
+},{"./Dialog":67,"prop-types":33,"react":55}],71:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24291,7 +24458,7 @@ TaskbarIcon.propTypes = {
 
 exports.default = TaskbarIcon;
 
-},{"prop-types":33,"react":55}],71:[function(require,module,exports){
+},{"prop-types":33,"react":55}],72:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24338,7 +24505,7 @@ TaskbarView.propTypes = {
 
 exports.default = TaskbarView;
 
-},{"../actions":61,"./TaskbarIcon":70,"prop-types":33,"react":55}],72:[function(require,module,exports){
+},{"../actions":61,"./TaskbarIcon":71,"prop-types":33,"react":55}],73:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24392,7 +24559,7 @@ var App = function App() {
 
 exports.default = App;
 
-},{"../containers/DetailDialog":73,"../containers/FilterDialog":74,"../containers/LoginDialog":75,"../containers/QueryDialog":76,"../containers/Taskbar":77,"prop-types":33,"react":55,"react-redux":47}],73:[function(require,module,exports){
+},{"../containers/DetailDialog":74,"../containers/FilterDialog":75,"../containers/LoginDialog":76,"../containers/QueryDialog":77,"../containers/Taskbar":78,"prop-types":33,"react":55,"react-redux":47}],74:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24431,7 +24598,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_DetailDialogView2.default);
 
-},{"../actions":61,"../components/DetailDialogView":65,"react":55,"react-redux":47}],74:[function(require,module,exports){
+},{"../actions":61,"../components/DetailDialogView":66,"react":55,"react-redux":47}],75:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24471,7 +24638,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_FilterDialogView2.default);
 
-},{"../actions":61,"../components/FilterDialogView":67,"react":55,"react-redux":47}],75:[function(require,module,exports){
+},{"../actions":61,"../components/FilterDialogView":68,"react":55,"react-redux":47}],76:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24520,7 +24687,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_LoginDialogView2.default);
 
-},{"../actions":61,"../components/LoginDialogView":68,"react":55,"react-redux":47}],76:[function(require,module,exports){
+},{"../actions":61,"../components/LoginDialogView":69,"react":55,"react-redux":47}],77:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24569,7 +24736,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_QueryDialogView2.default);
 
-},{"../actions":61,"../components/QueryDialogView":69,"react-redux":47}],77:[function(require,module,exports){
+},{"../actions":61,"../components/QueryDialogView":70,"react-redux":47}],78:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24588,7 +24755,7 @@ var _TaskbarView2 = _interopRequireDefault(_TaskbarView);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var baseEntries = [{ icon: 'icon_query.png', label: 'Query Plan', name: 'query' }, { icon: 'icon_filter.png', label: 'Filter Layer', name: 'filter' }];
+var baseEntries = [{ icon: 'icon_query.png', label: 'Query Plan', name: 'query' }, { icon: 'icon_filter.png', label: 'Filter Layer', name: 'filter' }, { icon: 'icon_ruler.png', label: 'Measuring', name: 'measure' }];
 var guestEntry = [{ icon: 'icon_authen.png', label: 'Login', name: 'login' }];
 var adminEntries = [{ icon: 'icon_logout.png', label: 'Logout', name: 'logout' }];
 var superAdminEntries = [];
@@ -24618,7 +24785,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps)(_TaskbarView2.default);
 
-},{"../components/TaskbarView":71,"react":55,"react-redux":47}],78:[function(require,module,exports){
+},{"../components/TaskbarView":72,"react":55,"react-redux":47}],79:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -24649,7 +24816,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 _store2.default.dispatch((0, _actions.fetchLayers)());
 
-},{"./actions":61,"./containers/App":72,"./store":80,"react":55,"react-dom":37,"react-redux":47}],79:[function(require,module,exports){
+},{"./actions":61,"./containers/App":73,"./store":81,"react":55,"react-dom":37,"react-redux":47}],80:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24660,11 +24827,15 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _redux = require('redux');
 
-var _actions = require('../actions');
-
 var _Mapper = require('../common/Mapper');
 
 var _Mapper2 = _interopRequireDefault(_Mapper);
+
+var _Ruler = require('../common/Ruler');
+
+var _Ruler2 = _interopRequireDefault(_Ruler);
+
+var _actions = require('../actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -24742,6 +24913,9 @@ var dialogState = function dialogState() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var action = arguments[1];
 
+  if (action.dialogName === 'measuring') {
+    _Ruler2.default.addInteraction('area', _Mapper2.default.getMap(), _Mapper2.default.getSource());
+  }
   switch (action.type) {
 
     case _actions.OPEN_DIALOG:
@@ -24869,7 +25043,7 @@ var rootReducer = (0, _redux.combineReducers)({
 
 exports.default = rootReducer;
 
-},{"../actions":61,"../common/Mapper":63,"redux":58}],80:[function(require,module,exports){
+},{"../actions":61,"../common/Mapper":63,"../common/Ruler":65,"redux":58}],81:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24896,4 +25070,4 @@ var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.a
 
 exports.default = store;
 
-},{"./reducers":79,"redux":58,"redux-logger":56,"redux-thunk":57}]},{},[78]);
+},{"./reducers":80,"redux":58,"redux-logger":56,"redux-thunk":57}]},{},[79]);
