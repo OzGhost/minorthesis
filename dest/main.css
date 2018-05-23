@@ -1,18 +1,7 @@
 .hidden {
   display: none; }
 
-.noselect, .taskbar img, .dialog .dialog-title {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none; }
-
-.hidden {
-  display: none; }
-
-.noselect, .taskbar img, .dialog .dialog-title {
+.noselect, .taskbar img, .ruler-dialog img, .dialog .dialog-icon, .dialog .dialog-title {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -33,41 +22,34 @@
   border-left: 6px solid black;
   border-right: 0;
   border-bottom: 10px solid transparent; }
-  .taskbar img {
-    width: 100%;
-    margin: 5px 0;
-    padding: 0;
-    cursor: pointer; }
-  .taskbar label {
-    background: white;
-    box-shadow: 4px 4px 6px lightgrey;
-    padding: 6px 12px;
-    width: 140px;
-    position: absolute;
-    top: 50%;
-    left: 100%;
-    transform: translateY(-50%);
-    display: none; }
-  .taskbar .taskbar-icon {
-    position: relative;
-    width: 100%;
-    transition: all .2s ease; }
-  .taskbar .taskbar-icon:hover {
-    width: 140%;
-    margin: 10px 0; }
-    .taskbar .taskbar-icon:hover label {
-      display: block; }
 
-.hidden {
+.taskbar img, .ruler-dialog img {
+  width: 100%;
+  margin: 5px 0;
+  padding: 0;
+  cursor: pointer; }
+
+.taskbar label, .ruler-dialog label {
+  background: white;
+  box-shadow: 4px 4px 6px lightgrey;
+  padding: 6px 12px;
+  width: 140px;
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
   display: none; }
 
-.noselect, .taskbar img, .dialog .dialog-title {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none; }
+.taskbar .taskbar-icon, .ruler-dialog .taskbar-icon {
+  position: relative;
+  width: 100%;
+  transition: all .2s ease; }
+
+.taskbar .taskbar-icon:hover, .ruler-dialog .taskbar-icon:hover {
+  width: 140%;
+  margin: 10px 0; }
+  .taskbar .taskbar-icon:hover label, .ruler-dialog .taskbar-icon:hover label {
+    display: block; }
 
 .dialog {
   position: absolute;
@@ -146,6 +128,35 @@
   min-width: 220px; }
   .filter-dialog input[type="checkbox"] {
     margin-top: 4px; }
+
+.tooltip {
+  position: relative;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  color: white;
+  padding: 4px 8px;
+  opacity: 0.7;
+  white-space: nowrap; }
+  .tooltip-measure {
+    opacity: 1;
+    font-weight: bold; }
+    .tooltip-measure:before {
+      border-top: 6px solid rgba(0, 0, 0, 0.3);
+      border-right: 6px solid transparent;
+      border-left: 6px solid transparent;
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      margin-left: 7px;
+      left: 50%; }
+
+.ruler-dialog {
+  position: absolute;
+  width: 44px;
+  top: 50px;
+  left: 50px;
+  transform: translate(100%, -50%);
+  z-index: 10; }
 
 body, #map {
   height: 100vh; }

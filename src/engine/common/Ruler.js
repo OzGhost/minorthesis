@@ -1,4 +1,5 @@
 import ol from 'openlayers'
+import Mapper from './Mapper'
 
 class Ruler {
 
@@ -20,9 +21,9 @@ class Ruler {
     if (this.sketch) {
       let geom = (this.sketch.getGeometry());
       if (geom instanceof ol.geom.Polygon)
-        helpMsg = 'polygon mode'
+        helpMsg = '[Polygon mode]/press [Esc] to quit mode'
       else if (geom instanceof ol.geom.LineString)
-        helpMsg = 'line mode'
+        helpMsg = '[Line mode]/press [Esc] to quit mode'
     }
 
     if (this.helpTooltipElement) {
@@ -34,7 +35,8 @@ class Ruler {
   }
 
   addInteraction = (deserveType, map, source) => {
-    this.isActive = true
+    this.deactive(map)
+    this.activate()
     let type = deserveType === 'area'
       ? 'Polygon'
       : 'LineString'
@@ -55,6 +57,16 @@ class Ruler {
       this.helpTooltipElement
         && this.helpTooltipElement.classList.add('hidden')
     })
+  }
+
+  activate = () => {
+    document.addEventListener('keydown', this.handleDeactive)
+    this.isActive = true
+  }
+
+  handleDeactive = event => {
+    if (event.keyCode === 27)
+      this.deactive(Mapper.getMap())
   }
 
   getRuleStyle = () => (
@@ -87,7 +99,7 @@ class Ruler {
     e.className = 'tooltip hidden'
     this.helpTooltip = new ol.Overlay({
       element: e,
-      offset: [15, 0],
+      offset: [15, 15],
       positioning: 'center-left'
     })
     this.helpTooltipElement = e
@@ -102,7 +114,7 @@ class Ruler {
     e.className = 'tooltip tooltip-measure'
     this.measureTooltip = new ol.Overlay({
       element: e,
-      offset: [0, -15],
+      offset: [-12, -15],
       positioning: 'bottom-center'
     })
     this.measureTooltipElement = e
@@ -142,7 +154,6 @@ class Ruler {
   }
 
   handleEndMeasuring = () => {
-    this.measureTooltip.setOffset([0, -7])
     this.sketch = null
     ol.Observable.unByKey(this.listener)
   }
@@ -150,6 +161,9 @@ class Ruler {
   deactive = map => {
     this.isActive = false
     map.removeInteraction(this.draw)
+    map.removeOverlay(this.helpTooltip)
+    map.removeOverlay(this.measureTooltip)
+    document.removeEventListener('keydown', this.handleDeactive)
   }
 }
 

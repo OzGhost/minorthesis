@@ -23155,7 +23155,7 @@ function symbolObservablePonyfill(root) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.roleChanged = exports.authenDone = exports.receiveAuthenResult = exports.requestAuthen = exports.inLogin = exports.inPassword = exports.inUsername = exports.toggleLayer = exports.openDetail = exports.showFeatureTarget = exports.receiveTargetId = exports.performQuery = exports.fetchValues = exports.storeFieldName = exports.fetchFields = exports.storeLayerName = exports.fetchLayers = exports.closeDialog = exports.openDialog = exports.ROLE_CHANGED = exports.IDENTIFY_CLEAN = exports.LOGIN_RESULT = exports.IN_LOGIN = exports.IN_PASSWORD = exports.IN_USERNAME = exports.TOGGLE_LAYER = exports.OPEN_DETAIL = exports.RECEIVE_QUERY_RESULT = exports.QUERING = exports.STORE_FIELD = exports.STORE_LAYER = exports.RECEIVE_VALUES = exports.REQUEST_VALUES = exports.RECEIVE_FIELDS = exports.REQUEST_FIELDS = exports.RECEIVE_LAYERS = exports.REQUEST_LAYERS = exports.CLOSE_DIALOG = exports.OPEN_DIALOG = undefined;
+exports.pickRuler = exports.roleChanged = exports.authenDone = exports.receiveAuthenResult = exports.requestAuthen = exports.inLogin = exports.inPassword = exports.inUsername = exports.toggleLayer = exports.openDetail = exports.showFeatureTarget = exports.receiveTargetId = exports.performQuery = exports.fetchValues = exports.storeFieldName = exports.fetchFields = exports.storeLayerName = exports.fetchLayers = exports.closeDialog = exports.openDialog = exports.ROLE_CHANGED = exports.IDENTIFY_CLEAN = exports.LOGIN_RESULT = exports.IN_LOGIN = exports.IN_PASSWORD = exports.IN_USERNAME = exports.TOGGLE_LAYER = exports.OPEN_DETAIL = exports.RECEIVE_QUERY_RESULT = exports.QUERING = exports.STORE_FIELD = exports.STORE_LAYER = exports.RECEIVE_VALUES = exports.REQUEST_VALUES = exports.RECEIVE_FIELDS = exports.REQUEST_FIELDS = exports.RECEIVE_LAYERS = exports.REQUEST_LAYERS = exports.CLOSE_DIALOG = exports.OPEN_DIALOG = undefined;
 
 var _MouseTrapper = require('../common/MouseTrapper');
 
@@ -23164,6 +23164,10 @@ var _MouseTrapper2 = _interopRequireDefault(_MouseTrapper);
 var _Mapper = require('../common/Mapper');
 
 var _Mapper2 = _interopRequireDefault(_Mapper);
+
+var _Ruler = require('../common/Ruler');
+
+var _Ruler2 = _interopRequireDefault(_Ruler);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -23395,7 +23399,14 @@ var roleChanged = exports.roleChanged = function roleChanged(newRole) {
   };
 };
 
-},{"../common/Mapper":63,"../common/MouseTrapper":64}],62:[function(require,module,exports){
+var pickRuler = exports.pickRuler = function pickRuler(rulerName) {
+  return function (dispatch) {
+    dispatch(closeDialog('ruler'));
+    _Ruler2.default.addInteraction(rulerName, _Mapper2.default.getMap(), _Mapper2.default.getSource());
+  };
+};
+
+},{"../common/Mapper":63,"../common/MouseTrapper":64,"../common/Ruler":65}],62:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23599,7 +23610,7 @@ var Mapper = function Mapper() {
 
 exports.default = new Mapper();
 
-},{"../actions":61,"../store":81,"./Ruler":65,"openlayers":28}],64:[function(require,module,exports){
+},{"../actions":61,"../store":83,"./Ruler":65,"openlayers":28}],64:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23643,6 +23654,10 @@ var _openlayers = require('openlayers');
 
 var _openlayers2 = _interopRequireDefault(_openlayers);
 
+var _Mapper = require('./Mapper');
+
+var _Mapper2 = _interopRequireDefault(_Mapper);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -23661,7 +23676,7 @@ var Ruler = function Ruler() {
     var helpMsg = 'Click to start measuring';
     if (_this.sketch) {
       var geom = _this.sketch.getGeometry();
-      if (geom instanceof _openlayers2.default.geom.Polygon) helpMsg = 'polygon mode';else if (geom instanceof _openlayers2.default.geom.LineString) helpMsg = 'line mode';
+      if (geom instanceof _openlayers2.default.geom.Polygon) helpMsg = '[Polygon mode]/press [Esc] to quit mode';else if (geom instanceof _openlayers2.default.geom.LineString) helpMsg = '[Line mode]/press [Esc] to quit mode';
     }
 
     if (_this.helpTooltipElement) {
@@ -23672,7 +23687,8 @@ var Ruler = function Ruler() {
   };
 
   this.addInteraction = function (deserveType, map, source) {
-    _this.isActive = true;
+    _this.deactive(map);
+    _this.activate();
     var type = deserveType === 'area' ? 'Polygon' : 'LineString';
     _this.draw = new _openlayers2.default.interaction.Draw({
       source: source,
@@ -23690,6 +23706,15 @@ var Ruler = function Ruler() {
     map.getViewport().addEventListener('mouseout', function () {
       _this.helpTooltipElement && _this.helpTooltipElement.classList.add('hidden');
     });
+  };
+
+  this.activate = function () {
+    document.addEventListener('keydown', _this.handleDeactive);
+    _this.isActive = true;
+  };
+
+  this.handleDeactive = function (event) {
+    if (event.keyCode === 27) _this.deactive(_Mapper2.default.getMap());
   };
 
   this.getRuleStyle = function () {
@@ -23721,7 +23746,7 @@ var Ruler = function Ruler() {
     e.className = 'tooltip hidden';
     _this.helpTooltip = new _openlayers2.default.Overlay({
       element: e,
-      offset: [15, 0],
+      offset: [15, 15],
       positioning: 'center-left'
     });
     _this.helpTooltipElement = e;
@@ -23735,7 +23760,7 @@ var Ruler = function Ruler() {
     e.className = 'tooltip tooltip-measure';
     _this.measureTooltip = new _openlayers2.default.Overlay({
       element: e,
-      offset: [0, -15],
+      offset: [-12, -15],
       positioning: 'bottom-center'
     });
     _this.measureTooltipElement = e;
@@ -23771,7 +23796,6 @@ var Ruler = function Ruler() {
   };
 
   this.handleEndMeasuring = function () {
-    _this.measureTooltip.setOffset([0, -7]);
     _this.sketch = null;
     _openlayers2.default.Observable.unByKey(_this.listener);
   };
@@ -23779,12 +23803,15 @@ var Ruler = function Ruler() {
   this.deactive = function (map) {
     _this.isActive = false;
     map.removeInteraction(_this.draw);
+    map.removeOverlay(_this.helpTooltip);
+    map.removeOverlay(_this.measureTooltip);
+    document.removeEventListener('keydown', _this.handleDeactive);
   };
 };
 
 exports.default = new Ruler();
 
-},{"openlayers":28}],66:[function(require,module,exports){
+},{"./Mapper":63,"openlayers":28}],66:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24432,6 +24459,77 @@ var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
+var _MouseTrapper = require('../common/MouseTrapper');
+
+var _MouseTrapper2 = _interopRequireDefault(_MouseTrapper);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var RulerDialogView = function RulerDialogView(_ref) {
+  var isActive = _ref.isActive,
+      pickRulerName = _ref.pickRulerName;
+
+  var styleClass = 'ruler-dialog' + (isActive ? '' : ' hidden');
+  var mousePos = _MouseTrapper2.default.getTrappedPosition();
+  var dialogPos = mousePos ? { top: mousePos.y + 'px', left: mousePos.x + 'px' } : { top: '240px', left: '80px' };
+  return _react2.default.createElement(
+    'div',
+    { className: styleClass, style: dialogPos },
+    _react2.default.createElement(
+      'div',
+      { className: 'taskbar-icon' },
+      _react2.default.createElement(
+        'label',
+        null,
+        'Length measure'
+      ),
+      _react2.default.createElement('img', {
+        src: '../res/icon_tap_ruler.png',
+        onClick: function onClick() {
+          return pickRulerName('length');
+        }
+      })
+    ),
+    _react2.default.createElement(
+      'div',
+      { className: 'taskbar-icon' },
+      _react2.default.createElement(
+        'label',
+        null,
+        'Area measure'
+      ),
+      _react2.default.createElement('img', {
+        src: '../res/icon_area_ruler.png',
+        onClick: function onClick() {
+          return pickRulerName('area');
+        }
+      })
+    )
+  );
+};
+
+RulerDialogView.propTypes = {
+  isActive: _propTypes2.default.bool,
+  pickRulerName: _propTypes2.default.func.isRequired
+};
+
+exports.default = RulerDialogView;
+
+},{"../common/MouseTrapper":64,"prop-types":33,"react":55}],72:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var TaskbarIcon = function TaskbarIcon(_ref) {
@@ -24441,24 +24539,24 @@ var TaskbarIcon = function TaskbarIcon(_ref) {
   return _react2.default.createElement(
     'div',
     { className: 'taskbar-icon' },
-    _react2.default.createElement(
+    label ? _react2.default.createElement(
       'label',
       null,
       label
-    ),
+    ) : '',
     _react2.default.createElement('img', { src: icon, onClick: onClick })
   );
 };
 
 TaskbarIcon.propTypes = {
   icon: _propTypes2.default.string.isRequired,
-  label: _propTypes2.default.string.isRequired,
+  label: _propTypes2.default.string,
   onClick: _propTypes2.default.func.isRequired
 };
 
 exports.default = TaskbarIcon;
 
-},{"prop-types":33,"react":55}],72:[function(require,module,exports){
+},{"prop-types":33,"react":55}],73:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24505,7 +24603,7 @@ TaskbarView.propTypes = {
 
 exports.default = TaskbarView;
 
-},{"../actions":61,"./TaskbarIcon":71,"prop-types":33,"react":55}],73:[function(require,module,exports){
+},{"../actions":61,"./TaskbarIcon":72,"prop-types":33,"react":55}],74:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24542,6 +24640,10 @@ var _LoginDialog = require('../containers/LoginDialog');
 
 var _LoginDialog2 = _interopRequireDefault(_LoginDialog);
 
+var _RulerDialog = require('../containers/RulerDialog');
+
+var _RulerDialog2 = _interopRequireDefault(_RulerDialog);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var App = function App() {
@@ -24553,13 +24655,14 @@ var App = function App() {
     _react2.default.createElement(_QueryDialog2.default, null),
     _react2.default.createElement(_DetailDialog2.default, null),
     _react2.default.createElement(_FilterDialog2.default, null),
-    _react2.default.createElement(_LoginDialog2.default, null)
+    _react2.default.createElement(_LoginDialog2.default, null),
+    _react2.default.createElement(_RulerDialog2.default, null)
   );
 };
 
 exports.default = App;
 
-},{"../containers/DetailDialog":74,"../containers/FilterDialog":75,"../containers/LoginDialog":76,"../containers/QueryDialog":77,"../containers/Taskbar":78,"prop-types":33,"react":55,"react-redux":47}],74:[function(require,module,exports){
+},{"../containers/DetailDialog":75,"../containers/FilterDialog":76,"../containers/LoginDialog":77,"../containers/QueryDialog":78,"../containers/RulerDialog":79,"../containers/Taskbar":80,"prop-types":33,"react":55,"react-redux":47}],75:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24598,7 +24701,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_DetailDialogView2.default);
 
-},{"../actions":61,"../components/DetailDialogView":66,"react":55,"react-redux":47}],75:[function(require,module,exports){
+},{"../actions":61,"../components/DetailDialogView":66,"react":55,"react-redux":47}],76:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24638,7 +24741,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_FilterDialogView2.default);
 
-},{"../actions":61,"../components/FilterDialogView":68,"react":55,"react-redux":47}],76:[function(require,module,exports){
+},{"../actions":61,"../components/FilterDialogView":68,"react":55,"react-redux":47}],77:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24687,7 +24790,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_LoginDialogView2.default);
 
-},{"../actions":61,"../components/LoginDialogView":69,"react":55,"react-redux":47}],77:[function(require,module,exports){
+},{"../actions":61,"../components/LoginDialogView":69,"react":55,"react-redux":47}],78:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24736,7 +24839,44 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_QueryDialogView2.default);
 
-},{"../actions":61,"../components/QueryDialogView":70,"react-redux":47}],78:[function(require,module,exports){
+},{"../actions":61,"../components/QueryDialogView":70,"react-redux":47}],79:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRedux = require('react-redux');
+
+var _RulerDialogView = require('../components/RulerDialogView');
+
+var _RulerDialogView2 = _interopRequireDefault(_RulerDialogView);
+
+var _actions = require('../actions');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var stateToProps = function stateToProps(state) {
+  return {
+    isActive: state.dialogState['ruler']
+  };
+};
+
+var actToProps = function actToProps(dispatch) {
+  return {
+    pickRulerName: function pickRulerName(rulerName) {
+      return dispatch((0, _actions.pickRuler)(rulerName));
+    }
+  };
+};
+
+exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_RulerDialogView2.default);
+
+},{"../actions":61,"../components/RulerDialogView":71,"react":55,"react-redux":47}],80:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24755,7 +24895,7 @@ var _TaskbarView2 = _interopRequireDefault(_TaskbarView);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var baseEntries = [{ icon: 'icon_query.png', label: 'Query Plan', name: 'query' }, { icon: 'icon_filter.png', label: 'Filter Layer', name: 'filter' }, { icon: 'icon_ruler.png', label: 'Measuring', name: 'measure' }];
+var baseEntries = [{ icon: 'icon_query.png', label: 'Query Plan', name: 'query' }, { icon: 'icon_filter.png', label: 'Filter Layer', name: 'filter' }, { icon: 'icon_ruler.png', label: undefined, name: 'ruler' }];
 var guestEntry = [{ icon: 'icon_authen.png', label: 'Login', name: 'login' }];
 var adminEntries = [{ icon: 'icon_logout.png', label: 'Logout', name: 'logout' }];
 var superAdminEntries = [];
@@ -24785,7 +24925,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps)(_TaskbarView2.default);
 
-},{"../components/TaskbarView":72,"react":55,"react-redux":47}],79:[function(require,module,exports){
+},{"../components/TaskbarView":73,"react":55,"react-redux":47}],81:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -24816,7 +24956,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 _store2.default.dispatch((0, _actions.fetchLayers)());
 
-},{"./actions":61,"./containers/App":73,"./store":81,"react":55,"react-dom":37,"react-redux":47}],80:[function(require,module,exports){
+},{"./actions":61,"./containers/App":74,"./store":83,"react":55,"react-dom":37,"react-redux":47}],82:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24830,10 +24970,6 @@ var _redux = require('redux');
 var _Mapper = require('../common/Mapper');
 
 var _Mapper2 = _interopRequireDefault(_Mapper);
-
-var _Ruler = require('../common/Ruler');
-
-var _Ruler2 = _interopRequireDefault(_Ruler);
 
 var _actions = require('../actions');
 
@@ -24913,9 +25049,6 @@ var dialogState = function dialogState() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var action = arguments[1];
 
-  if (action.dialogName === 'measuring') {
-    _Ruler2.default.addInteraction('area', _Mapper2.default.getMap(), _Mapper2.default.getSource());
-  }
   switch (action.type) {
 
     case _actions.OPEN_DIALOG:
@@ -25043,7 +25176,7 @@ var rootReducer = (0, _redux.combineReducers)({
 
 exports.default = rootReducer;
 
-},{"../actions":61,"../common/Mapper":63,"../common/Ruler":65,"redux":58}],81:[function(require,module,exports){
+},{"../actions":61,"../common/Mapper":63,"redux":58}],83:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25070,4 +25203,4 @@ var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.a
 
 exports.default = store;
 
-},{"./reducers":80,"redux":58,"redux-logger":56,"redux-thunk":57}]},{},[79]);
+},{"./reducers":82,"redux":58,"redux-logger":56,"redux-thunk":57}]},{},[81]);

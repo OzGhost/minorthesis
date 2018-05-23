@@ -6,6 +6,7 @@ import QueryDialog from '../containers/QueryDialog'
 import DetailDialog from '../containers/DetailDialog'
 import FilterDialog from '../containers/FilterDialog'
 import LoginDialog from '../containers/LoginDialog'
+import RulerDialog from '../containers/RulerDialog'
 
 const App = () => (
   <div>
@@ -15,6 +16,7 @@ const App = () => (
     <DetailDialog />
     <FilterDialog />
     <LoginDialog />
+    <RulerDialog />
   </div>
 )
 

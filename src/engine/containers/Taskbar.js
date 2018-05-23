@@ -5,7 +5,7 @@ import TaskbarView from '../components/TaskbarView'
 const baseEntries = [
   { icon: 'icon_query.png',   label: 'Query Plan',    name: 'query' },
   { icon: 'icon_filter.png',  label: 'Filter Layer',  name: 'filter' },
-  { icon: 'icon_ruler.png',   label: 'Measuring',     name: 'measure' }
+  { icon: 'icon_ruler.png',   label: undefined,     name: 'ruler' }
 ]
 const guestEntry = [ { icon: 'icon_authen.png', label: 'Login', name: 'login' } ]
 const adminEntries = [

@@ -1,5 +1,6 @@
 import MouseTrapper from '../common/MouseTrapper'
 import Mapper from '../common/Mapper'
+import Ruler from '../common/Ruler'
 
 const host = 'http://localhost:3000'
 
@@ -176,3 +177,8 @@ export const roleChanged = newRole => ({
   type: ROLE_CHANGED,
   newRole
 })
+
+export const pickRuler = rulerName => dispatch => {
+  dispatch(closeDialog('ruler'))
+  Ruler.addInteraction(rulerName, Mapper.getMap(), Mapper.getSource())
+}
