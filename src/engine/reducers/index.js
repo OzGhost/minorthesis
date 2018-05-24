@@ -5,7 +5,7 @@ import {
   REQUEST_FIELDS, RECEIVE_FIELDS,
   REQUEST_VALUES, RECEIVE_VALUES,
   STORE_LAYER, STORE_FIELD,
-  OPEN_DIALOG, CLOSE_DIALOG,
+  OPEN_DIALOG, CLOSE_DIALOG, CLEAR_DIALOGS,
   QUERING, RECEIVE_QUERY_RESULT,
   OPEN_DETAIL,
   TOGGLE_LAYER,
@@ -106,6 +106,9 @@ const dialogState = (state = {}, action) => {
         [action.dialogName]: false
       }
 
+    case CLEAR_DIALOGS:
+      return {}
+
     default:
       return state
   }
@@ -201,7 +204,7 @@ const taskbar = (state = {role: 'guest'}, action) => {
         ...state,
         role: action.newRole
       }
-      
+
     default:
       return state
   }

@@ -6,6 +6,7 @@ const host = 'http://localhost:3000'
 
 export const OPEN_DIALOG = 'OPEN DIALGO'
 export const CLOSE_DIALOG = 'CLOSE DIALGO'
+export const CLEAR_DIALOGS = 'CLEAR DIALOGS'
 
 export const REQUEST_LAYERS = 'REQUEST LAYERS'
 export const RECEIVE_LAYERS = 'RECEIVE LAYERS'
@@ -182,3 +183,12 @@ export const pickRuler = rulerName => dispatch => {
   dispatch(closeDialog('ruler'))
   Ruler.addInteraction(rulerName, Mapper.getMap(), Mapper.getSource())
 }
+
+export const logout = () => dispatch => {
+  dispatch(roleChanged('guest'))
+  dispatch(clearDialogs())
+}
+
+const clearDialogs = () => ({
+  type: CLEAR_DIALOGS
+})

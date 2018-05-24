@@ -23155,7 +23155,7 @@ function symbolObservablePonyfill(root) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.pickRuler = exports.roleChanged = exports.authenDone = exports.receiveAuthenResult = exports.requestAuthen = exports.inLogin = exports.inPassword = exports.inUsername = exports.toggleLayer = exports.openDetail = exports.showFeatureTarget = exports.receiveTargetId = exports.performQuery = exports.fetchValues = exports.storeFieldName = exports.fetchFields = exports.storeLayerName = exports.fetchLayers = exports.closeDialog = exports.openDialog = exports.ROLE_CHANGED = exports.IDENTIFY_CLEAN = exports.LOGIN_RESULT = exports.IN_LOGIN = exports.IN_PASSWORD = exports.IN_USERNAME = exports.TOGGLE_LAYER = exports.OPEN_DETAIL = exports.RECEIVE_QUERY_RESULT = exports.QUERING = exports.STORE_FIELD = exports.STORE_LAYER = exports.RECEIVE_VALUES = exports.REQUEST_VALUES = exports.RECEIVE_FIELDS = exports.REQUEST_FIELDS = exports.RECEIVE_LAYERS = exports.REQUEST_LAYERS = exports.CLOSE_DIALOG = exports.OPEN_DIALOG = undefined;
+exports.logout = exports.pickRuler = exports.roleChanged = exports.authenDone = exports.receiveAuthenResult = exports.requestAuthen = exports.inLogin = exports.inPassword = exports.inUsername = exports.toggleLayer = exports.openDetail = exports.showFeatureTarget = exports.receiveTargetId = exports.performQuery = exports.fetchValues = exports.storeFieldName = exports.fetchFields = exports.storeLayerName = exports.fetchLayers = exports.closeDialog = exports.openDialog = exports.ROLE_CHANGED = exports.IDENTIFY_CLEAN = exports.LOGIN_RESULT = exports.IN_LOGIN = exports.IN_PASSWORD = exports.IN_USERNAME = exports.TOGGLE_LAYER = exports.OPEN_DETAIL = exports.RECEIVE_QUERY_RESULT = exports.QUERING = exports.STORE_FIELD = exports.STORE_LAYER = exports.RECEIVE_VALUES = exports.REQUEST_VALUES = exports.RECEIVE_FIELDS = exports.REQUEST_FIELDS = exports.RECEIVE_LAYERS = exports.REQUEST_LAYERS = exports.CLEAR_DIALOGS = exports.CLOSE_DIALOG = exports.OPEN_DIALOG = undefined;
 
 var _MouseTrapper = require('../common/MouseTrapper');
 
@@ -23175,6 +23175,7 @@ var host = 'http://localhost:3000';
 
 var OPEN_DIALOG = exports.OPEN_DIALOG = 'OPEN DIALGO';
 var CLOSE_DIALOG = exports.CLOSE_DIALOG = 'CLOSE DIALGO';
+var CLEAR_DIALOGS = exports.CLEAR_DIALOGS = 'CLEAR DIALOGS';
 
 var REQUEST_LAYERS = exports.REQUEST_LAYERS = 'REQUEST LAYERS';
 var RECEIVE_LAYERS = exports.RECEIVE_LAYERS = 'RECEIVE LAYERS';
@@ -23403,6 +23404,19 @@ var pickRuler = exports.pickRuler = function pickRuler(rulerName) {
   return function (dispatch) {
     dispatch(closeDialog('ruler'));
     _Ruler2.default.addInteraction(rulerName, _Mapper2.default.getMap(), _Mapper2.default.getSource());
+  };
+};
+
+var logout = exports.logout = function logout() {
+  return function (dispatch) {
+    dispatch(roleChanged('guest'));
+    dispatch(clearDialogs());
+  };
+};
+
+var clearDialogs = function clearDialogs() {
+  return {
+    type: CLEAR_DIALOGS
   };
 };
 
@@ -24589,9 +24603,11 @@ var TaskbarView = function TaskbarView(_ref) {
       return _react2.default.createElement(_TaskbarIcon2.default, { key: i,
         icon: '../res/' + item.icon,
         label: item.label,
-        onClick: function onClick(event) {
+        onClick: item.name ? function (event) {
           dispatch((0, _actions.openDialog)(event, item.name));
-        }
+        } : item.handler && typeof item.handler === 'function' ? function (event) {
+          item.handler(event, dispatch);
+        } : function () {}
       });
     })
   );
@@ -24893,11 +24909,19 @@ var _TaskbarView = require('../components/TaskbarView');
 
 var _TaskbarView2 = _interopRequireDefault(_TaskbarView);
 
+var _actions = require('../actions');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var baseEntries = [{ icon: 'icon_query.png', label: 'Query Plan', name: 'query' }, { icon: 'icon_filter.png', label: 'Filter Layer', name: 'filter' }, { icon: 'icon_ruler.png', label: undefined, name: 'ruler' }];
 var guestEntry = [{ icon: 'icon_authen.png', label: 'Login', name: 'login' }];
-var adminEntries = [{ icon: 'icon_logout.png', label: 'Logout', name: 'logout' }];
+var adminEntries = [{
+  icon: 'icon_logout.png',
+  label: 'Logout',
+  handler: function handler(event, dispatch) {
+    return dispatch((0, _actions.logout)());
+  }
+}];
 var superAdminEntries = [];
 
 var stateToProps = function stateToProps(state) {
@@ -24925,7 +24949,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps)(_TaskbarView2.default);
 
-},{"../components/TaskbarView":73,"react":55,"react-redux":47}],81:[function(require,module,exports){
+},{"../actions":61,"../components/TaskbarView":73,"react":55,"react-redux":47}],81:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -25056,6 +25080,9 @@ var dialogState = function dialogState() {
 
     case _actions.CLOSE_DIALOG:
       return _extends({}, state, _defineProperty({}, action.dialogName, false));
+
+    case _actions.CLEAR_DIALOGS:
+      return {};
 
     default:
       return state;

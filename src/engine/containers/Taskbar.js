@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import TaskbarView from '../components/TaskbarView'
+import { logout } from '../actions'
 
 const baseEntries = [
   { icon: 'icon_query.png',   label: 'Query Plan',    name: 'query' },
@@ -9,7 +10,11 @@ const baseEntries = [
 ]
 const guestEntry = [ { icon: 'icon_authen.png', label: 'Login', name: 'login' } ]
 const adminEntries = [
-  { icon: 'icon_logout.png', label: 'Logout', name: 'logout' }
+  {
+    icon: 'icon_logout.png',
+    label: 'Logout',
+    handler: (event, dispatch) => dispatch(logout())
+  }
 ]
 const superAdminEntries = []
 

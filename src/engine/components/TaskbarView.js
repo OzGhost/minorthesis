@@ -9,7 +9,13 @@ const TaskbarView = ({ items, dispatch }) => (
       <TaskbarIcon key={i}
         icon={'../res/' + item.icon}
         label={item.label}
-        onClick={event => { dispatch(openDialog(event, item.name)) }}
+        onClick={
+          item.name
+            ? event => { dispatch(openDialog(event, item.name)) }
+            : (item.handler && typeof(item.handler) === 'function')
+              ? event => { item.handler(event, dispatch) }
+              : ()=>{}
+        }
       />
     )}
   </div>
