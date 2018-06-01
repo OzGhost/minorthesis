@@ -11,6 +11,12 @@ const baseEntries = [
 const guestEntry = [ { icon: 'icon_authen.png', label: 'Login', name: 'login' } ]
 const adminEntries = [
   {
+    icon: 'icon_modifier.png',
+    label: 'Modifier',
+    name: 'modifier',
+    handler: (event, dispatch) => console.log('Noop')
+  },
+  {
     icon: 'icon_logout.png',
     label: 'Logout',
     handler: (event, dispatch) => dispatch(logout())

@@ -4,23 +4,10 @@ import Dialog from './Dialog'
 
 class QueryDialogView extends Dialog {
   static propTypes = {
-    layers: PropTypes.arrayOf(PropTypes.shape({
-        value: PropTypes.string.isRequired,
-        label: PropTypes.string.isRequired
-      })),
-    fields: PropTypes.arrayOf(PropTypes.shape({
-        value: PropTypes.string.isRequired,
-        label: PropTypes.string.isRequired
-      })),
-    values: PropTypes.arrayOf(PropTypes.any),
-    results: PropTypes.arrayOf(PropTypes.any),
-
-    layerChange: PropTypes.func.isRequired,
-    fieldChange: PropTypes.func.isRequired,
-    valueChange: PropTypes.func.isRequired,
-    viewDetail: PropTypes.func.isRequired,
+    targets: PropTypes.array.isRequired,
+    userRole: PropTypes.string.isRequired,
+    targetChangeListener: PropTypes.func.isRequired,
     onClose: PropTypes.func,
-
     isLoading: PropTypes.bool,
     isActive: PropTypes.bool
   }
@@ -32,63 +19,24 @@ class QueryDialogView extends Dialog {
   })
 
   buildDialogContent = () => {
-    const { layers, fields, values, results, viewDetail,
-            layerChange, fieldChange, valueChange, isLoading } = this.props
+    const {targets, targetChangeListener, isLoading} = this.props
     const block = { disabled: isLoading }
     return (
       <div>
         <div className="w3-row">
-          <div className="w3-col s6">
-            <label>Layer:</label>
-            <select
-                onChange={ (event) => layerChange(event.target.value) }
-                className="w3-input w3-border"
-                {...block}
-            >
-              { layers.map( layer => (
-                <option key={layer.value} value={layer.value}>{layer.label}</option>
-              ) ) }
-            </select>
-          </div>
-          <div className="w3-col s6">
-            <label>Field:</label>
-            <select
-                onChange={ (event) => fieldChange(event.target.value) }
-                className="w3-input w3-border"
-                {...block}
-            >
-              { fields.map( field => (
-                <option key={field.value} value={field.value}>{field.label}</option>
-              ) ) }
-            </select>
-          </div>
-        </div>
-        <div className="w3-row">
-          <div className="w3-col s12">
-            <label>Value:</label>
-            <select
-                onChange={ (event) => valueChange(event.target.value) }
-                className="w3-input w3-border"
-                {...block}
-            >
-              { values.map( val => (
-                <option key={val}>{val}</option>
-              ) ) }
-            </select>
-          </div>
-        </div>
-        <hr/>
-        <div className="query-result">
-          <label>Results:</label>
-          <ul className="w3-ul">
-            { results.map( result => (
-              <li key={result.gid} onClick={ event => {
-                viewDetail(event, result)
-              } }>
-                {result.name}
-              </li>
+          <label>Target:</label>
+          <select
+              onChange={ (event) => targetChangeListener(event.target.value) }
+              className="w3-input w3-border"
+              {...block}
+          >
+            { targets.map( target => (
+              <option
+                  key={target.value}
+                  value={target.value}
+              >{target.label}</option>
             ) ) }
-          </ul>
+          </select>
         </div>
       </div>
     )

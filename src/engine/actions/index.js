@@ -34,6 +34,8 @@ export const LOGIN_RESULT = 'LOGIN RESULT'
 export const IDENTIFY_CLEAN = 'IDENTIFY CLEAN'
 export const ROLE_CHANGED = 'ROLE CHANGE'
 
+export const QUERY_TARGET_CHANGE = 'Query Target Change'
+
 export const openDialog = (event, dialogName) => {
   MouseTrapper.trap(event)
   return {
@@ -191,4 +193,9 @@ export const logout = () => dispatch => {
 
 const clearDialogs = () => ({
   type: CLEAR_DIALOGS
+})
+
+export const queryTargetChangeTo = target => ({
+  type: QUERY_TARGET_CHANGE,
+  target
 })

@@ -23155,7 +23155,7 @@ function symbolObservablePonyfill(root) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.logout = exports.pickRuler = exports.roleChanged = exports.authenDone = exports.receiveAuthenResult = exports.requestAuthen = exports.inLogin = exports.inPassword = exports.inUsername = exports.toggleLayer = exports.openDetail = exports.showFeatureTarget = exports.receiveTargetId = exports.performQuery = exports.fetchValues = exports.storeFieldName = exports.fetchFields = exports.storeLayerName = exports.fetchLayers = exports.closeDialog = exports.openDialog = exports.ROLE_CHANGED = exports.IDENTIFY_CLEAN = exports.LOGIN_RESULT = exports.IN_LOGIN = exports.IN_PASSWORD = exports.IN_USERNAME = exports.TOGGLE_LAYER = exports.OPEN_DETAIL = exports.RECEIVE_QUERY_RESULT = exports.QUERING = exports.STORE_FIELD = exports.STORE_LAYER = exports.RECEIVE_VALUES = exports.REQUEST_VALUES = exports.RECEIVE_FIELDS = exports.REQUEST_FIELDS = exports.RECEIVE_LAYERS = exports.REQUEST_LAYERS = exports.CLEAR_DIALOGS = exports.CLOSE_DIALOG = exports.OPEN_DIALOG = undefined;
+exports.queryTargetChangeTo = exports.logout = exports.pickRuler = exports.roleChanged = exports.authenDone = exports.receiveAuthenResult = exports.requestAuthen = exports.inLogin = exports.inPassword = exports.inUsername = exports.toggleLayer = exports.openDetail = exports.showFeatureTarget = exports.receiveTargetId = exports.performQuery = exports.fetchValues = exports.storeFieldName = exports.fetchFields = exports.storeLayerName = exports.fetchLayers = exports.closeDialog = exports.openDialog = exports.QUERY_TARGET_CHANGE = exports.ROLE_CHANGED = exports.IDENTIFY_CLEAN = exports.LOGIN_RESULT = exports.IN_LOGIN = exports.IN_PASSWORD = exports.IN_USERNAME = exports.TOGGLE_LAYER = exports.OPEN_DETAIL = exports.RECEIVE_QUERY_RESULT = exports.QUERING = exports.STORE_FIELD = exports.STORE_LAYER = exports.RECEIVE_VALUES = exports.REQUEST_VALUES = exports.RECEIVE_FIELDS = exports.REQUEST_FIELDS = exports.RECEIVE_LAYERS = exports.REQUEST_LAYERS = exports.CLEAR_DIALOGS = exports.CLOSE_DIALOG = exports.OPEN_DIALOG = undefined;
 
 var _MouseTrapper = require('../common/MouseTrapper');
 
@@ -23202,6 +23202,8 @@ var IN_LOGIN = exports.IN_LOGIN = 'USER TRY TO LOGIN';
 var LOGIN_RESULT = exports.LOGIN_RESULT = 'LOGIN RESULT';
 var IDENTIFY_CLEAN = exports.IDENTIFY_CLEAN = 'IDENTIFY CLEAN';
 var ROLE_CHANGED = exports.ROLE_CHANGED = 'ROLE CHANGE';
+
+var QUERY_TARGET_CHANGE = exports.QUERY_TARGET_CHANGE = 'Query Target Change';
 
 var openDialog = exports.openDialog = function openDialog(event, dialogName) {
   _MouseTrapper2.default.trap(event);
@@ -23417,6 +23419,13 @@ var logout = exports.logout = function logout() {
 var clearDialogs = function clearDialogs() {
   return {
     type: CLEAR_DIALOGS
+  };
+};
+
+var queryTargetChangeTo = exports.queryTargetChangeTo = function queryTargetChangeTo(target) {
+  return {
+    type: QUERY_TARGET_CHANGE,
+    target: target
   };
 };
 
@@ -24308,14 +24317,8 @@ var QueryDialogView = function (_Dialog) {
       };
     }, _this.buildDialogContent = function () {
       var _this$props = _this.props,
-          layers = _this$props.layers,
-          fields = _this$props.fields,
-          values = _this$props.values,
-          results = _this$props.results,
-          viewDetail = _this$props.viewDetail,
-          layerChange = _this$props.layerChange,
-          fieldChange = _this$props.fieldChange,
-          valueChange = _this$props.valueChange,
+          targets = _this$props.targets,
+          targetChangeListener = _this$props.targetChangeListener,
           isLoading = _this$props.isLoading;
 
       var block = { disabled: isLoading };
@@ -24326,104 +24329,26 @@ var QueryDialogView = function (_Dialog) {
           'div',
           { className: 'w3-row' },
           _react2.default.createElement(
-            'div',
-            { className: 'w3-col s6' },
-            _react2.default.createElement(
-              'label',
-              null,
-              'Layer:'
-            ),
-            _react2.default.createElement(
-              'select',
-              _extends({
-                onChange: function onChange(event) {
-                  return layerChange(event.target.value);
-                },
-                className: 'w3-input w3-border'
-              }, block),
-              layers.map(function (layer) {
-                return _react2.default.createElement(
-                  'option',
-                  { key: layer.value, value: layer.value },
-                  layer.label
-                );
-              })
-            )
-          ),
-          _react2.default.createElement(
-            'div',
-            { className: 'w3-col s6' },
-            _react2.default.createElement(
-              'label',
-              null,
-              'Field:'
-            ),
-            _react2.default.createElement(
-              'select',
-              _extends({
-                onChange: function onChange(event) {
-                  return fieldChange(event.target.value);
-                },
-                className: 'w3-input w3-border'
-              }, block),
-              fields.map(function (field) {
-                return _react2.default.createElement(
-                  'option',
-                  { key: field.value, value: field.value },
-                  field.label
-                );
-              })
-            )
-          )
-        ),
-        _react2.default.createElement(
-          'div',
-          { className: 'w3-row' },
-          _react2.default.createElement(
-            'div',
-            { className: 'w3-col s12' },
-            _react2.default.createElement(
-              'label',
-              null,
-              'Value:'
-            ),
-            _react2.default.createElement(
-              'select',
-              _extends({
-                onChange: function onChange(event) {
-                  return valueChange(event.target.value);
-                },
-                className: 'w3-input w3-border'
-              }, block),
-              values.map(function (val) {
-                return _react2.default.createElement(
-                  'option',
-                  { key: val },
-                  val
-                );
-              })
-            )
-          )
-        ),
-        _react2.default.createElement('hr', null),
-        _react2.default.createElement(
-          'div',
-          { className: 'query-result' },
-          _react2.default.createElement(
             'label',
             null,
-            'Results:'
+            'Target:'
           ),
           _react2.default.createElement(
-            'ul',
-            { className: 'w3-ul' },
-            results.map(function (result) {
+            'select',
+            _extends({
+              onChange: function onChange(event) {
+                return targetChangeListener(event.target.value);
+              },
+              className: 'w3-input w3-border'
+            }, block),
+            targets.map(function (target) {
               return _react2.default.createElement(
-                'li',
-                { key: result.gid, onClick: function onClick(event) {
-                    viewDetail(event, result);
-                  } },
-                result.name
+                'option',
+                {
+                  key: target.value,
+                  value: target.value
+                },
+                target.label
               );
             })
           )
@@ -24436,23 +24361,10 @@ var QueryDialogView = function (_Dialog) {
 }(_Dialog3.default);
 
 QueryDialogView.propTypes = {
-  layers: _propTypes2.default.arrayOf(_propTypes2.default.shape({
-    value: _propTypes2.default.string.isRequired,
-    label: _propTypes2.default.string.isRequired
-  })),
-  fields: _propTypes2.default.arrayOf(_propTypes2.default.shape({
-    value: _propTypes2.default.string.isRequired,
-    label: _propTypes2.default.string.isRequired
-  })),
-  values: _propTypes2.default.arrayOf(_propTypes2.default.any),
-  results: _propTypes2.default.arrayOf(_propTypes2.default.any),
-
-  layerChange: _propTypes2.default.func.isRequired,
-  fieldChange: _propTypes2.default.func.isRequired,
-  valueChange: _propTypes2.default.func.isRequired,
-  viewDetail: _propTypes2.default.func.isRequired,
+  targets: _propTypes2.default.array.isRequired,
+  userRole: _propTypes2.default.string.isRequired,
+  targetChangeListener: _propTypes2.default.func.isRequired,
   onClose: _propTypes2.default.func,
-
   isLoading: _propTypes2.default.bool,
   isActive: _propTypes2.default.bool
 };
@@ -24603,11 +24515,10 @@ var TaskbarView = function TaskbarView(_ref) {
       return _react2.default.createElement(_TaskbarIcon2.default, { key: i,
         icon: '../res/' + item.icon,
         label: item.label,
-        onClick: item.name ? function (event) {
-          dispatch((0, _actions.openDialog)(event, item.name));
-        } : item.handler && typeof item.handler === 'function' ? function (event) {
-          item.handler(event, dispatch);
-        } : function () {}
+        onClick: function onClick(event) {
+          item.handler && item.handler(event, dispatch);
+          item.name && dispatch((0, _actions.openDialog)(event, item.name));
+        }
       });
     })
   );
@@ -24825,24 +24736,23 @@ var _QueryDialogView2 = _interopRequireDefault(_QueryDialogView);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var basicTargets = [{ value: 'plan', label: 'plan' }, { value: 'certificate', label: 'certificate' }];
+
 var stateToProps = function stateToProps(state) {
   return _extends({}, state.queryDialog, {
-    isActive: state.dialogState['query']
+    isActive: state.dialogState['query'],
+    targets: basicTargets,
+    userRole: 'guest'
   });
 };
 
 var actToProps = function actToProps(dispatch) {
   return {
-    layerChange: function layerChange(layerName) {
-      dispatch((0, _actions.storeLayerName)(layerName));
-      dispatch((0, _actions.fetchFields)(layerName));
-    },
-    fieldChange: function fieldChange(fieldName) {
-      dispatch((0, _actions.storeFieldName)(fieldName));
-      dispatch((0, _actions.fetchValues)(fieldName));
+    targetChangeListener: function targetChangeListener(val) {
+      return dispatch((0, _actions.queryTargetChangeTo)(val));
     },
     valueChange: function valueChange(value) {
-      return dispatch((0, _actions.performQuery)(value));
+      return dispatch(performQuery(value));
     },
     viewDetail: function viewDetail(event, result) {
       return dispatch((0, _actions.showFeatureTarget)(event, result));
@@ -24916,6 +24826,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var baseEntries = [{ icon: 'icon_query.png', label: 'Query Plan', name: 'query' }, { icon: 'icon_filter.png', label: 'Filter Layer', name: 'filter' }, { icon: 'icon_ruler.png', label: undefined, name: 'ruler' }];
 var guestEntry = [{ icon: 'icon_authen.png', label: 'Login', name: 'login' }];
 var adminEntries = [{
+  icon: 'icon_modifier.png',
+  label: 'Modifier',
+  name: 'modifier',
+  handler: function handler(event, dispatch) {
+    return console.log('Noop');
+  }
+}, {
   icon: 'icon_logout.png',
   label: 'Logout',
   handler: function handler(event, dispatch) {
@@ -25001,8 +24918,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 var defaultSelect = {
   value: '...',
   label: '...'
@@ -25013,55 +24928,18 @@ var emptyResult = {
 };
 
 var queryDialog = function queryDialog() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-    layers: [defaultSelect],
-    fields: [defaultSelect],
-    values: ['...'],
-    results: [emptyResult]
-  };
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { target: '' };
   var action = arguments[1];
 
   switch (action.type) {
-    case _actions.REQUEST_LAYERS:
-    case _actions.REQUEST_FIELDS:
-    case _actions.REQUEST_VALUES:
     case _actions.QUERING:
       return _extends({}, state, {
         isLoading: true
       });
 
-    case _actions.RECEIVE_LAYERS:
+    case _actions.QUERY_TARGET_CHANGE:
       return _extends({}, state, {
-        layers: [defaultSelect].concat(_toConsumableArray(action.layers)),
-        isLoading: false
-      });
-
-    case _actions.RECEIVE_FIELDS:
-      return _extends({}, state, {
-        fields: [defaultSelect].concat(_toConsumableArray(action.fields)),
-        isLoading: false
-      });
-
-    case _actions.STORE_LAYER:
-      return _extends({}, state, {
-        layerName: action.layerName
-      });
-
-    case _actions.RECEIVE_VALUES:
-      return _extends({}, state, {
-        values: ['...'].concat(_toConsumableArray(action.values)),
-        isLoading: false
-      });
-
-    case _actions.STORE_FIELD:
-      return _extends({}, state, {
-        fieldName: action.fieldName
-      });
-
-    case _actions.RECEIVE_QUERY_RESULT:
-      return _extends({}, state, {
-        results: action.results,
-        isLoading: false
+        target: action.target
       });
 
     default:
@@ -25177,7 +25055,7 @@ var userIdentify = function userIdentify() {
 };
 
 var taskbar = function taskbar() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { role: 'guest' };
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { role: 'admin' };
   var action = arguments[1];
 
   switch (action.type) {

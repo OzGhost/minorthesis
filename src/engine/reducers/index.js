@@ -1,10 +1,7 @@
 import { combineReducers } from 'redux'
 import Mapper from '../common/Mapper'
 import {
-  REQUEST_LAYERS, RECEIVE_LAYERS,
-  REQUEST_FIELDS, RECEIVE_FIELDS,
-  REQUEST_VALUES, RECEIVE_VALUES,
-  STORE_LAYER, STORE_FIELD,
+  QUERY_TARGET_CHANGE, RECEIVE_LAYERS,
   OPEN_DIALOG, CLOSE_DIALOG, CLEAR_DIALOGS,
   QUERING, RECEIVE_QUERY_RESULT,
   OPEN_DETAIL,
@@ -21,69 +18,18 @@ const emptyResult = {
   name: '...'
 }
 
-const queryDialog = (state = {
-                                layers: [defaultSelect],
-                                fields: [defaultSelect],
-                                values: ['...'],
-                                results: [emptyResult]
-                    }, action) => {
+const queryDialog = (state = {target: ''}, action) => {
   switch (action.type) {
-    case REQUEST_LAYERS:
-    case REQUEST_FIELDS:
-    case REQUEST_VALUES:
     case QUERING:
       return {
         ...state,
         isLoading: true
       }
 
-    case RECEIVE_LAYERS:
+    case QUERY_TARGET_CHANGE:
       return {
         ...state,
-        layers: [
-          defaultSelect,
-          ...action.layers
-        ],
-        isLoading: false
-      }
-
-    case RECEIVE_FIELDS:
-      return {
-        ...state,
-        fields: [
-          defaultSelect,
-          ...action.fields
-        ],
-        isLoading: false
-      }
-
-    case STORE_LAYER:
-      return {
-        ...state,
-        layerName: action.layerName
-      }
-
-    case RECEIVE_VALUES:
-      return {
-        ...state,
-        values: [
-          '...',
-          ...action.values
-        ],
-        isLoading: false
-      }
-
-    case STORE_FIELD:
-      return {
-        ...state,
-        fieldName: action.fieldName
-      }
-
-    case RECEIVE_QUERY_RESULT:
-      return {
-        ...state,
-        results: action.results,
-        isLoading: false
+        target: action.target
       }
 
     default:
@@ -196,7 +142,7 @@ const userIdentify = (state = {username: '', password: ''}, action) => {
   }
 }
 
-const taskbar = (state = {role: 'guest'}, action) => {
+const taskbar = (state = {role: 'admin'}, action) => {
   switch(action.type) {
 
     case ROLE_CHANGED:
