@@ -1,12 +1,15 @@
 import { combineReducers } from 'redux'
 import Mapper from '../common/Mapper'
+import DataLoader from '../common/DataLoader'
 import {
   QUERY_TARGET_CHANGE, RECEIVE_LAYERS,
+  QUERY_FIELD_CHANGE,
   OPEN_DIALOG, CLOSE_DIALOG, CLEAR_DIALOGS,
   QUERING, RECEIVE_QUERY_RESULT,
   OPEN_DETAIL,
   TOGGLE_LAYER,
-  IN_USERNAME, IN_PASSWORD, IN_LOGIN, LOGIN_RESULT, ROLE_CHANGED
+  IN_USERNAME, IN_PASSWORD, IN_LOGIN, LOGIN_RESULT, ROLE_CHANGED,
+  NO_RESULT_FOUND
 } from '../actions'
 
 const defaultSelect = {
@@ -18,7 +21,7 @@ const emptyResult = {
   name: '...'
 }
 
-const queryDialog = (state = {target: ''}, action) => {
+const queryDialog = (state = {target: 'govdoc', queryData: {}}, action) => {
   switch (action.type) {
     case QUERING:
       return {
@@ -31,6 +34,20 @@ const queryDialog = (state = {target: ''}, action) => {
         ...state,
         target: action.target
       }
+
+    case QUERY_FIELD_CHANGE:
+      return {
+        ...state,
+        hasNoResult: false,
+        queryData: DataLoader.load(state.queryData, action.locate, action.value)
+      }
+
+    case NO_RESULT_FOUND:
+      if (action.target === 'query')
+        return {
+          ...state,
+          hasNoResult: true
+        }
 
     default:
       return state
@@ -47,6 +64,7 @@ const dialogState = (state = {}, action) => {
       }
     
     case CLOSE_DIALOG:
+      Mapper.clearOverlay()
       return {
         ...state,
         [action.dialogName]: false
@@ -54,6 +72,13 @@ const dialogState = (state = {}, action) => {
 
     case CLEAR_DIALOGS:
       return {}
+
+    case QUERY_FIELD_CHANGE:
+      Mapper.clearOverlay()
+      return {
+        ...state,
+        ['detail']: false
+      }
 
     default:
       return state

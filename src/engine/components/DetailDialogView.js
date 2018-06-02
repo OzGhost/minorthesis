@@ -26,14 +26,16 @@ const DetailDialogView = ({ obj, onClose, isActive }) => {
         </div>
         <div className="w3-col s9 w3-padding-small"><b>Value</b></div>
       </div>
-      { objectDump(obj).map( row => (
-        <div key={row.key} className="w3-row w3-border-bottom">
-          <div className="w3-col s3 w3-right-align w3-padding-small">
-            {row.key}
+      <div className="detail-content">
+        { objectDump(obj).map( row => (
+          <div key={row.key} className="w3-row w3-border-bottom">
+            <div className="w3-col s3 w3-right-align w3-padding-small">
+              {row.key}
+            </div>
+            <div className="w3-col s9 w3-padding-small">{row.value}</div>
           </div>
-          <div className="w3-col s9 w3-padding-small">{row.value}</div>
-        </div>
-      ) ) }
+        ) ) }
+      </div>
       
     </div>
   )

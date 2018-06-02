@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import QuerierFactory from '../common/QuerierFactory'
 import Dialog from './Dialog'
 
 class QueryDialogView extends Dialog {
@@ -7,6 +8,7 @@ class QueryDialogView extends Dialog {
     targets: PropTypes.array.isRequired,
     userRole: PropTypes.string.isRequired,
     targetChangeListener: PropTypes.func.isRequired,
+    queryFieldChange: PropTypes.func.isRequired,
     onClose: PropTypes.func,
     isLoading: PropTypes.bool,
     isActive: PropTypes.bool
@@ -19,10 +21,16 @@ class QueryDialogView extends Dialog {
   })
 
   buildDialogContent = () => {
-    const {targets, targetChangeListener, isLoading} = this.props
+    const {targets, targetChangeListener, isLoading, target,
+            queryFieldChange, queryData, dispatch,
+            hasNoResult} = this.props
+    const querier = QuerierFactory.buildFor(target).withDispatch(dispatch)
     const block = { disabled: isLoading }
     return (
-      <div>
+      <form onSubmit={event => {
+        event.preventDefault()
+        querier.performQuery(event, queryData, dispatch)
+      }}>
         <div className="w3-row">
           <label>Target:</label>
           <select
@@ -38,7 +46,22 @@ class QueryDialogView extends Dialog {
             ) ) }
           </select>
         </div>
-      </div>
+        <hr/>
+        { querier.getView(queryFieldChange, queryData) }
+        { hasNoResult
+          ? (
+            <div className="w3-center">
+              <hr/>
+              <span className="w3-text-orange">No result was found!</span>
+            </div>
+          )
+          : ''
+        }
+        <hr/>
+        <div className="w3-row">
+          <button type="submit" className="w3-btn w3-block w3-blue">Query</button>
+        </div>
+      </form>
     )
   }
 }

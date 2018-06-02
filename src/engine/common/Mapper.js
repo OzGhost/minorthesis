@@ -5,11 +5,11 @@ import { receiveTargetId } from '../actions'
 
 class Mapper {
 
-  map = {}
-  view = {}
-  mainLayer = {}
-  mainSource = {}
-  overlaySource = {}
+  map = undefined
+  view = undefined
+  mainLayer = undefined
+  mainSource = undefined
+  overlaySource = undefined
   format = new ol.format.GeoJSON()
 
   init = layers => {
@@ -20,7 +20,7 @@ class Mapper {
     const overlay = this.createOverlayLayer()
 
     this.view = new ol.View({
-      center: [574500.4, 1320837.6],
+      center: [12070779, 1339273],
       zoom: 17
     })
 
@@ -105,9 +105,14 @@ class Mapper {
 
   viewTarget = target => {
     const feature = this.format.readFeature( JSON.parse(target.geo) )
-    this.overlaySource.clear()
+    this.clearOverlay()
     this.overlaySource.addFeature(feature)
     this.view.fit(feature.getGeometry(), { size: this.map.getSize() })
+  }
+
+  clearOverlay = () => {
+    if (this.overlaySource)
+      this.overlaySource.clear()
   }
 
   filterLayer = layersFiltered => {

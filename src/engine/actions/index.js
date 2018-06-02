@@ -2,7 +2,7 @@ import MouseTrapper from '../common/MouseTrapper'
 import Mapper from '../common/Mapper'
 import Ruler from '../common/Ruler'
 
-const host = 'http://localhost:3000'
+export const host = 'http://localhost:3000'
 
 export const OPEN_DIALOG = 'OPEN DIALGO'
 export const CLOSE_DIALOG = 'CLOSE DIALGO'
@@ -35,6 +35,9 @@ export const IDENTIFY_CLEAN = 'IDENTIFY CLEAN'
 export const ROLE_CHANGED = 'ROLE CHANGE'
 
 export const QUERY_TARGET_CHANGE = 'Query Target Change'
+export const QUERY_FIELD_CHANGE = 'Query Field Change'
+
+export const NO_RESULT_FOUND = 'No Result Found'
 
 export const openDialog = (event, dialogName) => {
   MouseTrapper.trap(event)
@@ -121,9 +124,7 @@ const receiveQueryResult = results => ({
 
 export const receiveTargetId = (event, targetId) => dispatch => {
   fetch(
-    host
-    + '/map/layers/'+'thuadat'
-    + '/features/'+targetId
+    host + '/thuadat/features/'+targetId
   )
     .then(res => res.json())
     .then(json => dispatch(showFeatureTarget(event, json)))
@@ -199,3 +200,21 @@ export const queryTargetChangeTo = target => ({
   type: QUERY_TARGET_CHANGE,
   target
 })
+
+export const queryFieldChange = (locate, value) => ({
+  type: QUERY_FIELD_CHANGE,
+  locate,
+  value
+})
+
+export const noResultFound = dialogName => ({
+  type: NO_RESULT_FOUND,
+  target: dialogName
+})
+
+export const loadDocs = () => dispatch => {
+  fetch(host + '/vanbannhanuoc')
+    .then(res => res.json())
+    .then(json => dispatch(queryFieldChange('doc.docs', json)))
+}
+

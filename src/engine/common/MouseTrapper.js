@@ -7,6 +7,8 @@ class MouseTrapper {
     this.position = {}
     this.position.x = event.pageX
     this.position.y = event.pageY
+    if (!event.pageX)
+      this.position = undefined
   }
 
   getTrappedPosition = () => {

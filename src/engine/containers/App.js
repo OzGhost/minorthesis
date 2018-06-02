@@ -11,9 +11,9 @@ import RulerDialog from '../containers/RulerDialog'
 const App = () => (
   <div>
     <div id="map"></div>
+    <DetailDialog />
     <Taskbar />
     <QueryDialog />
-    <DetailDialog />
     <FilterDialog />
     <LoginDialog />
     <RulerDialog />

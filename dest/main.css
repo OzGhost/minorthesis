@@ -75,13 +75,14 @@
     font-size: 20px;
     font-weight: bold;
     text-transform: capitalize;
-    text-shadow: 0 0 6px white, 0 0 12px crimson; }
+    text-shadow: 0 0 6px white, 0 0 12px #008080; }
   .dialog .dragger {
     position: absolute;
     top: -15px;
     left: 0;
     width: 100%;
     height: 45px;
+    cursor: move;
     z-index: 12; }
   .dialog .close-btn {
     display: block;
@@ -108,6 +109,8 @@
       transform: rotate(45deg); }
   .dialog hr {
     margin: 8px 0; }
+  .dialog ul li {
+    cursor: pointer; }
 
 .query-dialog {
   width: 300px; }
@@ -123,6 +126,9 @@
 
 .detail-dialog {
   min-width: 320px; }
+  .detail-dialog .detail-content {
+    max-height: 360px;
+    overflow-y: auto; }
 
 .filter-dialog {
   min-width: 220px; }
@@ -157,6 +163,10 @@
   left: 50px;
   transform: translate(100%, -50%);
   z-index: 10; }
+
+html {
+  height: 100vh;
+  overflow: hidden; }
 
 body, #map {
   height: 100vh; }
