@@ -23602,22 +23602,24 @@ var Mapper = function Mapper() {
   this.mainSource = undefined;
   this.overlaySource = undefined;
   this.format = new _openlayers2.default.format.GeoJSON();
+  this.osmLayer = undefined;
 
   this.init = function (layers) {
     _this.mainSource = _this.createMainLayerSource(layers);
     _this.mainLayer = new _openlayers2.default.layer.Tile({ source: _this.mainSource });
     _this.overlaySource = new _openlayers2.default.source.Vector({ format: _this.format });
+    _this.osmLayer = new _openlayers2.default.layer.Tile({ source: new _openlayers2.default.source.OSM() });
 
     var overlay = _this.createOverlayLayer();
 
     _this.view = new _openlayers2.default.View({
-      center: [12070779, 1339273],
-      zoom: 17
+      center: [12071579, 1339273],
+      zoom: 16
     });
 
     _this.map = new _openlayers2.default.Map({
       interactions: _openlayers2.default.interaction.defaults({ doubleClickZoom: false }),
-      layers: [_this.mainLayer, overlay],
+      layers: [_this.osmLayer, _this.mainLayer, overlay],
       target: 'map',
       view: _this.view
     });
@@ -23636,8 +23638,7 @@ var Mapper = function Mapper() {
       'VERSION': '1.1.1',
       'REQUEST': 'GetMap',
       'FORMAT': 'image/png',
-      'LAYERS': 'thuadat'
-      //'LAYERS': layers ? layers.join(',') : 'thuadat'
+      'LAYERS': layers ? layers.join(',') : 'thuadat'
     };
     return new _openlayers2.default.source.TileWMS({
       url: 'http://localhost/cgi-bin/mapserv',
@@ -23653,7 +23654,7 @@ var Mapper = function Mapper() {
       opacity: 0.3,
       style: new _openlayers2.default.style.Style({
         fill: new _openlayers2.default.style.Fill({
-          color: 'red'
+          color: 'crimson'
         }),
         stroke: new _openlayers2.default.style.Stroke({
           color: 'green',
@@ -23668,7 +23669,8 @@ var Mapper = function Mapper() {
 
     var resolution = +_this.view.getResolution();
     var url = _this.mainSource.getGetFeatureInfoUrl(evt.coordinate, resolution, 'EPSG:3857', { 'INFO_FORMAT': 'text/javascript' });
-    fetch(url.replace('GetMap', 'GetFeatureInfo')).then(function (res) {
+    var reCorrectUrl = url.replace('GetMap', 'GetFeatureInfo').replace('thuadat%2Cquihoach', 'thuadat');
+    fetch(reCorrectUrl).then(function (res) {
       return res.json();
     }).then(function (target) {
       return _store2.default.dispatch((0, _actions.receiveTargetId)(evt.originalEvent, target.id));
@@ -23699,7 +23701,17 @@ var Mapper = function Mapper() {
   };
 
   this.filterLayer = function (layersFiltered) {
-    _this.mainLayer.setSource(_this.createMainLayerSource(layersFiltered));
+    var systemLayer = layersFiltered.filter(function (e) {
+      return e !== 'osm';
+    });
+    console.log(systemLayer);
+    if (systemLayer.length > 0) {
+      _this.mainLayer.setVisible(true);
+      _this.mainLayer.setSource(_this.createMainLayerSource(systemLayer));
+    } else {
+      _this.mainLayer.setVisible(false);
+    }
+    _this.osmLayer.setVisible(layersFiltered.indexOf('osm') >= 0);
   };
 
   this.getMap = function () {
@@ -25578,6 +25590,8 @@ var _actions = require('../actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var defaultSelect = {
@@ -25601,7 +25615,8 @@ var queryDialog = function queryDialog() {
 
     case _actions.QUERY_TARGET_CHANGE:
       return _extends({}, state, {
-        target: action.target
+        target: action.target,
+        hasNoResult: false
       });
 
     case _actions.QUERY_FIELD_CHANGE:
@@ -25668,12 +25683,13 @@ var filterDialog = function filterDialog() {
   switch (action.type) {
 
     case _actions.RECEIVE_LAYERS:
+
       _Mapper2.default.init(action.layers.map(function (layer) {
         return layer.value;
       }));
-      return action.layers.map(function (layer) {
+      return [].concat(_toConsumableArray(action.layers.map(function (layer) {
         return _extends({}, layer, { isChecked: true });
-      });
+      })), [{ value: 'osm', label: 'Open Street Map', isChecked: true }]);
 
     case _actions.TOGGLE_LAYER:
       var newState = state.map(function (layer) {

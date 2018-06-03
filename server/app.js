@@ -65,7 +65,7 @@ app.get('/vanbannhanuoc', (req, res) => {
 app.get('/map/layers', (req, res) => {
   var layers = [
     { value: 'thuadat', label: 'Thua Dat' },
-    { value: 'gt', label: 'Giao Thong' }
+    { value: 'quihoach', label: 'Qui Hoach' }
   ]
   res.json(layers)
 })

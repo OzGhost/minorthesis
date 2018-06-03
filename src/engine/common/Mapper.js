@@ -11,22 +11,24 @@ class Mapper {
   mainSource = undefined
   overlaySource = undefined
   format = new ol.format.GeoJSON()
+  osmLayer = undefined
 
   init = layers => {
     this.mainSource = this.createMainLayerSource(layers)
     this.mainLayer = new ol.layer.Tile({ source: this.mainSource })
     this.overlaySource = new ol.source.Vector({ format: this.format })
+    this.osmLayer = new ol.layer.Tile({source: new ol.source.OSM()})
 
     const overlay = this.createOverlayLayer()
 
     this.view = new ol.View({
-      center: [12070779, 1339273],
-      zoom: 17
+      center: [12071579, 1339273],
+      zoom: 16
     })
 
     this.map = new ol.Map({
       interactions: ol.interaction.defaults({doubleClickZoom: false}),
-      layers: [this.mainLayer, overlay],
+      layers: [this.osmLayer, this.mainLayer, overlay],
       target: 'map',
       view: this.view
     })
@@ -45,8 +47,7 @@ class Mapper {
       'VERSION': '1.1.1',
       'REQUEST': 'GetMap',
       'FORMAT': 'image/png',
-      'LAYERS': 'thuadat'
-      //'LAYERS': layers ? layers.join(',') : 'thuadat'
+      'LAYERS': layers ? layers.join(',') : 'thuadat'
     }
     return new ol.source.TileWMS({
       url: 'http://localhost/cgi-bin/mapserv',
@@ -62,7 +63,7 @@ class Mapper {
       opacity: 0.3,
       style: new ol.style.Style({
         fill: new ol.style.Fill({
-          color: 'red'
+          color: 'crimson'
         }),
         stroke: new ol.style.Stroke({
           color: 'green',
@@ -76,14 +77,16 @@ class Mapper {
       if (! this.isFeatureWasHit(evt) || Ruler.isMeasuring())
         return
 
-      let resolution = +this.view.getResolution()
-      let url = this.mainSource.getGetFeatureInfoUrl(
+      const resolution = +this.view.getResolution()
+      const url = this.mainSource.getGetFeatureInfoUrl(
         evt.coordinate,
         resolution,
         'EPSG:3857',
         {'INFO_FORMAT': 'text/javascript'}
       )
-      fetch(url.replace('GetMap', 'GetFeatureInfo'))
+      let reCorrectUrl = url.replace('GetMap', 'GetFeatureInfo')
+                            .replace('thuadat%2Cquihoach', 'thuadat')
+      fetch(reCorrectUrl)
         .then(res => res.json())
         .then(target => store.dispatch(
           receiveTargetId(evt.originalEvent, target.id)
@@ -116,7 +119,15 @@ class Mapper {
   }
 
   filterLayer = layersFiltered => {
-    this.mainLayer.setSource(this.createMainLayerSource(layersFiltered))
+    const systemLayer = layersFiltered.filter(e => e !== 'osm')
+    console.log(systemLayer)
+    if (systemLayer.length > 0) {
+      this.mainLayer.setVisible(true)
+      this.mainLayer.setSource(this.createMainLayerSource(systemLayer))
+    } else {
+      this.mainLayer.setVisible(false)
+    }
+    this.osmLayer.setVisible(layersFiltered.indexOf('osm') >= 0)
   }
 
   getMap = () => this.map

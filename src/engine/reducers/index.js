@@ -32,7 +32,8 @@ const queryDialog = (state = {target: 'govdoc', queryData: {}}, action) => {
     case QUERY_TARGET_CHANGE:
       return {
         ...state,
-        target: action.target
+        target: action.target,
+        hasNoResult: false
       }
 
     case QUERY_FIELD_CHANGE:
@@ -103,8 +104,11 @@ const filterDialog = (state = [], action) => {
   switch (action.type) {
 
     case RECEIVE_LAYERS:
+      
       Mapper.init(action.layers.map(layer => layer.value))
-      return action.layers.map(layer => ({...layer, isChecked: true}))
+      return [...(action.layers.map(layer => ({...layer, isChecked: true}))),
+                {value: 'osm', label: 'Open Street Map', isChecked: true}
+              ]
 
     case TOGGLE_LAYER:
       const newState = state.map( layer => 
