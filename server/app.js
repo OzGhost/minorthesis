@@ -43,7 +43,7 @@ app.get('/giaychungnhan', (req, res) => {
   const fullInfo = shortInfo
                   + ' c.machu, c.loaichu, c.nam, c.sogiayto, c.ngaycap,'
                   + 'c.diachi, c.quoctich, '
-  const q = 'SELECT ' + shortInfo
+  const q = 'SELECT ' + fullInfo
             + ' d.gid, d.shbando, d.shthua, d.dtpl, d.sonha, d.tenduong,'
             + ' d.phuong, d.thanhpho, d.tinh, ST_asGeoJSON(geom) as geo'
             + ' FROM chusudung c'
@@ -59,13 +59,19 @@ app.get('/vanbannhanuoc', (req, res) => {
   performQuery(q, objs => res.json(objs), true)
 })
 
+app.get('/taikhoan', (req, res) => {
+  const q = 'SELECT id, username, hoten, cmnd, diachi, chucvu'
+          + ' FROM taikhoan'
+  performQuery(q, objs => res.json(objs), true)
+})
+
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 app.get('/map/layers', (req, res) => {
   var layers = [
-    { value: 'thuadat', label: 'Thua Dat' },
-    { value: 'quihoach', label: 'Qui Hoach' }
+    { value: 'thuadat', label: 'Thửa đất' },
+    { value: 'quihoach', label: 'Quy hoạch' }
   ]
   res.json(layers)
 })

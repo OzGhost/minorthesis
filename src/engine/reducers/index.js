@@ -21,7 +21,7 @@ const emptyResult = {
   name: '...'
 }
 
-const queryDialog = (state = {target: 'govdoc', queryData: {}}, action) => {
+const queryDialog = (state = {target: 'user', queryData: {}}, action) => {
   switch (action.type) {
     case QUERING:
       return {
@@ -65,7 +65,9 @@ const dialogState = (state = {}, action) => {
       }
     
     case CLOSE_DIALOG:
-      Mapper.clearOverlay()
+      if (action.dialogName !== 'ruler') {
+        Mapper.clearOverlay()
+      }
       return {
         ...state,
         [action.dialogName]: false
@@ -92,7 +94,8 @@ const detailDialog = (state = { obj: {} }, action) => {
     case OPEN_DETAIL:
       return {
         ...state,
-        obj: action.object
+        obj: action.object,
+        labels: action.labels
       }
 
     default:

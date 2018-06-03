@@ -4,6 +4,7 @@ import { noResultFound, showFeatureTarget,
 import DataLoader from '../common/DataLoader'
 import Querier from './Querier'
 import CertificateQuerierView from '../components/CertificateQuerierView'
+import { CERTIFICATE_DETAIL_LABELS } from '../common/Constants'
 
 class CertificateQuerier extends Querier {
   getView = (onChange, data) => (
@@ -26,7 +27,7 @@ class CertificateQuerier extends Querier {
   }
 
   itemSelect = (event, item) => {
-    this.dispatch(showFeatureTarget(event, item))
+    this.dispatch(showFeatureTarget(event, item, CERTIFICATE_DETAIL_LABELS))
   }
 }
 

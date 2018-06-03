@@ -11,14 +11,14 @@ const RulerDialogView = ({isActive, pickRulerName}) => {
   return (
     <div className={styleClass} style={dialogPos}>
       <div className="taskbar-icon">
-        <label>Length measure</label>
+        <label>Đo chiều dài</label>
         <img
           src="../res/icon_tap_ruler.png"
           onClick={()=>pickRulerName('length')}
         />
       </div>
       <div className="taskbar-icon">
-        <label>Area measure</label>
+        <label>Đo diện tích</label>
         <img
           src="../res/icon_area_ruler.png"
            onClick={()=>pickRulerName('area')}

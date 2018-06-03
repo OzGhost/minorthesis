@@ -58,9 +58,18 @@ class QueryDialogView extends Dialog {
           : ''
         }
         <hr/>
-        <div className="w3-row">
-          <button type="submit" className="w3-btn w3-block w3-blue">Query</button>
-        </div>
+        {
+          querier.isAutoLoad()
+            ? ''
+            : (
+              <div className="w3-row">
+                <button
+                  type="submit"
+                  className="w3-btn w3-block w3-blue"
+                >Query</button>
+              </div>
+            )
+        }
       </form>
     )
   }

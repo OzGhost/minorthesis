@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import mouseStart from '../common/Dragger'
 import MouseTrapper from '../common/MouseTrapper'
 
-const DetailDialogView = ({ obj, onClose, isActive }) => {
+const DetailDialogView = ({ obj, labels, onClose, isActive }) => {
   const styleClass = 'dialog detail-dialog' + (isActive ? '' : ' hidden')
   const mousePos = MouseTrapper.getTrappedPosition()
   const dialogPos = mousePos
@@ -17,22 +17,16 @@ const DetailDialogView = ({ obj, onClose, isActive }) => {
       <span className="close-btn" onClick={onClose}></span>
       <div className="dragger" onMouseDown={mouseStart}></div>
       <img className="dialog-icon" src="../res/icon_detail.png" />
-      <p className="dialog-title">Details</p>
+      <p className="dialog-title">Thông tin chi tiết</p>
       <hr/>
 
-      <div className="w3-row w3-border-bottom">
-        <div className="w3-col s3 w3-right-align w3-padding-small">
-          <b>Field</b>
-        </div>
-        <div className="w3-col s9 w3-padding-small"><b>Value</b></div>
-      </div>
       <div className="detail-content">
-        { objectDump(obj).map( row => (
+        { objectDump(obj, labels).map( row => (
           <div key={row.key} className="w3-row w3-border-bottom">
-            <div className="w3-col s3 w3-right-align w3-padding-small">
-              {row.key}
+            <div className="w3-col w3-right-align w3-padding-small" >
+              {row.key + ':'}
             </div>
-            <div className="w3-col s9 w3-padding-small">{row.value}</div>
+            <div className="w3-col w3-padding-small">{row.value}</div>
           </div>
         ) ) }
       </div>
@@ -41,20 +35,27 @@ const DetailDialogView = ({ obj, onClose, isActive }) => {
   )
 }
 
-const objectDump = obj => (
-  Object.keys(obj)
+const objectDump = (obj, labels) => {
+  const labelHolder = typeof(labels) === 'object' ? labels : {}
+  return Object.keys(obj)
     .filter( key => !isSkipField(key) )
-    .map(key => ({ key, value: obj[key] }))
-)
+    .map(key => ({key: labelHolder[key] || key, value: obj[key]}))
+}
 
 const isSkipField = fieldName => {
-  if (fieldName == 'geo')
-    return true
-  return false
+  switch(fieldName) {
+    case 'geo':
+    case 'id':
+    case 'gid':
+      return true
+    default:
+      return false
+  }
 }
 
 DetailDialogView.propTypes = {
   obj: PropTypes.object.isRequired,
+  lables: PropTypes.object,
   onClose: PropTypes.func.isRequired,
   isActive: PropTypes.bool
 }

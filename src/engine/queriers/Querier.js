@@ -8,6 +8,8 @@ class Querier {
   withDispatch = dispatch => { this.dispatch = dispatch; return this }
 
   getView = () => ('')
+
+  isAutoLoad = () => false
   
   performQuery = (event, data) => {
     fetch(host + this.buildQuery(data))

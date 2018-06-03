@@ -1,6 +1,7 @@
 import MouseTrapper from '../common/MouseTrapper'
 import Mapper from '../common/Mapper'
 import Ruler from '../common/Ruler'
+import { PLAN_DETAIL_LABELS } from '../common/Constants'
 
 export const host = 'http://localhost:3000'
 
@@ -127,17 +128,23 @@ export const receiveTargetId = (event, targetId) => dispatch => {
     host + '/thuadat/features/'+targetId
   )
     .then(res => res.json())
-    .then(json => dispatch(showFeatureTarget(event, json)))
+    .then(json => dispatch(showFeatureTarget(event, json, PLAN_DETAIL_LABELS)))
 }
-export const showFeatureTarget = (event, target) => dispatch => {
+export const showFeatureTarget = (event, target, labels) => dispatch => {
   Mapper.viewTarget(target)
   dispatch(openDialog(event, 'detail'))
-  dispatch(openDetail(target))
+  dispatch(openDetail(target, labels))
 }
 
-export const openDetail = object => ({
+export const showTargetDetail = (event, target, labels) => dispatch => {
+  dispatch(openDialog(event, 'detail'))
+  dispatch(openDetail(target, labels))
+}
+
+export const openDetail = (object, labels) => ({
   type: OPEN_DETAIL,
-  object
+  object,
+  labels
 })
 
 export const toggleLayer = layer => ({

@@ -17,13 +17,13 @@ class Ruler {
   handleMeasurePointerMove = evt => {
     if (evt.dragging || !this.isActive)
       return
-    let helpMsg = 'Click to start measuring'
+    let helpMsg = 'Nhấn chuột để bắt đầu đo'
     if (this.sketch) {
       let geom = (this.sketch.getGeometry());
       if (geom instanceof ol.geom.Polygon)
-        helpMsg = '[Polygon mode]/press [Esc] to quit mode'
+        helpMsg = '[Đo diện tích]/nhấn nút [ESC] để thoát chế độ đo'
       else if (geom instanceof ol.geom.LineString)
-        helpMsg = '[Line mode]/press [Esc] to quit mode'
+        helpMsg = '[Đo chiều dài]/nhấn nút [ESC] để thoát chế độ đo'
     }
 
     if (this.helpTooltipElement) {

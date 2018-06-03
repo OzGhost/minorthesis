@@ -12,7 +12,8 @@ import QueryDialogView from '../components/QueryDialogView'
 const basicTargets = [
   {value: 'plan', label: 'Plan'},
   {value: 'certi', label: 'Certificate'},
-  {value: 'govdoc', label: 'Government Document'}
+  {value: 'govdoc', label: 'Government Document'},
+  {value: 'user', label: 'User'}
 ]
 
 const stateToProps = state => ({

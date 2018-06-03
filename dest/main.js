@@ -23155,7 +23155,7 @@ function symbolObservablePonyfill(root) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.loadDocs = exports.noResultFound = exports.queryFieldChange = exports.queryTargetChangeTo = exports.logout = exports.pickRuler = exports.roleChanged = exports.authenDone = exports.receiveAuthenResult = exports.requestAuthen = exports.inLogin = exports.inPassword = exports.inUsername = exports.toggleLayer = exports.openDetail = exports.showFeatureTarget = exports.receiveTargetId = exports.performQuery = exports.fetchValues = exports.storeFieldName = exports.fetchFields = exports.storeLayerName = exports.fetchLayers = exports.closeDialog = exports.openDialog = exports.NO_RESULT_FOUND = exports.QUERY_FIELD_CHANGE = exports.QUERY_TARGET_CHANGE = exports.ROLE_CHANGED = exports.IDENTIFY_CLEAN = exports.LOGIN_RESULT = exports.IN_LOGIN = exports.IN_PASSWORD = exports.IN_USERNAME = exports.TOGGLE_LAYER = exports.OPEN_DETAIL = exports.RECEIVE_QUERY_RESULT = exports.QUERING = exports.STORE_FIELD = exports.STORE_LAYER = exports.RECEIVE_VALUES = exports.REQUEST_VALUES = exports.RECEIVE_FIELDS = exports.REQUEST_FIELDS = exports.RECEIVE_LAYERS = exports.REQUEST_LAYERS = exports.CLEAR_DIALOGS = exports.CLOSE_DIALOG = exports.OPEN_DIALOG = exports.host = undefined;
+exports.loadDocs = exports.noResultFound = exports.queryFieldChange = exports.queryTargetChangeTo = exports.logout = exports.pickRuler = exports.roleChanged = exports.authenDone = exports.receiveAuthenResult = exports.requestAuthen = exports.inLogin = exports.inPassword = exports.inUsername = exports.toggleLayer = exports.openDetail = exports.showTargetDetail = exports.showFeatureTarget = exports.receiveTargetId = exports.performQuery = exports.fetchValues = exports.storeFieldName = exports.fetchFields = exports.storeLayerName = exports.fetchLayers = exports.closeDialog = exports.openDialog = exports.NO_RESULT_FOUND = exports.QUERY_FIELD_CHANGE = exports.QUERY_TARGET_CHANGE = exports.ROLE_CHANGED = exports.IDENTIFY_CLEAN = exports.LOGIN_RESULT = exports.IN_LOGIN = exports.IN_PASSWORD = exports.IN_USERNAME = exports.TOGGLE_LAYER = exports.OPEN_DETAIL = exports.RECEIVE_QUERY_RESULT = exports.QUERING = exports.STORE_FIELD = exports.STORE_LAYER = exports.RECEIVE_VALUES = exports.REQUEST_VALUES = exports.RECEIVE_FIELDS = exports.REQUEST_FIELDS = exports.RECEIVE_LAYERS = exports.REQUEST_LAYERS = exports.CLEAR_DIALOGS = exports.CLOSE_DIALOG = exports.OPEN_DIALOG = exports.host = undefined;
 
 var _MouseTrapper = require('../common/MouseTrapper');
 
@@ -23168,6 +23168,8 @@ var _Mapper2 = _interopRequireDefault(_Mapper);
 var _Ruler = require('../common/Ruler');
 
 var _Ruler2 = _interopRequireDefault(_Ruler);
+
+var _Constants = require('../common/Constants');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -23325,22 +23327,30 @@ var receiveTargetId = exports.receiveTargetId = function receiveTargetId(event, 
     fetch(host + '/thuadat/features/' + targetId).then(function (res) {
       return res.json();
     }).then(function (json) {
-      return dispatch(showFeatureTarget(event, json));
+      return dispatch(showFeatureTarget(event, json, _Constants.PLAN_DETAIL_LABELS));
     });
   };
 };
-var showFeatureTarget = exports.showFeatureTarget = function showFeatureTarget(event, target) {
+var showFeatureTarget = exports.showFeatureTarget = function showFeatureTarget(event, target, labels) {
   return function (dispatch) {
     _Mapper2.default.viewTarget(target);
     dispatch(openDialog(event, 'detail'));
-    dispatch(openDetail(target));
+    dispatch(openDetail(target, labels));
   };
 };
 
-var openDetail = exports.openDetail = function openDetail(object) {
+var showTargetDetail = exports.showTargetDetail = function showTargetDetail(event, target, labels) {
+  return function (dispatch) {
+    dispatch(openDialog(event, 'detail'));
+    dispatch(openDetail(target, labels));
+  };
+};
+
+var openDetail = exports.openDetail = function openDetail(object, labels) {
   return {
     type: OPEN_DETAIL,
-    object: object
+    object: object,
+    labels: labels
   };
 };
 
@@ -23457,7 +23467,51 @@ var loadDocs = exports.loadDocs = function loadDocs() {
   };
 };
 
-},{"../common/Mapper":64,"../common/MouseTrapper":65,"../common/Ruler":67}],62:[function(require,module,exports){
+},{"../common/Constants":62,"../common/Mapper":65,"../common/MouseTrapper":66,"../common/Ruler":68}],62:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+var USER_DETAIL_LABELS = exports.USER_DETAIL_LABELS = {
+  username: 'Tên tài khoản',
+  hoten: 'Họ tên',
+  cmnd: 'CMND',
+  diachi: 'Địa chỉ',
+  chucvu: 'Chức vụ'
+};
+
+var PLAN_DETAIL_LABELS = exports.PLAN_DETAIL_LABELS = {
+  shbando: 'Số tờ',
+  shthua: 'Số thửa',
+  dtpl: 'Diện tích',
+  sonha: 'Số nhà',
+  tenduong: 'Tên đường',
+  thanhpho: 'Thành phố',
+  tinh: 'Tỉnh'
+};
+
+var CERTIFICATE_DETAIL_LABELS = exports.CERTIFICATE_DETAIL_LABELS = {
+  ten: 'Chủ sở hữu',
+  shgiaycn: 'Số hiệu GCN',
+  machu: '',
+  loaichu: '',
+  nam: 'Năm',
+  sogiayto: 'CMND',
+  ngaycap: 'Ngày cấp',
+  diachi: 'Địa chỉ',
+  quoctich: 'Quốc tịch',
+  shbando: 'Số tờ',
+  shthua: 'Số thửa',
+  dtpl: 'Diện tích',
+  sonha: 'Số nhà',
+  tenduong: 'Tên đường',
+  phuong: 'Phường',
+  thanhpho: 'Thành phố',
+  tinh: 'Tỉnh'
+};
+
+},{}],63:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23505,7 +23559,7 @@ var DataLoader = function DataLoader() {
 
 exports.default = new DataLoader();
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23566,7 +23620,7 @@ var Dragger = function Dragger() {
 
 exports.default = new Dragger().trap;
 
-},{}],64:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23725,7 +23779,7 @@ var Mapper = function Mapper() {
 
 exports.default = new Mapper();
 
-},{"../actions":61,"../store":92,"./Ruler":67,"openlayers":28}],65:[function(require,module,exports){
+},{"../actions":61,"../store":94,"./Ruler":68,"openlayers":28}],66:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23759,7 +23813,7 @@ var MouseTrapper = function MouseTrapper() {
 
 exports.default = new MouseTrapper();
 
-},{}],66:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23782,6 +23836,10 @@ var _GovernmentDocumentQuerier = require('../queriers/GovernmentDocumentQuerier'
 
 var _GovernmentDocumentQuerier2 = _interopRequireDefault(_GovernmentDocumentQuerier);
 
+var _UserQuerier = require('../queriers/UserQuerier');
+
+var _UserQuerier2 = _interopRequireDefault(_UserQuerier);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -23797,6 +23855,8 @@ var QuerierFactory = function QuerierFactory() {
         return _CertificateQuerier2.default;
       case 'govdoc':
         return _GovernmentDocumentQuerier2.default;
+      case 'user':
+        return _UserQuerier2.default;
       default:
         return _EmptyQuerier2.default;
     }
@@ -23805,7 +23865,7 @@ var QuerierFactory = function QuerierFactory() {
 
 exports.default = new QuerierFactory();
 
-},{"../queriers/CertificateQuerier":86,"../queriers/EmptyQuerier":87,"../queriers/GovernmentDocumentQuerier":88,"../queriers/PlanQuerier":89}],67:[function(require,module,exports){
+},{"../queriers/CertificateQuerier":87,"../queriers/EmptyQuerier":88,"../queriers/GovernmentDocumentQuerier":89,"../queriers/PlanQuerier":90,"../queriers/UserQuerier":92}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23835,10 +23895,10 @@ var Ruler = function Ruler() {
 
   this.handleMeasurePointerMove = function (evt) {
     if (evt.dragging || !_this.isActive) return;
-    var helpMsg = 'Click to start measuring';
+    var helpMsg = 'Nhấn chuột để bắt đầu đo';
     if (_this.sketch) {
       var geom = _this.sketch.getGeometry();
-      if (geom instanceof _openlayers2.default.geom.Polygon) helpMsg = '[Polygon mode]/press [Esc] to quit mode';else if (geom instanceof _openlayers2.default.geom.LineString) helpMsg = '[Line mode]/press [Esc] to quit mode';
+      if (geom instanceof _openlayers2.default.geom.Polygon) helpMsg = '[Đo diện tích]/nhấn nút [ESC] để thoát chế độ đo';else if (geom instanceof _openlayers2.default.geom.LineString) helpMsg = '[Đo chiều dài]/nhấn nút [ESC] để thoát chế độ đo';
     }
 
     if (_this.helpTooltipElement) {
@@ -23973,7 +24033,7 @@ var Ruler = function Ruler() {
 
 exports.default = new Ruler();
 
-},{"./Mapper":64,"openlayers":28}],68:[function(require,module,exports){
+},{"./Mapper":65,"openlayers":28}],69:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24042,12 +24102,14 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
 
 exports.default = CertificateQuerierView;
 
-},{"react":55}],69:[function(require,module,exports){
+},{"react":55}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _react = require('react');
 
@@ -24069,6 +24131,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var DetailDialogView = function DetailDialogView(_ref) {
   var obj = _ref.obj,
+      labels = _ref.labels,
       onClose = _ref.onClose,
       isActive = _ref.isActive;
 
@@ -24087,46 +24150,24 @@ var DetailDialogView = function DetailDialogView(_ref) {
     _react2.default.createElement(
       'p',
       { className: 'dialog-title' },
-      'Details'
+      'Th\xF4ng tin chi ti\u1EBFt'
     ),
     _react2.default.createElement('hr', null),
     _react2.default.createElement(
       'div',
-      { className: 'w3-row w3-border-bottom' },
-      _react2.default.createElement(
-        'div',
-        { className: 'w3-col s3 w3-right-align w3-padding-small' },
-        _react2.default.createElement(
-          'b',
-          null,
-          'Field'
-        )
-      ),
-      _react2.default.createElement(
-        'div',
-        { className: 'w3-col s9 w3-padding-small' },
-        _react2.default.createElement(
-          'b',
-          null,
-          'Value'
-        )
-      )
-    ),
-    _react2.default.createElement(
-      'div',
       { className: 'detail-content' },
-      objectDump(obj).map(function (row) {
+      objectDump(obj, labels).map(function (row) {
         return _react2.default.createElement(
           'div',
           { key: row.key, className: 'w3-row w3-border-bottom' },
           _react2.default.createElement(
             'div',
-            { className: 'w3-col s3 w3-right-align w3-padding-small' },
-            row.key
+            { className: 'w3-col w3-right-align w3-padding-small' },
+            row.key + ':'
           ),
           _react2.default.createElement(
             'div',
-            { className: 'w3-col s9 w3-padding-small' },
+            { className: 'w3-col w3-padding-small' },
             row.value
           )
         );
@@ -24135,28 +24176,36 @@ var DetailDialogView = function DetailDialogView(_ref) {
   );
 };
 
-var objectDump = function objectDump(obj) {
+var objectDump = function objectDump(obj, labels) {
+  var labelHolder = (typeof labels === 'undefined' ? 'undefined' : _typeof(labels)) === 'object' ? labels : {};
   return Object.keys(obj).filter(function (key) {
     return !isSkipField(key);
   }).map(function (key) {
-    return { key: key, value: obj[key] };
+    return { key: labelHolder[key] || key, value: obj[key] };
   });
 };
 
 var isSkipField = function isSkipField(fieldName) {
-  if (fieldName == 'geo') return true;
-  return false;
+  switch (fieldName) {
+    case 'geo':
+    case 'id':
+    case 'gid':
+      return true;
+    default:
+      return false;
+  }
 };
 
 DetailDialogView.propTypes = {
   obj: _propTypes2.default.object.isRequired,
+  lables: _propTypes2.default.object,
   onClose: _propTypes2.default.func.isRequired,
   isActive: _propTypes2.default.bool
 };
 
 exports.default = DetailDialogView;
 
-},{"../common/Dragger":63,"../common/MouseTrapper":65,"prop-types":33,"react":55}],70:[function(require,module,exports){
+},{"../common/Dragger":64,"../common/MouseTrapper":66,"prop-types":33,"react":55}],71:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24244,7 +24293,7 @@ Dialog.propTypes = {
 };
 exports.default = Dialog;
 
-},{"../common/Dragger":63,"../common/MouseTrapper":65,"prop-types":33,"react":55}],71:[function(require,module,exports){
+},{"../common/Dragger":64,"../common/MouseTrapper":66,"prop-types":33,"react":55}],72:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24288,7 +24337,7 @@ var FilterDialogView = function (_Dialog) {
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = FilterDialogView.__proto__ || Object.getPrototypeOf(FilterDialogView)).call.apply(_ref, [this].concat(args))), _this), _this.getMetaData = function () {
       return {
         styleClass: 'filter-dialog',
-        title: 'Layer Filter',
+        title: 'Ẩn/hiện lớp dữ liệu',
         icon: '../res/icon_filter.png'
       };
     }, _this.buildDialogContent = function () {
@@ -24310,7 +24359,7 @@ var FilterDialogView = function (_Dialog) {
           _react2.default.createElement(
             'div',
             { className: 'w3-rest' },
-            'Layers'
+            'C\xE1c l\u1EDBp d\u1EEF li\u1EC7u'
           )
         ),
         layers.map(function (layer) {
@@ -24355,7 +24404,7 @@ FilterDialogView.propTypes = {
 };
 exports.default = FilterDialogView;
 
-},{"./Dialog":70,"prop-types":33,"react":55}],72:[function(require,module,exports){
+},{"./Dialog":71,"prop-types":33,"react":55}],73:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24398,12 +24447,12 @@ var LoginDialogView = function (_Dialog) {
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = LoginDialogView.__proto__ || Object.getPrototypeOf(LoginDialogView)).call.apply(_ref, [this].concat(args))), _this), _this.getMetaData = function () {
       return {
-        title: 'Login',
+        title: 'Đăng nhập',
         icon: '../res/icon_authen.png',
         styleClass: 'login-dialog'
       };
     }, _this.buildDialogContent = function () {
-      var btnStyle = 'w3-btn w3-block w3-teal' + (_this.props.isLoading ? ' w3-disabled' : '');
+      var btnStyle = 'w3-btn w3-block w3-blue' + (_this.props.isLoading ? ' w3-disabled' : '');
       return _react2.default.createElement(
         'form',
         { onSubmit: _this.props.onSubmit },
@@ -24412,13 +24461,13 @@ var LoginDialogView = function (_Dialog) {
           { className: 'w3-row w3-padding-small' },
           _react2.default.createElement(
             'label',
-            { className: 'w3-col s4' },
-            'Username: '
+            { className: 'w3-col s5 w3-text-blue' },
+            'T\xEAn t\xE0i kho\u1EA3n: '
           ),
           _react2.default.createElement('input', {
             type: 'text',
             value: _this.props.username,
-            className: 'w3-input w3-col s8 w3-white',
+            className: 'w3-input w3-col s7 w3-white w3-border',
             onChange: function onChange(event) {
               return _this.props.userNameChange(event.target.value);
             } })
@@ -24428,13 +24477,13 @@ var LoginDialogView = function (_Dialog) {
           { className: 'w3-row w3-padding-small' },
           _react2.default.createElement(
             'label',
-            { className: 'w3-col s4' },
-            'Password: '
+            { className: 'w3-col s5 w3-text-blue' },
+            'M\u1EADt kh\u1EA9u: '
           ),
           _react2.default.createElement('input', {
             type: 'password',
             value: _this.props.password,
-            className: 'w3-input w3-col s8 w3-white',
+            className: 'w3-input w3-col s7 w3-white w3-border',
             onChange: function onChange(event) {
               return _this.props.passwordChange(event.target.value);
             } })
@@ -24455,7 +24504,7 @@ var LoginDialogView = function (_Dialog) {
           _react2.default.createElement(
             'button',
             { className: btnStyle, type: 'submit' },
-            ' Login '
+            ' \u0110\u0103ng nh\u1EADp '
           )
         )
       );
@@ -24478,7 +24527,7 @@ LoginDialogView.propTypes = {
 };
 exports.default = LoginDialogView;
 
-},{"./Dialog":70,"prop-types":33,"react":55}],73:[function(require,module,exports){
+},{"./Dialog":71,"prop-types":33,"react":55}],74:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24543,7 +24592,7 @@ var PlanQuerierView = function PlanQuerierView(_ref) {
 
 exports.default = PlanQuerierView;
 
-},{"react":55}],74:[function(require,module,exports){
+},{"react":55}],75:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24656,12 +24705,15 @@ var QueryDialogView = function (_Dialog) {
           )
         ) : '',
         _react2.default.createElement('hr', null),
-        _react2.default.createElement(
+        querier.isAutoLoad() ? '' : _react2.default.createElement(
           'div',
           { className: 'w3-row' },
           _react2.default.createElement(
             'button',
-            { type: 'submit', className: 'w3-btn w3-block w3-blue' },
+            {
+              type: 'submit',
+              className: 'w3-btn w3-block w3-blue'
+            },
             'Query'
           )
         )
@@ -24683,7 +24735,7 @@ QueryDialogView.propTypes = {
 };
 exports.default = QueryDialogView;
 
-},{"../common/QuerierFactory":66,"./Dialog":70,"prop-types":33,"react":55}],75:[function(require,module,exports){
+},{"../common/QuerierFactory":67,"./Dialog":71,"prop-types":33,"react":55}],76:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24720,7 +24772,7 @@ var RulerDialogView = function RulerDialogView(_ref) {
       _react2.default.createElement(
         'label',
         null,
-        'Length measure'
+        '\u0110o chi\u1EC1u d\xE0i'
       ),
       _react2.default.createElement('img', {
         src: '../res/icon_tap_ruler.png',
@@ -24735,7 +24787,7 @@ var RulerDialogView = function RulerDialogView(_ref) {
       _react2.default.createElement(
         'label',
         null,
-        'Area measure'
+        '\u0110o di\u1EC7n t\xEDch'
       ),
       _react2.default.createElement('img', {
         src: '../res/icon_area_ruler.png',
@@ -24754,7 +24806,7 @@ RulerDialogView.propTypes = {
 
 exports.default = RulerDialogView;
 
-},{"../common/MouseTrapper":65,"prop-types":33,"react":55}],76:[function(require,module,exports){
+},{"../common/MouseTrapper":66,"prop-types":33,"react":55}],77:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24795,7 +24847,7 @@ TaskbarIcon.propTypes = {
 
 exports.default = TaskbarIcon;
 
-},{"prop-types":33,"react":55}],77:[function(require,module,exports){
+},{"prop-types":33,"react":55}],78:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24843,7 +24895,7 @@ TaskbarView.propTypes = {
 
 exports.default = TaskbarView;
 
-},{"../actions":61,"./TaskbarIcon":76,"prop-types":33,"react":55}],78:[function(require,module,exports){
+},{"../actions":61,"./TaskbarIcon":77,"prop-types":33,"react":55}],79:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24902,7 +24954,7 @@ var App = function App() {
 
 exports.default = App;
 
-},{"../containers/DetailDialog":79,"../containers/FilterDialog":80,"../containers/LoginDialog":81,"../containers/QueryDialog":82,"../containers/RulerDialog":83,"../containers/Taskbar":84,"prop-types":33,"react":55,"react-redux":47}],79:[function(require,module,exports){
+},{"../containers/DetailDialog":80,"../containers/FilterDialog":81,"../containers/LoginDialog":82,"../containers/QueryDialog":83,"../containers/RulerDialog":84,"../containers/Taskbar":85,"prop-types":33,"react":55,"react-redux":47}],80:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24941,7 +24993,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_DetailDialogView2.default);
 
-},{"../actions":61,"../components/DetailDialogView":69,"react":55,"react-redux":47}],80:[function(require,module,exports){
+},{"../actions":61,"../components/DetailDialogView":70,"react":55,"react-redux":47}],81:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24981,7 +25033,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_FilterDialogView2.default);
 
-},{"../actions":61,"../components/FilterDialogView":71,"react":55,"react-redux":47}],81:[function(require,module,exports){
+},{"../actions":61,"../components/FilterDialogView":72,"react":55,"react-redux":47}],82:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25030,7 +25082,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_LoginDialogView2.default);
 
-},{"../actions":61,"../components/LoginDialogView":72,"react":55,"react-redux":47}],82:[function(require,module,exports){
+},{"../actions":61,"../components/LoginDialogView":73,"react":55,"react-redux":47}],83:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25049,7 +25101,7 @@ var _QueryDialogView2 = _interopRequireDefault(_QueryDialogView);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var basicTargets = [{ value: 'plan', label: 'Plan' }, { value: 'certi', label: 'Certificate' }, { value: 'govdoc', label: 'Government Document' }];
+var basicTargets = [{ value: 'plan', label: 'Plan' }, { value: 'certi', label: 'Certificate' }, { value: 'govdoc', label: 'Government Document' }, { value: 'user', label: 'User' }];
 
 var stateToProps = function stateToProps(state) {
   return _extends({}, state.queryDialog, {
@@ -25082,7 +25134,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_QueryDialogView2.default);
 
-},{"../actions":61,"../components/QueryDialogView":74,"react-redux":47}],83:[function(require,module,exports){
+},{"../actions":61,"../components/QueryDialogView":75,"react-redux":47}],84:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25119,7 +25171,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_RulerDialogView2.default);
 
-},{"../actions":61,"../components/RulerDialogView":75,"react":55,"react-redux":47}],84:[function(require,module,exports){
+},{"../actions":61,"../components/RulerDialogView":76,"react":55,"react-redux":47}],85:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25140,18 +25192,18 @@ var _actions = require('../actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var baseEntries = [{ icon: 'icon_query.png', label: 'Query Plan', name: 'query' }, { icon: 'icon_filter.png', label: 'Filter Layer', name: 'filter' }, { icon: 'icon_ruler.png', label: undefined, name: 'ruler' }];
-var guestEntry = [{ icon: 'icon_authen.png', label: 'Login', name: 'login' }];
+var baseEntries = [{ icon: 'icon_query.png', label: 'Truy vấn thuộc tính', name: 'query' }, { icon: 'icon_filter.png', label: 'Ẩn/hiện lớp dữ liệu', name: 'filter' }, { icon: 'icon_ruler.png', label: undefined, name: 'ruler' }];
+var guestEntry = [{ icon: 'icon_authen.png', label: 'Đăng nhập', name: 'login' }];
 var adminEntries = [{
   icon: 'icon_modifier.png',
-  label: 'Modifier',
+  label: 'Thêm mới dữ liệu',
   name: 'modifier',
   handler: function handler(event, dispatch) {
     return console.log('Noop');
   }
 }, {
   icon: 'icon_logout.png',
-  label: 'Logout',
+  label: 'Thoát',
   handler: function handler(event, dispatch) {
     return dispatch((0, _actions.logout)());
   }
@@ -25183,7 +25235,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps)(_TaskbarView2.default);
 
-},{"../actions":61,"../components/TaskbarView":77,"react":55,"react-redux":47}],85:[function(require,module,exports){
+},{"../actions":61,"../components/TaskbarView":78,"react":55,"react-redux":47}],86:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -25214,7 +25266,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 _store2.default.dispatch((0, _actions.fetchLayers)());
 
-},{"./actions":61,"./containers/App":78,"./store":92,"react":55,"react-dom":37,"react-redux":47}],86:[function(require,module,exports){
+},{"./actions":61,"./containers/App":79,"./store":94,"react":55,"react-dom":37,"react-redux":47}],87:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25238,6 +25290,8 @@ var _Querier3 = _interopRequireDefault(_Querier2);
 var _CertificateQuerierView = require('../components/CertificateQuerierView');
 
 var _CertificateQuerierView2 = _interopRequireDefault(_CertificateQuerierView);
+
+var _Constants = require('../common/Constants');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -25275,7 +25329,7 @@ var CertificateQuerier = function (_Querier) {
     }, _this.receiveResult = function (event, res) {
       _this.dispatch((0, _actions.queryFieldChange)('certi.cache', res));
     }, _this.itemSelect = function (event, item) {
-      _this.dispatch((0, _actions.showFeatureTarget)(event, item));
+      _this.dispatch((0, _actions.showFeatureTarget)(event, item, _Constants.CERTIFICATE_DETAIL_LABELS));
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -25284,7 +25338,7 @@ var CertificateQuerier = function (_Querier) {
 
 exports.default = new CertificateQuerier();
 
-},{"../actions":61,"../common/DataLoader":62,"../components/CertificateQuerierView":68,"./Querier":90,"react":55}],87:[function(require,module,exports){
+},{"../actions":61,"../common/Constants":62,"../common/DataLoader":63,"../components/CertificateQuerierView":69,"./Querier":91,"react":55}],88:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25337,7 +25391,7 @@ var EmptyQuerier = function (_Querier) {
 
 exports.default = new EmptyQuerier();
 
-},{"./Querier":90,"react":55}],88:[function(require,module,exports){
+},{"./Querier":91,"react":55}],89:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25445,7 +25499,7 @@ var GovernmentDocumentQuerier = function (_Querier) {
 
 exports.default = new GovernmentDocumentQuerier();
 
-},{"../actions":61,"../common/DataLoader":62,"./Querier":90,"react":55}],89:[function(require,module,exports){
+},{"../actions":61,"../common/DataLoader":63,"./Querier":91,"react":55}],90:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25469,6 +25523,8 @@ var _Querier3 = _interopRequireDefault(_Querier2);
 var _PlanQuerierView = require('../components/PlanQuerierView');
 
 var _PlanQuerierView2 = _interopRequireDefault(_PlanQuerierView);
+
+var _Constants = require('../common/Constants');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -25501,7 +25557,7 @@ var PlanQuerier = function (_Querier) {
     }, _this.getTargetDialogName = function () {
       return 'query';
     }, _this.receiveResult = function (event, res) {
-      _this.dispatch((0, _actions.showFeatureTarget)(event, res));
+      _this.dispatch((0, _actions.showFeatureTarget)(event, res, _Constants.PLAN_DETAIL_LABELS));
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -25510,7 +25566,7 @@ var PlanQuerier = function (_Querier) {
 
 exports.default = new PlanQuerier();
 
-},{"../actions":61,"../common/DataLoader":62,"../components/PlanQuerierView":73,"./Querier":90,"react":55}],90:[function(require,module,exports){
+},{"../actions":61,"../common/Constants":62,"../common/DataLoader":63,"../components/PlanQuerierView":74,"./Querier":91,"react":55}],91:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25542,6 +25598,10 @@ var Querier = function Querier() {
     return '';
   };
 
+  this.isAutoLoad = function () {
+    return false;
+  };
+
   this.performQuery = function (event, data) {
     fetch(_actions.host + _this.buildQuery(data)).then(function (res) {
       return res.json();
@@ -25567,7 +25627,89 @@ var Querier = function Querier() {
 
 exports.default = Querier;
 
-},{"../actions":61,"../components/PlanQuerierView":73}],91:[function(require,module,exports){
+},{"../actions":61,"../components/PlanQuerierView":74}],92:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _Querier2 = require('./Querier');
+
+var _Querier3 = _interopRequireDefault(_Querier2);
+
+var _actions = require('../actions');
+
+var _Constants = require('../common/Constants');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var UserQuerier = function (_Querier) {
+  _inherits(UserQuerier, _Querier);
+
+  function UserQuerier() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, UserQuerier);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = UserQuerier.__proto__ || Object.getPrototypeOf(UserQuerier)).call.apply(_ref, [this].concat(args))), _this), _this.getView = function (_, queryData) {
+      if (!queryData.users) {
+        _this.loadUsers();
+        return '';
+      }
+
+      var users = queryData.users || [];
+      return _react2.default.createElement(
+        'ul',
+        { className: 'w3-ul w3-hoverable' },
+        users.map(function (user) {
+          return _react2.default.createElement(
+            'li',
+            {
+              key: user.id,
+              onClick: function onClick(event) {
+                return _this.itemSelecting(event, user);
+              }
+            },
+            user.username
+          );
+        })
+      );
+    }, _this.loadUsers = function () {
+      fetch(_actions.host + '/taikhoan').then(function (res) {
+        return res.json();
+      }).then(function (users) {
+        return _this.dispatch((0, _actions.queryFieldChange)('users', users));
+      });
+    }, _this.itemSelecting = function (event, user) {
+      _this.dispatch((0, _actions.showTargetDetail)(event, user, _Constants.USER_DETAIL_LABELS));
+    }, _this.isAutoLoad = function () {
+      return true;
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  return UserQuerier;
+}(_Querier3.default);
+
+exports.default = new UserQuerier();
+
+},{"../actions":61,"../common/Constants":62,"./Querier":91,"react":55}],93:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25604,7 +25746,7 @@ var emptyResult = {
 };
 
 var queryDialog = function queryDialog() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { target: 'govdoc', queryData: {} };
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { target: 'user', queryData: {} };
   var action = arguments[1];
 
   switch (action.type) {
@@ -25645,7 +25787,9 @@ var dialogState = function dialogState() {
       return _extends({}, state, _defineProperty({}, action.dialogName, true));
 
     case _actions.CLOSE_DIALOG:
-      _Mapper2.default.clearOverlay();
+      if (action.dialogName !== 'ruler') {
+        _Mapper2.default.clearOverlay();
+      }
       return _extends({}, state, _defineProperty({}, action.dialogName, false));
 
     case _actions.CLEAR_DIALOGS:
@@ -25668,7 +25812,8 @@ var detailDialog = function detailDialog() {
 
     case _actions.OPEN_DETAIL:
       return _extends({}, state, {
-        obj: action.object
+        obj: action.object,
+        labels: action.labels
       });
 
     default:
@@ -25775,7 +25920,7 @@ var rootReducer = (0, _redux.combineReducers)({
 
 exports.default = rootReducer;
 
-},{"../actions":61,"../common/DataLoader":62,"../common/Mapper":64,"redux":58}],92:[function(require,module,exports){
+},{"../actions":61,"../common/DataLoader":63,"../common/Mapper":65,"redux":58}],94:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25802,4 +25947,4 @@ var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.a
 
 exports.default = store;
 
-},{"./reducers":91,"redux":58,"redux-logger":56,"redux-thunk":57}]},{},[85]);
+},{"./reducers":93,"redux":58,"redux-logger":56,"redux-thunk":57}]},{},[86]);

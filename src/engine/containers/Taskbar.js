@@ -4,21 +4,21 @@ import TaskbarView from '../components/TaskbarView'
 import { logout } from '../actions'
 
 const baseEntries = [
-  { icon: 'icon_query.png',   label: 'Query Plan',    name: 'query' },
-  { icon: 'icon_filter.png',  label: 'Filter Layer',  name: 'filter' },
+  { icon: 'icon_query.png',   label: 'Truy vấn thuộc tính',    name: 'query' },
+  { icon: 'icon_filter.png',  label: 'Ẩn/hiện lớp dữ liệu',  name: 'filter' },
   { icon: 'icon_ruler.png',   label: undefined,     name: 'ruler' }
 ]
-const guestEntry = [ { icon: 'icon_authen.png', label: 'Login', name: 'login' } ]
+const guestEntry = [ { icon: 'icon_authen.png', label: 'Đăng nhập', name: 'login' } ]
 const adminEntries = [
   {
     icon: 'icon_modifier.png',
-    label: 'Modifier',
+    label: 'Thêm mới dữ liệu',
     name: 'modifier',
     handler: (event, dispatch) => console.log('Noop')
   },
   {
     icon: 'icon_logout.png',
-    label: 'Logout',
+    label: 'Thoát',
     handler: (event, dispatch) => dispatch(logout())
   }
 ]

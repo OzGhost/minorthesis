@@ -16,7 +16,7 @@ class FilterDialogView extends Dialog {
 
   getMetaData = () => ({
     styleClass: 'filter-dialog',
-    title: 'Layer Filter',
+    title: 'Ẩn/hiện lớp dữ liệu',
     icon: '../res/icon_filter.png'
   })
 
@@ -28,7 +28,7 @@ class FilterDialogView extends Dialog {
           <div className="w3-col" style={{width: "26px"}}>
             <input className="hidden w3-input" type="checkbox"/>
           </div>
-          <div className="w3-rest">Layers</div>
+          <div className="w3-rest">Các lớp dữ liệu</div>
         </div>
 
         { layers.map( layer => (
