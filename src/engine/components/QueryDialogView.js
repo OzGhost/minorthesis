@@ -15,7 +15,7 @@ class QueryDialogView extends Dialog {
   }
 
   getMetaData = () => ({
-    title: 'Property Query',
+    title: 'Truy vấn thuộc tính',
     icon: '../res/icon_query.png',
     styleClass: 'query-dialog'
   })
@@ -32,7 +32,7 @@ class QueryDialogView extends Dialog {
         querier.performQuery(event, queryData, dispatch)
       }}>
         <div className="w3-row">
-          <label>Target:</label>
+          <label>Đối tượng truy vấn:</label>
           <select
               onChange={ (event) => targetChangeListener(event.target.value) }
               className="w3-input w3-border"
@@ -47,12 +47,14 @@ class QueryDialogView extends Dialog {
           </select>
         </div>
         <hr/>
-        { querier.getView(queryFieldChange, queryData) }
+        <div className="querier">
+          { querier.getView(queryFieldChange, queryData) }
+        </div>
         { hasNoResult
           ? (
             <div className="w3-center">
               <hr/>
-              <span className="w3-text-orange">No result was found!</span>
+              <span className="w3-text-orange">Không tìm thấy dữ liệu trùng khớp!</span>
             </div>
           )
           : ''
@@ -66,7 +68,9 @@ class QueryDialogView extends Dialog {
                 <button
                   type="submit"
                   className="w3-btn w3-block w3-blue"
-                >Query</button>
+                >
+                  Truy vấn
+                </button>
               </div>
             )
         }

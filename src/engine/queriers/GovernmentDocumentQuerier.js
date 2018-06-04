@@ -14,7 +14,7 @@ class GovernmentDocumentQuerier extends Querier {
     return(
       <div>
         <div className="w3-row">
-          <label className="w3-text-blue">Government Document: </label>
+          <label className="w3-text-blue">Văn bản nhà nước:</label>
         </div>
         <div className="w3-row">
           <select

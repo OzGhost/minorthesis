@@ -10,10 +10,10 @@ import {
 import QueryDialogView from '../components/QueryDialogView'
 
 const basicTargets = [
-  {value: 'plan', label: 'Plan'},
-  {value: 'certi', label: 'Certificate'},
-  {value: 'govdoc', label: 'Government Document'},
-  {value: 'user', label: 'User'}
+  {value: 'plan', label: 'Thửa đất'},
+  {value: 'certi', label: 'Giấy chứng nhận'},
+  {value: 'govdoc', label: 'Văn bản nhà nước'},
+  {value: 'user', label: 'Tài khoản truy cập'}
 ]
 
 const stateToProps = state => ({

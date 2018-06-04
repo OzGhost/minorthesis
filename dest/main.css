@@ -58,10 +58,7 @@
   min-width: 200px;
   box-shadow: 0 0 6px grey;
   background: white;
-  padding: 8px;
-  z-index: 10; }
-  .dialog:hover {
-    z-index: 11; }
+  padding: 8px; }
   .dialog .dialog-icon {
     width: 60px;
     top: -30px;
@@ -118,12 +115,9 @@
   .query-dialog input, .query-dialog select {
     background: white;
     color: #333; }
-
-.query-result {
-  max-height: 200px;
-  overflow-y: auto; }
-  .query-result li {
-    cursor: pointer; }
+  .query-dialog .querier {
+    max-height: 300px;
+    overflow-y: auto; }
 
 .detail-dialog {
   min-width: 320px; }

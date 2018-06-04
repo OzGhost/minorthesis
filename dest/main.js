@@ -23467,7 +23467,7 @@ var loadDocs = exports.loadDocs = function loadDocs() {
   };
 };
 
-},{"../common/Constants":62,"../common/Mapper":65,"../common/MouseTrapper":66,"../common/Ruler":68}],62:[function(require,module,exports){
+},{"../common/Constants":62,"../common/Mapper":66,"../common/MouseTrapper":67,"../common/Ruler":69}],62:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23568,6 +23568,42 @@ Object.defineProperty(exports, "__esModule", {
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var DeepController = function DeepController() {
+  var _this = this;
+
+  _classCallCheck(this, DeepController);
+
+  this.depth = 10;
+
+  this.getNextDeepLevel = function () {
+    _this.depth++;
+    return _this.depth;
+  };
+
+  this.pushElement = function (element) {
+    var target = _this.findFloatingObject(element);
+    if (target) target.style.zIndex = _this.getNextDeepLevel();else console.log('cout << Target not found!');
+  };
+
+  this.findFloatingObject = function (element) {
+    var node = element;
+    while (node.nodeName !== 'HTML' && node.className.indexOf('dialog') < 0) {
+      node = node.parentNode;
+    }return node.nodeName === 'HTML' ? undefined : node;
+  };
+};
+
+exports.default = new DeepController();
+
+},{}],65:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var Dragger = function Dragger() {
   var _this = this;
 
@@ -23620,7 +23656,7 @@ var Dragger = function Dragger() {
 
 exports.default = new Dragger().trap;
 
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23779,7 +23815,7 @@ var Mapper = function Mapper() {
 
 exports.default = new Mapper();
 
-},{"../actions":61,"../store":94,"./Ruler":68,"openlayers":28}],66:[function(require,module,exports){
+},{"../actions":61,"../store":95,"./Ruler":69,"openlayers":28}],67:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -23813,7 +23849,7 @@ var MouseTrapper = function MouseTrapper() {
 
 exports.default = new MouseTrapper();
 
-},{}],67:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -23865,7 +23901,7 @@ var QuerierFactory = function QuerierFactory() {
 
 exports.default = new QuerierFactory();
 
-},{"../queriers/CertificateQuerier":87,"../queriers/EmptyQuerier":88,"../queriers/GovernmentDocumentQuerier":89,"../queriers/PlanQuerier":90,"../queriers/UserQuerier":92}],68:[function(require,module,exports){
+},{"../queriers/CertificateQuerier":88,"../queriers/EmptyQuerier":89,"../queriers/GovernmentDocumentQuerier":90,"../queriers/PlanQuerier":91,"../queriers/UserQuerier":93}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24033,7 +24069,7 @@ var Ruler = function Ruler() {
 
 exports.default = new Ruler();
 
-},{"./Mapper":65,"openlayers":28}],69:[function(require,module,exports){
+},{"./Mapper":66,"openlayers":28}],70:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24059,7 +24095,7 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
       _react2.default.createElement(
         "label",
         { className: "w3-text-blue" },
-        "ID number/Passport:"
+        "CMND/H\u1ED9 chi\u1EBFu:"
       )
     ),
     _react2.default.createElement(
@@ -24102,7 +24138,7 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
 
 exports.default = CertificateQuerierView;
 
-},{"react":55}],70:[function(require,module,exports){
+},{"react":55}],71:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24127,6 +24163,10 @@ var _MouseTrapper = require('../common/MouseTrapper');
 
 var _MouseTrapper2 = _interopRequireDefault(_MouseTrapper);
 
+var _DeepController = require('../common/DeepController');
+
+var _DeepController2 = _interopRequireDefault(_DeepController);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var DetailDialogView = function DetailDialogView(_ref) {
@@ -24137,12 +24177,16 @@ var DetailDialogView = function DetailDialogView(_ref) {
 
   var styleClass = 'dialog detail-dialog' + (isActive ? '' : ' hidden');
   var mousePos = _MouseTrapper2.default.getTrappedPosition();
-  var dialogPos = mousePos ? { top: mousePos.y + 'px', left: mousePos.x + 'px' } : { top: '240px', left: '80px' };
+  var depth = _DeepController2.default.getNextDeepLevel();
+  var dialogStyle = mousePos ? { top: mousePos.y + 'px', left: mousePos.x + 'px', zIndex: depth } : { top: '240px', left: '80px', zIndex: depth };
   return _react2.default.createElement(
     'div',
     {
       className: styleClass,
-      style: dialogPos
+      style: dialogStyle,
+      onMouseDown: function onMouseDown(e) {
+        return _DeepController2.default.pushElement(e.target);
+      }
     },
     _react2.default.createElement('span', { className: 'close-btn', onClick: onClose }),
     _react2.default.createElement('div', { className: 'dragger', onMouseDown: _Dragger2.default }),
@@ -24205,7 +24249,7 @@ DetailDialogView.propTypes = {
 
 exports.default = DetailDialogView;
 
-},{"../common/Dragger":64,"../common/MouseTrapper":66,"prop-types":33,"react":55}],71:[function(require,module,exports){
+},{"../common/DeepController":64,"../common/Dragger":65,"../common/MouseTrapper":67,"prop-types":33,"react":55}],72:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24227,6 +24271,10 @@ var _Dragger2 = _interopRequireDefault(_Dragger);
 var _MouseTrapper = require('../common/MouseTrapper');
 
 var _MouseTrapper2 = _interopRequireDefault(_MouseTrapper);
+
+var _DeepController = require('../common/DeepController');
+
+var _DeepController2 = _interopRequireDefault(_DeepController);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -24256,7 +24304,8 @@ var Dialog = function (_React$Component) {
       return _react2.default.createElement('div', null);
     }, _this.render = function () {
       var mousePos = _MouseTrapper2.default.getTrappedPosition();
-      var dialogPos = mousePos ? { top: mousePos.y + 'px', left: mousePos.x + 'px' } : { top: '240px', left: '80px' };
+      var depth = _DeepController2.default.getNextDeepLevel();
+      var dialogStyle = mousePos ? { top: mousePos.y + 'px', left: mousePos.x + 'px', zIndex: depth } : { top: '240px', left: '80px', zIndex: depth };
       var _this$props = _this.props,
           isActive = _this$props.isActive,
           onClose = _this$props.onClose;
@@ -24268,7 +24317,10 @@ var Dialog = function (_React$Component) {
         'div',
         {
           className: styleClass,
-          style: dialogPos
+          style: dialogStyle,
+          onMouseDown: function onMouseDown(e) {
+            return _DeepController2.default.pushElement(e.target);
+          }
         },
         _react2.default.createElement('span', { className: 'close-btn', onClick: onClose }),
         _react2.default.createElement('div', { className: 'dragger', onMouseDown: _Dragger2.default }),
@@ -24293,7 +24345,7 @@ Dialog.propTypes = {
 };
 exports.default = Dialog;
 
-},{"../common/Dragger":64,"../common/MouseTrapper":66,"prop-types":33,"react":55}],72:[function(require,module,exports){
+},{"../common/DeepController":64,"../common/Dragger":65,"../common/MouseTrapper":67,"prop-types":33,"react":55}],73:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24404,7 +24456,7 @@ FilterDialogView.propTypes = {
 };
 exports.default = FilterDialogView;
 
-},{"./Dialog":71,"prop-types":33,"react":55}],73:[function(require,module,exports){
+},{"./Dialog":72,"prop-types":33,"react":55}],74:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24527,7 +24579,7 @@ LoginDialogView.propTypes = {
 };
 exports.default = LoginDialogView;
 
-},{"./Dialog":71,"prop-types":33,"react":55}],74:[function(require,module,exports){
+},{"./Dialog":72,"prop-types":33,"react":55}],75:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -24551,7 +24603,7 @@ var PlanQuerierView = function PlanQuerierView(_ref) {
       _react2.default.createElement(
         "label",
         { className: "w3-label w3-text-blue" },
-        "MsTo"
+        "S\u1ED1 t\u1EDD:"
       )
     ),
     _react2.default.createElement(
@@ -24572,7 +24624,7 @@ var PlanQuerierView = function PlanQuerierView(_ref) {
       _react2.default.createElement(
         "label",
         { className: "w3-text-blue w3-label" },
-        "MsThua"
+        "S\u1ED1 th\u1EEDa:"
       )
     ),
     _react2.default.createElement(
@@ -24592,7 +24644,7 @@ var PlanQuerierView = function PlanQuerierView(_ref) {
 
 exports.default = PlanQuerierView;
 
-},{"react":55}],75:[function(require,module,exports){
+},{"react":55}],76:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24641,7 +24693,7 @@ var QueryDialogView = function (_Dialog) {
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = QueryDialogView.__proto__ || Object.getPrototypeOf(QueryDialogView)).call.apply(_ref, [this].concat(args))), _this), _this.getMetaData = function () {
       return {
-        title: 'Property Query',
+        title: 'Truy vấn thuộc tính',
         icon: '../res/icon_query.png',
         styleClass: 'query-dialog'
       };
@@ -24670,7 +24722,7 @@ var QueryDialogView = function (_Dialog) {
           _react2.default.createElement(
             'label',
             null,
-            'Target:'
+            '\u0110\u1ED1i t\u01B0\u1EE3ng truy v\u1EA5n:'
           ),
           _react2.default.createElement(
             'select',
@@ -24693,7 +24745,11 @@ var QueryDialogView = function (_Dialog) {
           )
         ),
         _react2.default.createElement('hr', null),
-        querier.getView(queryFieldChange, queryData),
+        _react2.default.createElement(
+          'div',
+          { className: 'querier' },
+          querier.getView(queryFieldChange, queryData)
+        ),
         hasNoResult ? _react2.default.createElement(
           'div',
           { className: 'w3-center' },
@@ -24701,7 +24757,7 @@ var QueryDialogView = function (_Dialog) {
           _react2.default.createElement(
             'span',
             { className: 'w3-text-orange' },
-            'No result was found!'
+            'Kh\xF4ng t\xECm th\u1EA5y d\u1EEF li\u1EC7u tr\xF9ng kh\u1EDBp!'
           )
         ) : '',
         _react2.default.createElement('hr', null),
@@ -24714,7 +24770,7 @@ var QueryDialogView = function (_Dialog) {
               type: 'submit',
               className: 'w3-btn w3-block w3-blue'
             },
-            'Query'
+            'Truy v\u1EA5n'
           )
         )
       );
@@ -24735,7 +24791,7 @@ QueryDialogView.propTypes = {
 };
 exports.default = QueryDialogView;
 
-},{"../common/QuerierFactory":67,"./Dialog":71,"prop-types":33,"react":55}],76:[function(require,module,exports){
+},{"../common/QuerierFactory":68,"./Dialog":72,"prop-types":33,"react":55}],77:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24806,7 +24862,7 @@ RulerDialogView.propTypes = {
 
 exports.default = RulerDialogView;
 
-},{"../common/MouseTrapper":66,"prop-types":33,"react":55}],77:[function(require,module,exports){
+},{"../common/MouseTrapper":67,"prop-types":33,"react":55}],78:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24847,7 +24903,7 @@ TaskbarIcon.propTypes = {
 
 exports.default = TaskbarIcon;
 
-},{"prop-types":33,"react":55}],78:[function(require,module,exports){
+},{"prop-types":33,"react":55}],79:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24895,7 +24951,7 @@ TaskbarView.propTypes = {
 
 exports.default = TaskbarView;
 
-},{"../actions":61,"./TaskbarIcon":77,"prop-types":33,"react":55}],79:[function(require,module,exports){
+},{"../actions":61,"./TaskbarIcon":78,"prop-types":33,"react":55}],80:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24954,7 +25010,7 @@ var App = function App() {
 
 exports.default = App;
 
-},{"../containers/DetailDialog":80,"../containers/FilterDialog":81,"../containers/LoginDialog":82,"../containers/QueryDialog":83,"../containers/RulerDialog":84,"../containers/Taskbar":85,"prop-types":33,"react":55,"react-redux":47}],80:[function(require,module,exports){
+},{"../containers/DetailDialog":81,"../containers/FilterDialog":82,"../containers/LoginDialog":83,"../containers/QueryDialog":84,"../containers/RulerDialog":85,"../containers/Taskbar":86,"prop-types":33,"react":55,"react-redux":47}],81:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -24993,7 +25049,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_DetailDialogView2.default);
 
-},{"../actions":61,"../components/DetailDialogView":70,"react":55,"react-redux":47}],81:[function(require,module,exports){
+},{"../actions":61,"../components/DetailDialogView":71,"react":55,"react-redux":47}],82:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25033,7 +25089,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_FilterDialogView2.default);
 
-},{"../actions":61,"../components/FilterDialogView":72,"react":55,"react-redux":47}],82:[function(require,module,exports){
+},{"../actions":61,"../components/FilterDialogView":73,"react":55,"react-redux":47}],83:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25082,7 +25138,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_LoginDialogView2.default);
 
-},{"../actions":61,"../components/LoginDialogView":73,"react":55,"react-redux":47}],83:[function(require,module,exports){
+},{"../actions":61,"../components/LoginDialogView":74,"react":55,"react-redux":47}],84:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25101,7 +25157,7 @@ var _QueryDialogView2 = _interopRequireDefault(_QueryDialogView);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var basicTargets = [{ value: 'plan', label: 'Plan' }, { value: 'certi', label: 'Certificate' }, { value: 'govdoc', label: 'Government Document' }, { value: 'user', label: 'User' }];
+var basicTargets = [{ value: 'plan', label: 'Thửa đất' }, { value: 'certi', label: 'Giấy chứng nhận' }, { value: 'govdoc', label: 'Văn bản nhà nước' }, { value: 'user', label: 'Tài khoản truy cập' }];
 
 var stateToProps = function stateToProps(state) {
   return _extends({}, state.queryDialog, {
@@ -25134,7 +25190,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_QueryDialogView2.default);
 
-},{"../actions":61,"../components/QueryDialogView":75,"react-redux":47}],84:[function(require,module,exports){
+},{"../actions":61,"../components/QueryDialogView":76,"react-redux":47}],85:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25171,7 +25227,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_RulerDialogView2.default);
 
-},{"../actions":61,"../components/RulerDialogView":76,"react":55,"react-redux":47}],85:[function(require,module,exports){
+},{"../actions":61,"../components/RulerDialogView":77,"react":55,"react-redux":47}],86:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25235,7 +25291,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps)(_TaskbarView2.default);
 
-},{"../actions":61,"../components/TaskbarView":78,"react":55,"react-redux":47}],86:[function(require,module,exports){
+},{"../actions":61,"../components/TaskbarView":79,"react":55,"react-redux":47}],87:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -25266,7 +25322,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 _store2.default.dispatch((0, _actions.fetchLayers)());
 
-},{"./actions":61,"./containers/App":79,"./store":94,"react":55,"react-dom":37,"react-redux":47}],87:[function(require,module,exports){
+},{"./actions":61,"./containers/App":80,"./store":95,"react":55,"react-dom":37,"react-redux":47}],88:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25338,7 +25394,7 @@ var CertificateQuerier = function (_Querier) {
 
 exports.default = new CertificateQuerier();
 
-},{"../actions":61,"../common/Constants":62,"../common/DataLoader":63,"../components/CertificateQuerierView":69,"./Querier":91,"react":55}],88:[function(require,module,exports){
+},{"../actions":61,"../common/Constants":62,"../common/DataLoader":63,"../components/CertificateQuerierView":70,"./Querier":92,"react":55}],89:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25391,7 +25447,7 @@ var EmptyQuerier = function (_Querier) {
 
 exports.default = new EmptyQuerier();
 
-},{"./Querier":91,"react":55}],89:[function(require,module,exports){
+},{"./Querier":92,"react":55}],90:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25447,7 +25503,7 @@ var GovernmentDocumentQuerier = function (_Querier) {
           _react2.default.createElement(
             'label',
             { className: 'w3-text-blue' },
-            'Government Document: '
+            'V\u0103n b\u1EA3n nh\xE0 n\u01B0\u1EDBc:'
           )
         ),
         _react2.default.createElement(
@@ -25499,7 +25555,7 @@ var GovernmentDocumentQuerier = function (_Querier) {
 
 exports.default = new GovernmentDocumentQuerier();
 
-},{"../actions":61,"../common/DataLoader":63,"./Querier":91,"react":55}],90:[function(require,module,exports){
+},{"../actions":61,"../common/DataLoader":63,"./Querier":92,"react":55}],91:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25566,7 +25622,7 @@ var PlanQuerier = function (_Querier) {
 
 exports.default = new PlanQuerier();
 
-},{"../actions":61,"../common/Constants":62,"../common/DataLoader":63,"../components/PlanQuerierView":74,"./Querier":91,"react":55}],91:[function(require,module,exports){
+},{"../actions":61,"../common/Constants":62,"../common/DataLoader":63,"../components/PlanQuerierView":75,"./Querier":92,"react":55}],92:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25627,7 +25683,7 @@ var Querier = function Querier() {
 
 exports.default = Querier;
 
-},{"../actions":61,"../components/PlanQuerierView":74}],92:[function(require,module,exports){
+},{"../actions":61,"../components/PlanQuerierView":75}],93:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25687,7 +25743,7 @@ var UserQuerier = function (_Querier) {
                 return _this.itemSelecting(event, user);
               }
             },
-            user.username
+            user.username + ' (' + user.hoten + ')'
           );
         })
       );
@@ -25709,7 +25765,7 @@ var UserQuerier = function (_Querier) {
 
 exports.default = new UserQuerier();
 
-},{"../actions":61,"../common/Constants":62,"./Querier":91,"react":55}],93:[function(require,module,exports){
+},{"../actions":61,"../common/Constants":62,"./Querier":92,"react":55}],94:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25920,7 +25976,7 @@ var rootReducer = (0, _redux.combineReducers)({
 
 exports.default = rootReducer;
 
-},{"../actions":61,"../common/DataLoader":63,"../common/Mapper":65,"redux":58}],94:[function(require,module,exports){
+},{"../actions":61,"../common/DataLoader":63,"../common/Mapper":66,"redux":58}],95:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -25947,4 +26003,4 @@ var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.a
 
 exports.default = store;
 
-},{"./reducers":93,"redux":58,"redux-logger":56,"redux-thunk":57}]},{},[86]);
+},{"./reducers":94,"redux":58,"redux-logger":56,"redux-thunk":57}]},{},[87]);

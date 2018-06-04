@@ -19,7 +19,7 @@ class UserQuerier extends Querier {
               key={user.id}
               onClick={event => this.itemSelecting(event, user)}
             >
-              {user.username}
+              {user.username + ' (' +user.hoten+ ')'}
             </li>
           )
         }

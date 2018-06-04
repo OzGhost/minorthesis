@@ -3,7 +3,7 @@ import React from 'react'
 const CertificateQuerierView = ({onChange, queryResult, resultSelect}) => (
   <div>
     <div className="w3-row">
-      <label className="w3-text-blue">ID number/Passport:</label>
+      <label className="w3-text-blue">CMND/Hộ chiếu:</label>
     </div>
     <div className="w3-row">
       <input

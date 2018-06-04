@@ -3,7 +3,7 @@ import React from 'react'
 const PlanQuerierView = ({onChange}) => (
   <div>
     <div className="w3-row">
-      <label className="w3-label w3-text-blue">MsTo</label>
+      <label className="w3-label w3-text-blue">Số tờ:</label>
     </div>
     <div className="w3-row">
       <input
@@ -14,7 +14,7 @@ const PlanQuerierView = ({onChange}) => (
       />
     </div>
     <div className="w3-row">
-      <label className="w3-text-blue w3-label">MsThua</label>
+      <label className="w3-text-blue w3-label">Số thửa:</label>
     </div>
     <div className="w3-row">
       <input

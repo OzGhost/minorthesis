@@ -2,17 +2,20 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import mouseStart from '../common/Dragger'
 import MouseTrapper from '../common/MouseTrapper'
+import DeepController from '../common/DeepController'
 
 const DetailDialogView = ({ obj, labels, onClose, isActive }) => {
   const styleClass = 'dialog detail-dialog' + (isActive ? '' : ' hidden')
   const mousePos = MouseTrapper.getTrappedPosition()
-  const dialogPos = mousePos
-      ? { top: mousePos.y +'px', left: mousePos.x + 'px' }
-      : { top: '240px', left: '80px' }
+  const depth = DeepController.getNextDeepLevel()
+  const dialogStyle = mousePos
+      ? { top: mousePos.y +'px', left: mousePos.x + 'px', zIndex: depth }
+      : { top: '240px', left: '80px', zIndex: depth }
   return (
     <div
       className={styleClass}
-      style={dialogPos}
+      style={dialogStyle}
+      onMouseDown={e => DeepController.pushElement(e.target)}
     >
       <span className="close-btn" onClick={onClose}></span>
       <div className="dragger" onMouseDown={mouseStart}></div>
