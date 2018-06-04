@@ -33,12 +33,12 @@
   background: white;
   box-shadow: 4px 4px 6px lightgrey;
   padding: 6px 12px;
-  width: 200px;
   position: absolute;
   top: 50%;
   left: 110%;
   transform: translateY(-50%);
-  display: none; }
+  display: none;
+  white-space: nowrap; }
 
 .taskbar .taskbar-icon, .ruler-dialog .taskbar-icon {
   position: relative;
@@ -66,6 +66,7 @@
     position: absolute; }
   .dialog .dialog-title {
     margin: 0;
+    white-space: nowrap;
     padding: 6px;
     padding-left: 40px;
     margin-top: -32px;
