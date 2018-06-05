@@ -11,13 +11,22 @@ class CertificateQuerier extends Querier {
     <CertificateQuerierView
       queryResult={data}
       onChange={onChange}
+      fieldName={this.getKind(data) === 'ownerId'
+                  ? 'CMND/Hộ chiếu'
+                  : 'Số hiệu giấy'}
       resultSelect={this.itemSelect}
     />
   )
   
   buildQuery = data => {
-    const id = DataLoader.retrieve(data, 'certi.id') || 0
-    return '/giaychungnhan?id='+id
+    const field = this.getKind(data)
+    const value = DataLoader.retrieve(data, 'certi.value') || 0
+    return '/giaychungnhan?kind='+field+'&value='+value
+  }
+
+  getKind = data => {
+    const field = DataLoader.retrieve(data, 'certi.kind') || ''
+    return field === 'certiNumber' ? field : 'ownerId'
   }
 
   getTargetDialogName = () => ('query')

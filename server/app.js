@@ -43,16 +43,33 @@ app.get('/giaychungnhan', (req, res) => {
   const fullInfo = shortInfo
                   + ' c.machu, c.loaichu, c.nam, c.sogiayto, c.ngaycap,'
                   + 'c.diachi, c.quoctich, '
-  const q = 'SELECT ' + fullInfo
+  const additionalInfo = fullInfo
+  const val = req.query.value
+  const q = req.query.kind === 'certiNumber'
+            ? buildCertificateQueryByCertificateNumber(val, additionalInfo)
+            : buildCertificateQueryByOwnerId(val, additionalInfo)
+
+  performQuery(q, (obj) => res.json(obj), true)
+})
+
+const buildCertificateQueryByCertificateNumber = (value, additionalInfo) => {
+  return buildCertificateCoreQuery(additionalInfo)
+    + ' WHERE d.shgiaycn=\'' + value + '\''
+}
+
+const buildCertificateQueryByOwnerId = (value, additionalInfo) => {
+  return buildCertificateCoreQuery(additionalInfo)
+    + ' WHERE c.sogiayto=\'' + value + '\''
+}
+
+const buildCertificateCoreQuery = additionalInfo => {
+  return 'SELECT ' + additionalInfo
             + ' d.gid, d.shbando, d.shthua, d.dtpl, d.sonha, d.tenduong,'
             + ' d.phuong, d.thanhpho, d.tinh, ST_asGeoJSON(geom) as geo'
             + ' FROM chusudung c'
             + ' LEFT JOIN chusudung_giaychungnhan s ON s.machu = c.machu'
             + ' LEFT JOIN thuadat d ON d.shgiaycn = s.shgiaycn'
-            + ' WHERE c.sogiayto=\'' + (Number(req.query.id) || 0) + '\''
-
-  performQuery(q, (obj) => res.json(obj), true)
-})
+}
 
 app.get('/vanbannhanuoc', (req, res) => {
   const q = 'SELECT sohieu, noidung, link FROM vanbannhanuoc'

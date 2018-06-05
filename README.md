@@ -10,9 +10,9 @@ Just a Thesis :D
   - login (dump account)
   - account manager (listing)
   - z-index increaser for dialog
+  - certificate query by certificate number (detail show off)
 
 [incomming features]
-  - certificate query by certificate number (detail show off)
   - plan owner query by type
   - plan owner query by ID card number
   - account manage (adding)

@@ -24084,6 +24084,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var CertificateQuerierView = function CertificateQuerierView(_ref) {
   var _onChange = _ref.onChange,
+      fieldName = _ref.fieldName,
       queryResult = _ref.queryResult,
       resultSelect = _ref.resultSelect;
   return _react2.default.createElement(
@@ -24091,11 +24092,45 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
     null,
     _react2.default.createElement(
       "div",
+      null,
+      _react2.default.createElement(
+        "label",
+        { className: "w3-text-blue" },
+        "Th\xF4ng tin d\xF9ng cho truy v\u1EA5n:"
+      )
+    ),
+    _react2.default.createElement(
+      "div",
+      null,
+      _react2.default.createElement(
+        "select",
+        {
+          className: "w3-input w3-border",
+          onChange: function onChange(event) {
+            _onChange('certi.cache', undefined);
+            _onChange('certi.kind', event.target.value);
+          }
+        },
+        _react2.default.createElement(
+          "option",
+          { value: "ownerId" },
+          "CMND/H\u1ED9 chi\u1EBFu c\u1EE7a ch\u1EE7 s\u1EED d\u1EE5ng"
+        ),
+        _react2.default.createElement(
+          "option",
+          { value: "certiNumber" },
+          "S\u1ED1 hi\u1EC7u gi\u1EA5y ch\u1EE9ng nh\u1EADn"
+        )
+      )
+    ),
+    _react2.default.createElement(
+      "div",
       { className: "w3-row" },
       _react2.default.createElement(
         "label",
         { className: "w3-text-blue" },
-        "CMND/H\u1ED9 chi\u1EBFu:"
+        fieldName,
+        ":"
       )
     ),
     _react2.default.createElement(
@@ -24106,7 +24141,7 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
         className: "w3-input w3-border",
         onChange: function onChange(event) {
           _onChange('certi.cache', undefined);
-          _onChange('certi.id', Number(event.target.value));
+          _onChange('certi.value', event.target.value);
         }
       })
     ),
@@ -25375,11 +25410,16 @@ var CertificateQuerier = function (_Querier) {
       return _react2.default.createElement(_CertificateQuerierView2.default, {
         queryResult: data,
         onChange: onChange,
+        fieldName: _this.getKind(data) === 'ownerId' ? 'CMND/Hộ chiếu' : 'Số hiệu giấy',
         resultSelect: _this.itemSelect
       });
     }, _this.buildQuery = function (data) {
-      var id = _DataLoader2.default.retrieve(data, 'certi.id') || 0;
-      return '/giaychungnhan?id=' + id;
+      var field = _this.getKind(data);
+      var value = _DataLoader2.default.retrieve(data, 'certi.value') || 0;
+      return '/giaychungnhan?kind=' + field + '&value=' + value;
+    }, _this.getKind = function (data) {
+      var field = _DataLoader2.default.retrieve(data, 'certi.kind') || '';
+      return field === 'certiNumber' ? field : 'ownerId';
     }, _this.getTargetDialogName = function () {
       return 'query';
     }, _this.receiveResult = function (event, res) {
