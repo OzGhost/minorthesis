@@ -21,15 +21,13 @@ class CertificateQuerier extends Querier {
   buildQuery = data => {
     const field = this.getKind(data)
     const value = DataLoader.retrieve(data, 'certi.value') || 0
-    return '/giaychungnhan?kind='+field+'&value='+value
+    return '/certificate?kind='+field+'&value='+value
   }
 
   getKind = data => {
     const field = DataLoader.retrieve(data, 'certi.kind') || ''
     return field === 'certiNumber' ? field : 'ownerId'
   }
-
-  getTargetDialogName = () => ('query')
 
   receiveResult = (event, res) => {
     this.dispatch(queryFieldChange('certi.cache', res))

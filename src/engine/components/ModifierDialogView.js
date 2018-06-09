@@ -13,31 +13,35 @@ class ModifierDialogView extends Dialog {
   })
 
   buildDialogContent = () => {
-    const { layers, onToggle } = this.props
+    const { mode, onChange, targets } = this.props
     return (
       <div>
-        <div className="w3-row w3-border-bottom">
-          <div className="w3-col" style={{width: "26px"}}>
-            <input className="hidden w3-input" type="checkbox"/>
-          </div>
-          <div className="w3-rest">Layers</div>
-        </div>
-
-        { layers.map( layer => (
-
-        <div className="w3-row" key={layer.value}>
-          <div className="w3-col" style={{width: "26px"}}>
-            <input
-              onChange={ () => onToggle(layer.value) }
-              className="w3-input"
-              type="checkbox"
-              checked={layer.isChecked}
-            />
-          </div>
-          <div className="w3-rest">{layer.label}</div>
-        </div>
-
-        )) }
+        {
+          mode === 'add'
+            ? <div>
+                <div className="w3-row">
+                  <label>Đối tượng thêm mới:</label>
+                </div>
+                <div className="w3-row">
+                  <select
+                    className="w3-input w3-border"
+                    onChange={e => onChange('target', e.target.value) }
+                  >
+                    {
+                      targets.map(tg =>
+                        <option
+                          key={tg.code}
+                          value={tg.code}
+                        >
+                          {tg.label}
+                        </option>
+                      )
+                    }
+                  </select>
+                </div>
+              </div>
+            : ''
+        }
       </div>
     )
   }

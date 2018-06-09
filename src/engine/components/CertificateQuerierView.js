@@ -35,11 +35,11 @@ const CertificateQuerierView = ({onChange, fieldName, queryResult, resultSelect}
         ? (
           <div>
             <hr/>
-            <span>Results:</span>
+            <small>Kết quả truy vấn:</small>
             <ul className="w3-ul w3-hoverable">
               { queryResult.certi.cache.map(i =>
-                <li key={i.shgiaycn} onClick={event => resultSelect(event, i)}>
-                  {'['+i.shgiaycn+']'+' '+i.ten}
+                <li key={i.machu} onClick={event => resultSelect(event, i)}>
+                  {'['+i.machu+']'+' '+i.ten}
                 </li>)
               }
             </ul>

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import mouseStart from '../common/Dragger'
 import MouseTrapper from '../common/MouseTrapper'
 import DeepController from '../common/DeepController'
+import { FIELD_LABELS } from '../common/Constants'
 
 const DetailDialogView = ({ obj, labels, onClose, isActive }) => {
   const styleClass = 'dialog detail-dialog' + (isActive ? '' : ' hidden')
@@ -38,11 +39,10 @@ const DetailDialogView = ({ obj, labels, onClose, isActive }) => {
   )
 }
 
-const objectDump = (obj, labels) => {
-  const labelHolder = typeof(labels) === 'object' ? labels : {}
+const objectDump = obj => {
   return Object.keys(obj)
     .filter( key => !isSkipField(key) )
-    .map(key => ({key: labelHolder[key] || key, value: obj[key]}))
+    .map(key => ({key: FIELD_LABELS[key] || key, value: obj[key]}))
 }
 
 const isSkipField = fieldName => {

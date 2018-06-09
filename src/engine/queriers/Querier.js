@@ -15,7 +15,7 @@ class Querier {
     fetch(host + this.buildQuery(data))
     .then(res => res.json())
     .then(resJson => {
-      if (Object.keys(resJson).length == 0)
+      if (resJson.length == 0)
         this.handleFail()
       else
         this.receiveResult(event, resJson)
@@ -23,14 +23,12 @@ class Querier {
   }
 
   handleFail = () => {
-    this.dispatch(noResultFound(this.getTargetDialogName()))
+    this.dispatch(noResultFound('query'))
   }
 
-  buildQuery = data => ('')
+  buildQuery = () => ('')
 
-  getTargetDialogName = () => ('')
-
-  receiveResult = (res) => {}
+  receiveResult = () => {}
 }
 
 export default Querier

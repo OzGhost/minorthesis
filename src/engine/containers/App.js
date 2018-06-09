@@ -1,12 +1,12 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
+import React from 'react'
 import Taskbar from '../containers/Taskbar'
 import QueryDialog from '../containers/QueryDialog'
 import DetailDialog from '../containers/DetailDialog'
 import FilterDialog from '../containers/FilterDialog'
 import LoginDialog from '../containers/LoginDialog'
 import RulerDialog from '../containers/RulerDialog'
+import ChangePasswordDialog from '../containers/ChangePasswordDialog'
+import ModifierDialog from '../containers/ModifierDialog'
 
 const App = () => (
   <div>
@@ -17,6 +17,8 @@ const App = () => (
     <FilterDialog />
     <LoginDialog />
     <RulerDialog />
+    <ChangePasswordDialog />
+    <ModifierDialog />
   </div>
 )
 

@@ -39,6 +39,8 @@ export const QUERY_TARGET_CHANGE = 'Query Target Change'
 export const QUERY_FIELD_CHANGE = 'Query Field Change'
 
 export const NO_RESULT_FOUND = 'No Result Found'
+export const VALUE_CHANGE = 'Some value change'
+export const STATE_CHANGE = 'Some state change'
 
 export const openDialog = (event, dialogName) => {
   MouseTrapper.trap(event)
@@ -125,26 +127,25 @@ const receiveQueryResult = results => ({
 
 export const receiveTargetId = (event, targetId) => dispatch => {
   fetch(
-    host + '/thuadat/features/'+targetId
+    host + '/plan/features/'+targetId
   )
     .then(res => res.json())
-    .then(json => dispatch(showFeatureTarget(event, json, PLAN_DETAIL_LABELS)))
+    .then(json => dispatch(showFeatureTarget(event, json[0])))
 }
-export const showFeatureTarget = (event, target, labels) => dispatch => {
+export const showFeatureTarget = (event, target) => dispatch => {
   Mapper.viewTarget(target)
   dispatch(openDialog(event, 'detail'))
-  dispatch(openDetail(target, labels))
+  dispatch(openDetail(target))
 }
 
-export const showTargetDetail = (event, target, labels) => dispatch => {
+export const showTargetDetail = (event, target) => dispatch => {
   dispatch(openDialog(event, 'detail'))
-  dispatch(openDetail(target, labels))
+  dispatch(openDetail(target))
 }
 
-export const openDetail = (object, labels) => ({
+export const openDetail = object => ({
   type: OPEN_DETAIL,
-  object,
-  labels
+  object
 })
 
 export const toggleLayer = layer => ({
@@ -225,3 +226,15 @@ export const loadDocs = () => dispatch => {
     .then(json => dispatch(queryFieldChange('doc.docs', json)))
 }
 
+export const valueChange = (target, key, value) => ({
+  type: VALUE_CHANGE,
+  target,
+  key,
+  value
+})
+
+export const stateChange = (target, stateFragment) => ({
+  type: STATE_CHANGE,
+  target,
+  stateFragment
+})

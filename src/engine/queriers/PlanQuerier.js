@@ -11,13 +11,11 @@ class PlanQuerier extends Querier {
   buildQuery = data => {
     const msto = DataLoader.retrieve(data, 'plan.msto') || 0
     const msthua = DataLoader.retrieve(data, 'plan.msthua') || 0
-    return '/thuadat?msto='+msto+'&msthua='+msthua
+    return '/plan?msto='+msto+'&msthua='+msthua
   }
 
-  getTargetDialogName = () => ('query')
-
   receiveResult = (event, res) => {
-    this.dispatch(showFeatureTarget(event, res, PLAN_DETAIL_LABELS))
+    this.dispatch(showFeatureTarget(event, res[0], PLAN_DETAIL_LABELS))
   }
 }
 

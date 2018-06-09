@@ -13,8 +13,12 @@ const adminEntries = [
   {
     icon: 'icon_modifier.png',
     label: 'Thêm mới dữ liệu',
-    name: 'modifier',
-    handler: (event, dispatch) => console.log('Noop')
+    name: 'modifier'
+  },
+  {
+    icon: 'icon_change_passwd.png',
+    label: 'Thay đổi mật khẩu',
+    name: 'chpasswd'
   },
   {
     icon: 'icon_logout.png',

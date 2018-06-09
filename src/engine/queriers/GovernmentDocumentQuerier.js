@@ -43,7 +43,7 @@ class GovernmentDocumentQuerier extends Querier {
     if (this.didInitial)
       return
     this.didInitial = true
-    fetch(host + '/vanbannhanuoc')
+    fetch(host + '/government-doc')
       .then(res => res.json())
       .then(json => {
         this.dispatch(queryFieldChange('doc.docs', json))

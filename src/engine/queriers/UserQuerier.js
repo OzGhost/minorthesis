@@ -28,7 +28,7 @@ class UserQuerier extends Querier {
   }
 
   loadUsers = () => {
-    fetch(host + '/taikhoan')
+    fetch(host + '/account')
       .then(res => res.json())
       .then(users => this.dispatch(queryFieldChange('users', users)))
   }

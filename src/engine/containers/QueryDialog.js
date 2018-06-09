@@ -13,6 +13,7 @@ const basicTargets = [
   {value: 'plan', label: 'Thửa đất'},
   {value: 'certi', label: 'Giấy chứng nhận'},
   {value: 'govdoc', label: 'Văn bản nhà nước'},
+  {value: 'puser', label: 'Chủ sử dụng đất'},
   {value: 'user', label: 'Tài khoản truy cập'}
 ]
 

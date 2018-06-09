@@ -9,7 +9,8 @@ import {
   OPEN_DETAIL,
   TOGGLE_LAYER,
   IN_USERNAME, IN_PASSWORD, IN_LOGIN, LOGIN_RESULT, ROLE_CHANGED,
-  NO_RESULT_FOUND
+  NO_RESULT_FOUND,
+  VALUE_CHANGE, STATE_CHANGE
 } from '../actions'
 
 const defaultSelect = {
@@ -21,7 +22,7 @@ const emptyResult = {
   name: '...'
 }
 
-const queryDialog = (state = {target: 'user', queryData: {}}, action) => {
+const queryDialog = (state = {target: 'plan', queryData: {}}, action) => {
   switch (action.type) {
     case QUERING:
       return {
@@ -188,13 +189,46 @@ const taskbar = (state = {role: 'admin'}, action) => {
   }
 }
 
+const chpasswdDialog = (state = {
+                                  oldPasswd: '',
+                                  newPasswd: '',
+                                  renewPasswd: ''
+                                }, action) => {
+  switch(action.type) {
+    case VALUE_CHANGE:
+      if (action.target === 'chpasswd')
+        return {
+          ...state,
+          [action.key]: action.value,
+          msg: ''
+        }
+    case STATE_CHANGE:
+      if (action.target === 'chpasswd')
+        return {
+          ...state,
+          ...action.stateFragment
+        }
+    default:
+      return state
+  }
+}
+
+const modifierDialog = (state = {mode: 'add', target: 'account'}, action) => {
+  switch(action.type) {
+    default:
+      return state
+  }
+}
+
 const rootReducer = combineReducers({
   dialogState,
   queryDialog,
   detailDialog,
   filterDialog,
   userIdentify,
-  taskbar
+  taskbar,
+  chpasswdDialog,
+  modifierDialog
 })
 
 export default rootReducer

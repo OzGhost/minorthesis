@@ -11,14 +11,14 @@ Just a Thesis :D
   - account manager (listing)
   - z-index increaser for dialog
   - certificate query by certificate number (detail show off)
+  - plan owner query by name
+  - plan owner query by ID card number
 
 [incomming features]
-  - plan owner query by type
-  - plan owner query by ID card number
-  - account manage (adding)
-  - certificate manage (adding)
+  - account manage (adding, change passwd, edit)
+  - certificate manage (adding, delete, edit)
   - login (role, permission, privilege, logout)
   - certificate query with admin role
-  - information show off
+  - fix query dialog
 
 

@@ -4,22 +4,24 @@ const app = require('express')()
 const cors = require('cors')
 const bodyParser = require('body-parser') 
 
+const AS_NUMBER = 'format as number'
+const AS_STRING = 'format as string'
+
 app.use(cors())
 app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
 
-const performQuery = (queryStr, callback, all) => {
+const performQuery = (queryStr, resolve, reject) => {
   const pool = new Pool()
   pool.query(queryStr, (err, result) => {
-    const obj = (result && result.rows.length > 0)
-      ? (all ? result.rows : result.rows[0])
-      : {}
+    result
+      ? resolve(result.rows, result.rowCount)
+      : reject(err, result)
     pool.end()
-    callback(obj)
   })
 }
 
-app.get('/thuadat', (req, res) => {
+app.get('/plan', (req, res) => {
   const queryStr = 'SELECT gid, shbando, shthua, dtpl, sonha, tenduong, phuong'
                   + ' thanhpho, tinh, ST_asGeoJSON(geom) as geo'
                   + ' FROM thuadat'
@@ -29,7 +31,7 @@ app.get('/thuadat', (req, res) => {
   performQuery(queryStr, (obj) => res.json(obj))
 })
 
-app.get('/thuadat/features/:featureId', (req, res) => {
+app.get('/plan/features/:featureId', (req, res) => {
   const queryStr = 'SELECT gid, shbando, shthua, dtpl, sonha, tenduong, phuong'
                   + ' thanhpho, tinh, ST_asGeoJSON(geom) as geo'
                   + ' FROM thuadat'
@@ -38,7 +40,7 @@ app.get('/thuadat/features/:featureId', (req, res) => {
   performQuery(queryStr, (obj) => res.json(obj))
 })
 
-app.get('/giaychungnhan', (req, res) => {
+app.get('/certificate', (req, res) => {
   const shortInfo = 'c.ten, d.shgiaycn,'
   const fullInfo = shortInfo
                   + ' c.machu, c.loaichu, c.nam, c.sogiayto, c.ngaycap,'
@@ -71,16 +73,83 @@ const buildCertificateCoreQuery = additionalInfo => {
             + ' LEFT JOIN thuadat d ON d.shgiaycn = s.shgiaycn'
 }
 
-app.get('/vanbannhanuoc', (req, res) => {
+app.get('/government-doc', (req, res) => {
   const q = 'SELECT sohieu, noidung, link FROM vanbannhanuoc'
   performQuery(q, objs => res.json(objs), true)
 })
 
-app.get('/taikhoan', (req, res) => {
+app.get('/account', (req, res) => {
   const q = 'SELECT id, username, hoten, cmnd, diachi, chucvu'
           + ' FROM taikhoan'
   performQuery(q, objs => res.json(objs), true)
 })
+
+app.post('/account/reset-passwd', (req, res) => {
+  const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
+  const body = JSON.parse(bodyStr)
+  const checkPasswdScript = 'SELECT id'
+                          + ' FROM taikhoan'
+                          + ' WHERE id = 9'
+                          + ' AND password = md5(\'' + body.oldPass + '\')'
+  const updateScript = 'UPDATE taikhoan'
+                        + ' SET password = md5(\'' + body.newPass + '\')'
+                        + ' WHERE id = 9'
+  performQuery(checkPasswdScript, rows => {
+    if (rows.length === 1) {
+      performQuery(updateScript, (_, rowCount) => {
+        if (rowCount === 1)
+          res.json({done: true})
+        else
+          res.json({done: false, code: 500})
+      })
+    } else {
+      res.json({done: false, code: 401})
+    }
+  })
+})
+
+app.get('/plan-user', (req, res) => {
+  const kind = InputHandler.format(req.query.kind, AS_STRING)
+  const value = InputHandler.format(req.query.value, AS_STRING)
+  const fieldName = getPlanUserFieldNameByKind(kind)
+  const condition = getConditionPhase(fieldName, value)
+  const queryStr = 'SELECT * FROM chusudung WHERE ' + condition
+  performQuery(queryStr, objs => res.json(objs), true)
+})
+
+getPlanUserFieldNameByKind = kind => {
+  switch(kind) {
+    case 'name':
+      return 'ten'
+    case 'id':
+    default:
+      return 'sogiayto'
+  }
+}
+
+getConditionPhase = (fieldName, value) => {
+  switch(fieldName) {
+    case 'ten':
+      return "UPPER(ten) like '%"+value.toUpperCase()+"%'"
+    case 'sogiayto':
+      return "sogiayto = '"+value+"'"
+    default:
+      return '0=1'
+  }
+}
+
+InputHandler = {
+  format: (input, outputFormat) => {
+    switch(outputFormat) {
+      case AS_NUMBER:
+        return Number(input)
+      case AS_STRING:
+        return (''+input).replace("'", "''")
+      default:
+        return undefined
+    }
+  }
+}
 
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
