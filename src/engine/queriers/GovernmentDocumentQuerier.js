@@ -1,7 +1,8 @@
 import React from 'react'
 import Querier from './Querier'
 import DataLoader from '../common/DataLoader'
-import { loadDocs, host, queryFieldChange } from '../actions'
+import { loadDocs, queryFieldChange } from '../actions'
+import { host } from '../common/Constants'
 
 class GovernmentDocumentQuerier extends Querier {
   didInitial = false

@@ -1,9 +1,7 @@
 import MouseTrapper from '../common/MouseTrapper'
 import Mapper from '../common/Mapper'
 import Ruler from '../common/Ruler'
-import { PLAN_DETAIL_LABELS } from '../common/Constants'
-
-export const host = 'http://localhost:3000'
+import { host } from '../common/Constants'
 
 export const OPEN_DIALOG = 'OPEN DIALGO'
 export const CLOSE_DIALOG = 'CLOSE DIALGO'
@@ -67,6 +65,7 @@ const receiveLayers = layers => ({
   type: RECEIVE_LAYERS,
   layers
 })
+/*
 export const storeLayerName = layerName => ({
   type: STORE_LAYER,
   layerName
@@ -117,6 +116,7 @@ export const performQuery = value => (dispatch, getState) => {
     .then(res => res.json())
     .then(json => dispatch(receiveQueryResult(json)))
 }
+*/
 const queryPerforming = () => ({
   type: QUERING
 })
@@ -221,15 +221,15 @@ export const noResultFound = dialogName => ({
 })
 
 export const loadDocs = () => dispatch => {
-  fetch(host + '/vanbannhanuoc')
+  fetch(host + '/government-doc')
     .then(res => res.json())
     .then(json => dispatch(queryFieldChange('doc.docs', json)))
 }
 
-export const valueChange = (target, key, value) => ({
+export const valueChange = (target, locate, value) => ({
   type: VALUE_CHANGE,
   target,
-  key,
+  locate,
   value
 })
 

@@ -54,7 +54,9 @@ class QueryDialogView extends Dialog {
           ? (
             <div className="w3-center">
               <hr/>
-              <span className="w3-text-orange">Không tìm thấy dữ liệu trùng khớp!</span>
+              <span className="w3-text-orange">
+                Không tìm thấy dữ liệu trùng khớp!
+              </span>
             </div>
           )
           : ''

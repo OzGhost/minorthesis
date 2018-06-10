@@ -21,7 +21,7 @@ class Dialog extends React.Component {
         ? { top: mousePos.y +'px', left: mousePos.x + 'px', zIndex: depth }
         : { top: '240px', left: '80px', zIndex: depth }
     const { isActive, onClose } = this.props
-    const meta = this.getMetaData()
+    const meta = this.getMetaData(this.props)
     const styleClass = meta.styleClass + ' dialog ' + (isActive ? '' : ' hidden')
 
     return (

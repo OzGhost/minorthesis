@@ -1,4 +1,5 @@
-import { noResultFound, host } from '../actions'
+import { noResultFound } from '../actions'
+import { host } from '../common/Constants'
 import PlanQuerierView from '../components/PlanQuerierView'
 
 class Querier {

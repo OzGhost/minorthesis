@@ -1,0 +1,32 @@
+
+.modifiable-item
+  position: relative
+
+  p
+    margin: 0
+    padding: 8px 16px
+
+  &-tray
+    position: absolute
+    right: 0
+    top: 5px
+
+  &-icon
+    width: 24px
+    display: inline-block
+    padding: 0 3px
+
+    img
+      width: 100%
+
+    &.remove-icon
+      right: 10px
+
+    &.edit-icon
+      right: 35px
+
+.w3-ul
+  li.modifiable-item
+    padding: 0
+    border-bottom: 1px dashed #ddd
+

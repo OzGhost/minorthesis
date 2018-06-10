@@ -1,47 +1,58 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import Dialog from './Dialog'
+import ModifierFactory from '../common/ModifierFactory'
+import { EDIT_MODE, ADD_MODE } from '../common/Constants'
 
 class ModifierDialogView extends Dialog {
   static propTypes = {
   }
 
-  getMetaData = () => ({
-    styleClass: 'modifier-dialog',
-    title: 'Modifier',
-    icon: '../res/icon_modifier.png'
-  })
+  getMetaData = props => {
+    const modifier = ModifierFactory.buildFor(props.target)
+    props.mode === EDIT_MODE
+      && modifier.turnOnEditMode()
+    return {
+      styleClass: 'modifier-dialog',
+      title: modifier.getTitle(),
+      icon: '../res/icon_modifier.png'
+    }
+  }
 
   buildDialogContent = () => {
-    const { mode, onChange, targets } = this.props
+    const { mode, onChange, targets, target } = this.props
+    const modifier = ModifierFactory.buildFor(target)
+    modifier.setReactor(this.props.dispatch)
     return (
       <div>
-        {
-          mode === 'add'
-            ? <div>
-                <div className="w3-row">
-                  <label>Đối tượng thêm mới:</label>
-                </div>
-                <div className="w3-row">
-                  <select
-                    className="w3-input w3-border"
-                    onChange={e => onChange('target', e.target.value) }
-                  >
-                    {
-                      targets.map(tg =>
-                        <option
-                          key={tg.code}
-                          value={tg.code}
-                        >
-                          {tg.label}
-                        </option>
-                      )
-                    }
-                  </select>
-                </div>
+      {
+        mode === ADD_MODE
+          ? <div>
+              <div className="w3-row">
+                <label>Đối tượng thêm mới:</label>
               </div>
-            : ''
-        }
+              <div className="w3-row">
+                <select
+                  className="w3-input w3-border"
+                  onChange={e => onChange('target', e.target.value) }
+                >
+                  {
+                    targets.map(tg =>
+                      <option
+                        key={tg.code}
+                        value={tg.code}
+                      >
+                        {tg.label}
+                      </option>
+                    )
+                  }
+                </select>
+              </div>
+              <hr/>
+            </div>
+          : ''
+      }
+      { modifier.buildView(this.props) }
       </div>
     )
   }

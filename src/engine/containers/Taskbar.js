@@ -2,6 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import TaskbarView from '../components/TaskbarView'
 import { logout } from '../actions'
+import { MODIFIER_DIALOG } from '../common/Constants'
 
 const baseEntries = [
   { icon: 'icon_query.png',   label: 'Truy vấn thuộc tính',    name: 'query' },
@@ -13,7 +14,7 @@ const adminEntries = [
   {
     icon: 'icon_modifier.png',
     label: 'Thêm mới dữ liệu',
-    name: 'modifier'
+    name: MODIFIER_DIALOG
   },
   {
     icon: 'icon_change_passwd.png',

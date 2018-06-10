@@ -172,6 +172,46 @@
 .chpasswd-dialog {
   width: 300px; }
 
+.modifier-dialog {
+  width: 430px; }
+  .modifier-dialog .modifier {
+    max-height: 280px;
+    overflow-y: auto; }
+    .modifier-dialog .modifier input:disabled {
+      cursor: not-allowed; }
+    .modifier-dialog .modifier .w3-row {
+      padding: 5px 0;
+      border-bottom: 1px dashed #ddd; }
+      .modifier-dialog .modifier .w3-row:last-child {
+        border-bottom: 0; }
+      .modifier-dialog .modifier .w3-row label {
+        display: inline-block;
+        padding-top: 8px; }
+
+.modifiable-item {
+  position: relative; }
+  .modifiable-item p {
+    margin: 0;
+    padding: 8px 16px; }
+  .modifiable-item-tray {
+    position: absolute;
+    right: 0;
+    top: 5px; }
+  .modifiable-item-icon {
+    width: 24px;
+    display: inline-block;
+    padding: 0 3px; }
+    .modifiable-item-icon img {
+      width: 100%; }
+    .modifiable-item-icon.remove-icon {
+      right: 10px; }
+    .modifiable-item-icon.edit-icon {
+      right: 35px; }
+
+.w3-ul li.modifiable-item {
+  padding: 0;
+  border-bottom: 1px dashed #ddd; }
+
 html {
   height: 100vh;
   overflow: hidden;

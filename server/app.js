@@ -81,6 +81,7 @@ app.get('/government-doc', (req, res) => {
 app.get('/account', (req, res) => {
   const q = 'SELECT id, username, hoten, cmnd, diachi, chucvu'
           + ' FROM taikhoan'
+          + ' ORDER BY username'
   performQuery(q, objs => res.json(objs), true)
 })
 
@@ -151,6 +152,86 @@ InputHandler = {
   }
 }
 
+app.post('/account', (req, res) => {
+  const flat = InputHandler.format(JSON.stringify(req.body), AS_STRING)
+  const payload = JSON.parse(flat)
+  if (payload.role !== 1 && payload.role !== 2) {
+    res.json({code: 400, cause: 'role'})
+    return
+  }
+  if (!payload.name) {
+    res.json({code: 400, cause: 'name'})
+    return
+  }
+  const q = 'SELECT id FROM taikhoan WHERE username = \'' + payload.username + '\''
+  performQuery(q, rows => {
+    if (rows.length === 0)
+      performAccountInsert(payload, res)
+    else
+      res.json({code: 400, cause: 'username'})
+
+  })
+})
+
+const performAccountInsert = (payload, res) => {
+  const pairArray = convertPayload(
+    payload, accountKeyMap, accountKeyNumber, accountKeyEncrypt)
+  const insertQuery = buildInsertQuery(pairArray, 'taikhoan')
+  performQuery(insertQuery, (_, rowCount) => {
+    rowCount === 1
+      ? res.json({code: 200})
+      : res.json({code: 500})
+  })
+}
+
+const accountKeyMap = {
+  username: 'username',
+  passwd: 'password',
+  name: 'hoten',
+  idNumber: 'cmnd',
+  address: 'diachi',
+  role: 'chucvu'
+}
+
+const accountKeyNumber = {
+  role: true
+}
+
+const accountKeyEncrypt = {
+  passwd: true
+}
+
+convertPayload = (payload, keyMap, numberType, encryptField) => {
+  let pairArray = []
+  const keys = Object.keys(payload)
+  const len = keys.length
+  for (let i = 0; i < len; i++) {
+    if (!keyMap[keys[i]])
+      continue
+    pairArray.push(keyMap[keys[i]])
+    if (numberType[keys[i]])
+      pairArray.push(payload[keys[i]])
+    else if (encryptField[keys[i]])
+      pairArray.push('md5('+'\''+payload[keys[i]]+'\''+')')
+    else
+      pairArray.push('\''+payload[keys[i]]+'\'')
+  }
+  return pairArray
+}
+
+buildInsertQuery = (pairArray, tableName) => {
+  const len = pairArray.length
+  if (len < 2)
+    return ''
+  let firstPhase = 'INSERT INTO '+tableName+'(' + pairArray[0]
+  let secondPhase = 'VALUES(' + pairArray[1]
+  for (let i = 2; i < len - 1; i+=2){
+    firstPhase += (',' + pairArray[i])
+    secondPhase += (',' + pairArray[i+1])
+  }
+  return firstPhase + ') ' + secondPhase + ')'
+}
+
 
 // # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -162,64 +243,6 @@ app.get('/map/layers', (req, res) => {
   res.json(layers)
 })
 
-const getFieldsByLayerName = layerName => {
-  switch (layerName) {
-    default:
-      return [
-        { value: 'ThuaID', label: 'Ma Thua' },
-        { value: 'XaID', label: 'Ma Xa' },
-        { value: 'SHBanDo', label: 'So Hieu Ban Do' },
-        { value: 'SHThua', label: 'So Hieu Thua' },
-        { value: 'TenChu', label: 'Ten Chu' },
-        { value: 'KH2003', label: 'Ke Hoach 2003' },
-        { value: 'SHGiayCN', label: 'So Hieu Giay Chung Nhan' },
-        { value: 'DTPL', label: 'Dien Tich Phap Ly' },
-        { value: 'SoNha', label: 'So Nha' },
-        { value: 'TenDuong', label: 'Ten Duong' },
-        { value: 'Phuong', label: 'Ma Phuong' }
-      ]
-  }
-}
-
-app.get('/map/layers/:layerName/fields', (req, res) => {
-  res.json(getFieldsByLayerName( req.params.layerName ))
-})
-
-app.get('/map/layers/:layerName/fields/:field/values', (req, res) => {
-  res.json([
-    "Dump value 01",
-    "Dump value 02"
-  ])
-})
-
-const connectString = 'postgresql://oz:ngaymai@localhost:5432/mydb'
-
-app.get('/map/layers/:layerName/fields/:field/values/:val', (req, res) => {
-  const pool = new Pool()
-  pool.query('select gid, tenchu as name, ST_asGeoJSON(geom) as geo from thuadat limit 3', (err, result) => {
-    res.json(result.rows)
-    pool.end()
-  })
-})
-
-app.post('/login', (req, res) => {
-  let result = {}
-  switch (req.body.username) {
-    case 'admin':
-      result.isPass = true
-      result.role = 'admin'
-      break
-    case 'su':
-      result.isPass = true
-      result.role = 'superAdmin'
-      break
-    default:
-      result.isPass = false
-      break
-  }
-  res.json(result)
-})
-
-var server = app.listen(3000, () => {
+var server = app.listen(8080, () => {
   console.log("Server started")
 })
