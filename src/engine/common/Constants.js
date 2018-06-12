@@ -35,5 +35,6 @@ export const FIELD_LABELS = {
   repasswd: 'Nhập lại mật khẩu',
   name: 'Tên người dùng',
   idNumber: 'CMND/Hộ chiếu',
-  address: 'Địa chỉ'
+  address: 'Địa chỉ',
+  role: 'Chức vụ'
 }

@@ -47,10 +47,11 @@ class AccountModifier extends Modifier {
     return (
       <div className="w3-row">
         <div className="w3-col s5 w3-right-align">
-          <label className="w3-text-blue">Nhóm:</label>
+          <label className="w3-text-blue">Chức vụ:</label>
         </div>
         <div className="w3-col s7">
           <select
+            value={store.role || 0}
             className="w3-border w3-input"
             onChange={e => listener(Number(e.target.value))}
           >
@@ -69,30 +70,33 @@ class AccountModifier extends Modifier {
     let data = Object.assign({}, store)
     delete data.repasswd
     this.pendingUI()
-    fetch(host + '/account', RequestPacker.packAsPost(data))
+    const payload = this.editMode
+      ? RequestPacker.packAsPut(data)
+      : RequestPacker.packAsPost(data)
+    fetch(host + '/account', payload)
       .then(res => res.json())
       .then(resJson => {
         this.resumeUI()
-        this.handleResult(resJson)
+        this.handleResult(resJson, store)
       })
   }
 
   qualify = store => {
-    let passChecker = this.requiredFieldsFulfilled(
-      [
-        {value: store.username, trimApply: true, msg: 'Vui lòng nhập tên tài khoản!'},
-        {value: store.passwd, msg: 'Vui lòng nhập mật khẩu!'},
-        {value: store.repasswd, msg: 'Vui lòng nhập lại mật khẩu!'},
-        {value: store.name, trimApply: true, msg: 'Vui lòng nhập tên người dùng!'}
-      ]
-    )
+    let requiredField = []
+    if (!this.editMode) {
+      requiredField.push({value: store.username, trimApply: true, msg: 'Vui lòng nhập tên tài khoản!'})
+      requiredField.push({value: store.passwd, msg: 'Vui lòng nhập mật khẩu!'})
+      requiredField.push({value: store.repasswd, msg: 'Vui lòng nhập lại mật khẩu!'})
+    }
+    requiredField.push({value: store.name, trimApply: true, msg: 'Vui lòng nhập tên người dùng!'})
+    let passChecker = this.requiredFieldsFulfilled(requiredField)
     if (!passChecker)
       return false
     if (!(store.role == 1 || store.role == 2)) {
-      this.pushMessage('Vui lòng chọn nhóm tài khoản!', false)
+      this.pushMessage('Vui lòng chọn chức vụ!', false)
       return false
     }
-    if (store.passwd !== store.repasswd) {
+    if (!this.editMode && (store.passwd !== store.repasswd)) {
       this.pushMessage('Mật khẩu được lại không trùng khớp!')
       return false
     }
@@ -112,13 +116,14 @@ class AccountModifier extends Modifier {
     return true
   }
 
-  handleResult = res => {
+  handleResult = (res, payload) => {
     if (res.code === 200) {
       this.pushMessage('Thao tác hoàn tất!', true)
+      this.callback(payload)
     } else if (res.code === 400) {
       if (res.cause === 'username')
         this.pushMessage(
-          'Tên tài khoản đã tồn tại, vui lòng chọn tên tài khoản khác')
+          'Tên tài khoản đã tồn tại, vui lòng chọn tên tài khoản khác!')
       else
         this.pushMessage( 'Xảy ra lỗi cục bộ, vui lòng làm mới trang và thử lại!')
     } else if (res.code === 500) {

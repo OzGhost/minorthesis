@@ -1,7 +1,8 @@
 import React from 'react'
 import Querier from './Querier'
-import { showTargetDetail, queryFieldChange } from '../actions'
-import { host, USER_DETAIL_LABELS } from '../common/Constants'
+import { showTargetDetail, queryFieldChange, openModifier,
+          updateAccount } from '../actions'
+import { host, USER_DETAIL_LABELS, ACCOUNT_CODE } from '../common/Constants'
 import ModifiableItem from '../components/ModifiableItem'
 
 class UserQuerier extends Querier {
@@ -20,7 +21,7 @@ class UserQuerier extends Querier {
               key={user.id}
               label={user.username}
               onClick={event => this.itemSelecting(event, user)}
-              onModify={() => window.alert('Modifying function was triggered!')}
+              onModify={event => this.triggerModifier(event, user)}
             />
           )
         }
@@ -39,6 +40,12 @@ class UserQuerier extends Querier {
   }
   
   isAutoLoad = () => true
+
+  triggerModifier = (event, account) => {
+    this.dispatch(openModifier(event, ACCOUNT_CODE, account, updatedInfo => {
+      this.dispatch(updateAccount(Object.assign({}, account, updatedInfo)))
+    }))
+  }
 }
 
 export default new UserQuerier

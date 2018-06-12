@@ -1,5 +1,5 @@
 import { QUERING, QUERY_TARGET_CHANGE, QUERY_FIELD_CHANGE,
-          NO_RESULT_FOUND} from '../actions'
+          NO_RESULT_FOUND, UPDATE_ACCOUNT } from '../actions'
 import DataLoader from '../common/DataLoader'
 
 const queryDialog = (state = {target: 'plan', queryData: {}}, action) => {
@@ -30,6 +30,20 @@ const queryDialog = (state = {target: 'plan', queryData: {}}, action) => {
           ...state,
           hasNoResult: true
         }
+    case UPDATE_ACCOUNT:
+      const users = state.queryData.users || []
+      const nextUsers = users.map(e => {
+        return e.id === action.account.id
+          ? action.account
+          : e
+      })
+      return {
+        ...state,
+        queryData: {
+          ...state.queryData,
+          users: nextUsers
+        }
+      }
 
     default:
       return state

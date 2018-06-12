@@ -26,7 +26,7 @@ const DetailDialogView = ({ obj, labels, onClose, isActive }) => {
 
       <div className="detail-content">
         { objectDump(obj, labels).map( row => (
-          <div key={row.key} className="w3-row w3-border-bottom">
+          <div key={row.key} className="w3-row">
             <div className="w3-col w3-right-align w3-padding-small" >
               {row.key + ':'}
             </div>

@@ -1,7 +1,7 @@
 import MouseTrapper from '../common/MouseTrapper'
 import Mapper from '../common/Mapper'
 import Ruler from '../common/Ruler'
-import { host } from '../common/Constants'
+import { host, MODIFIER_DIALOG } from '../common/Constants'
 
 export const OPEN_DIALOG = 'OPEN DIALGO'
 export const CLOSE_DIALOG = 'CLOSE DIALGO'
@@ -39,6 +39,9 @@ export const QUERY_FIELD_CHANGE = 'Query Field Change'
 export const NO_RESULT_FOUND = 'No Result Found'
 export const VALUE_CHANGE = 'Some value change'
 export const STATE_CHANGE = 'Some state change'
+
+export const OPEN_MODIFIER = 'Open Modifier'
+export const UPDATE_ACCOUNT = 'Update Account'
 
 export const openDialog = (event, dialogName) => {
   MouseTrapper.trap(event)
@@ -237,4 +240,19 @@ export const stateChange = (target, stateFragment) => ({
   type: STATE_CHANGE,
   target,
   stateFragment
+})
+
+export const openModifier = (event, code, payload, callback) => dispatch => {
+  dispatch(openDialog(event, MODIFIER_DIALOG))
+  dispatch({
+    type: OPEN_MODIFIER,
+    code,
+    payload,
+    callback
+  })
+}
+
+export const updateAccount = account => ({
+  type: UPDATE_ACCOUNT,
+  account
 })

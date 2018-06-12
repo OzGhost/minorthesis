@@ -23155,7 +23155,7 @@ function symbolObservablePonyfill(root) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.stateChange = exports.valueChange = exports.loadDocs = exports.noResultFound = exports.queryFieldChange = exports.queryTargetChangeTo = exports.logout = exports.pickRuler = exports.roleChanged = exports.authenDone = exports.receiveAuthenResult = exports.requestAuthen = exports.inLogin = exports.inPassword = exports.inUsername = exports.toggleLayer = exports.openDetail = exports.showTargetDetail = exports.showFeatureTarget = exports.receiveTargetId = exports.fetchLayers = exports.closeDialog = exports.openDialog = exports.STATE_CHANGE = exports.VALUE_CHANGE = exports.NO_RESULT_FOUND = exports.QUERY_FIELD_CHANGE = exports.QUERY_TARGET_CHANGE = exports.ROLE_CHANGED = exports.IDENTIFY_CLEAN = exports.LOGIN_RESULT = exports.IN_LOGIN = exports.IN_PASSWORD = exports.IN_USERNAME = exports.TOGGLE_LAYER = exports.OPEN_DETAIL = exports.RECEIVE_QUERY_RESULT = exports.QUERING = exports.STORE_FIELD = exports.STORE_LAYER = exports.RECEIVE_VALUES = exports.REQUEST_VALUES = exports.RECEIVE_FIELDS = exports.REQUEST_FIELDS = exports.RECEIVE_LAYERS = exports.REQUEST_LAYERS = exports.CLEAR_DIALOGS = exports.CLOSE_DIALOG = exports.OPEN_DIALOG = undefined;
+exports.updateAccount = exports.openModifier = exports.stateChange = exports.valueChange = exports.loadDocs = exports.noResultFound = exports.queryFieldChange = exports.queryTargetChangeTo = exports.logout = exports.pickRuler = exports.roleChanged = exports.authenDone = exports.receiveAuthenResult = exports.requestAuthen = exports.inLogin = exports.inPassword = exports.inUsername = exports.toggleLayer = exports.openDetail = exports.showTargetDetail = exports.showFeatureTarget = exports.receiveTargetId = exports.fetchLayers = exports.closeDialog = exports.openDialog = exports.UPDATE_ACCOUNT = exports.OPEN_MODIFIER = exports.STATE_CHANGE = exports.VALUE_CHANGE = exports.NO_RESULT_FOUND = exports.QUERY_FIELD_CHANGE = exports.QUERY_TARGET_CHANGE = exports.ROLE_CHANGED = exports.IDENTIFY_CLEAN = exports.LOGIN_RESULT = exports.IN_LOGIN = exports.IN_PASSWORD = exports.IN_USERNAME = exports.TOGGLE_LAYER = exports.OPEN_DETAIL = exports.RECEIVE_QUERY_RESULT = exports.QUERING = exports.STORE_FIELD = exports.STORE_LAYER = exports.RECEIVE_VALUES = exports.REQUEST_VALUES = exports.RECEIVE_FIELDS = exports.REQUEST_FIELDS = exports.RECEIVE_LAYERS = exports.REQUEST_LAYERS = exports.CLEAR_DIALOGS = exports.CLOSE_DIALOG = exports.OPEN_DIALOG = undefined;
 
 var _MouseTrapper = require('../common/MouseTrapper');
 
@@ -23209,6 +23209,9 @@ var QUERY_FIELD_CHANGE = exports.QUERY_FIELD_CHANGE = 'Query Field Change';
 var NO_RESULT_FOUND = exports.NO_RESULT_FOUND = 'No Result Found';
 var VALUE_CHANGE = exports.VALUE_CHANGE = 'Some value change';
 var STATE_CHANGE = exports.STATE_CHANGE = 'Some state change';
+
+var OPEN_MODIFIER = exports.OPEN_MODIFIER = 'Open Modifier';
+var UPDATE_ACCOUNT = exports.UPDATE_ACCOUNT = 'Update Account';
 
 var openDialog = exports.openDialog = function openDialog(event, dialogName) {
   _MouseTrapper2.default.trap(event);
@@ -23470,6 +23473,25 @@ var stateChange = exports.stateChange = function stateChange(target, stateFragme
   };
 };
 
+var openModifier = exports.openModifier = function openModifier(event, code, payload, callback) {
+  return function (dispatch) {
+    dispatch(openDialog(event, _Constants.MODIFIER_DIALOG));
+    dispatch({
+      type: OPEN_MODIFIER,
+      code: code,
+      payload: payload,
+      callback: callback
+    });
+  };
+};
+
+var updateAccount = exports.updateAccount = function updateAccount(account) {
+  return {
+    type: UPDATE_ACCOUNT,
+    account: account
+  };
+};
+
 },{"../common/Constants":62,"../common/Mapper":66,"../common/MouseTrapper":68,"../common/Ruler":71}],62:[function(require,module,exports){
 'use strict';
 
@@ -23510,7 +23532,7 @@ var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
   nam: 'Năm',
   sogiayto: 'CMND',
   ngaycap: 'Ngày cấp'
-}, _defineProperty(_FIELD_LABELS, 'diachi', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'quoctich', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'phuong', 'Phường'), _defineProperty(_FIELD_LABELS, 'passwd', 'Mật khẩu'), _defineProperty(_FIELD_LABELS, 'repasswd', 'Nhập lại mật khẩu'), _defineProperty(_FIELD_LABELS, 'name', 'Tên người dùng'), _defineProperty(_FIELD_LABELS, 'idNumber', 'CMND/Hộ chiếu'), _defineProperty(_FIELD_LABELS, 'address', 'Địa chỉ'), _FIELD_LABELS);
+}, _defineProperty(_FIELD_LABELS, 'diachi', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'quoctich', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'phuong', 'Phường'), _defineProperty(_FIELD_LABELS, 'passwd', 'Mật khẩu'), _defineProperty(_FIELD_LABELS, 'repasswd', 'Nhập lại mật khẩu'), _defineProperty(_FIELD_LABELS, 'name', 'Tên người dùng'), _defineProperty(_FIELD_LABELS, 'idNumber', 'CMND/Hộ chiếu'), _defineProperty(_FIELD_LABELS, 'address', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'role', 'Chức vụ'), _FIELD_LABELS);
 
 },{}],63:[function(require,module,exports){
 'use strict';
@@ -24492,7 +24514,7 @@ var DetailDialogView = function DetailDialogView(_ref) {
       objectDump(obj, labels).map(function (row) {
         return _react2.default.createElement(
           'div',
-          { key: row.key, className: 'w3-row w3-border-bottom' },
+          { key: row.key, className: 'w3-row' },
           _react2.default.createElement(
             'div',
             { className: 'w3-col w3-right-align w3-padding-small' },
@@ -24987,7 +25009,8 @@ var ModifierDialogView = function (_Dialog) {
           mode = _this$props.mode,
           _onChange = _this$props.onChange,
           targets = _this$props.targets,
-          target = _this$props.target;
+          target = _this$props.target,
+          payload = _this$props.payload;
 
       var modifier = _ModifierFactory2.default.buildFor(target);
       modifier.setReactor(_this.props.dispatch);
@@ -25660,21 +25683,23 @@ var _RequestPacker = require('../common/RequestPacker');
 
 var _RequestPacker2 = _interopRequireDefault(_RequestPacker);
 
+var _Constants = require('../common/Constants');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var stateToProps = function stateToProps(state) {
   return _extends({}, state.chpasswdDialog, {
-    isActive: state.dialogState['chpasswd']
+    isActive: state.dialogState[_Constants.CHPASSWD_DIALOG]
   });
 };
 
 var actToProps = function actToProps(dispatch) {
   return {
     onClose: function onClose() {
-      return dispatch((0, _actions.closeDialog)('chpasswd'));
+      return dispatch((0, _actions.closeDialog)(_Constants.CHPASSWD_DIALOG));
     },
     onChange: function onChange(key, value) {
-      return dispatch((0, _actions.valueChange)('chpasswd', key, value));
+      return dispatch((0, _actions.valueChange)(_Constants.CHPASSWD_DIALOG, key, value));
     },
     onSubmit: handleSubmit(dispatch)
   };
@@ -25688,7 +25713,7 @@ var handleSubmit = function handleSubmit(dispatch) {
     } else if (newPass !== renewPass) {
       msg = 'Mật khẩu xác nhận không trùng khớp với mật khẩu mới!';
     } else {
-      fetch(_actions.host + '/account/reset-passwd', _RequestPacker2.default.packAsPost({ oldPass: oldPass, newPass: newPass })).then(function (res) {
+      fetch(_Constants.host + '/account/reset-passwd', _RequestPacker2.default.packAsPost({ oldPass: oldPass, newPass: newPass })).then(function (res) {
         return res.json();
       }).then(function (res) {
         return handleResult(dispatch, res);
@@ -25697,7 +25722,7 @@ var handleSubmit = function handleSubmit(dispatch) {
       });
     }
 
-    if (msg) dispatch((0, _actions.stateChange)('chpasswd', { isGood: false, msg: msg }));
+    if (msg) dispatch((0, _actions.stateChange)(_Constants.CHPASSWD_DIALOG, { isGood: false, msg: msg }));
   };
 };
 
@@ -25710,7 +25735,7 @@ var handleResult = function handleResult(dispatch, res) {
     stateFragment.isGood = false;
     if (res.code === 401) stateFragment.msg = 'Mật khẩu cũ không chính xác!';else stateFragment.msg = 'Xảy ra lỗi trong quá trình xử lý! Vui lòng thử lại sau';
   }
-  dispatch((0, _actions.stateChange)('chpasswd', stateFragment));
+  dispatch((0, _actions.stateChange)(_Constants.CHPASSWD_DIALOG, stateFragment));
 };
 
 var handleReject = function handleReject(dispatch) {
@@ -25718,12 +25743,12 @@ var handleReject = function handleReject(dispatch) {
     isGood: false,
     msg: 'Xảy ra lỗi trong quá trình xử lý! Vui lòng thử lại sau'
   };
-  dispatch((0, _actions.stateChange)('chpasswd', stateFragment));
+  dispatch((0, _actions.stateChange)(_Constants.CHPASSWD_DIALOG, stateFragment));
 };
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_ChangePasswordDialogView2.default);
 
-},{"../actions":61,"../common/RequestPacker":70,"../components/ChangePasswordDialogView":73,"react-redux":47}],89:[function(require,module,exports){
+},{"../actions":61,"../common/Constants":62,"../common/RequestPacker":70,"../components/ChangePasswordDialogView":73,"react-redux":47}],89:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -26017,7 +26042,7 @@ var adminEntries = [{
 }, {
   icon: 'icon_change_passwd.png',
   label: 'Thay đổi mật khẩu',
-  name: 'chpasswd'
+  name: _Constants.CHPASSWD_DIALOG
 }, {
   icon: 'icon_logout.png',
   label: 'Thoát',
@@ -26158,7 +26183,7 @@ var AccountModifier = function (_Modifier) {
           _react2.default.createElement(
             'label',
             { className: 'w3-text-blue' },
-            'Nh\xF3m:'
+            'Ch\u1EE9c v\u1EE5:'
           )
         ),
         _react2.default.createElement(
@@ -26167,6 +26192,7 @@ var AccountModifier = function (_Modifier) {
           _react2.default.createElement(
             'select',
             {
+              value: store.role || 0,
               className: 'w3-border w3-input',
               onChange: function onChange(e) {
                 return listener(Number(e.target.value));
@@ -26195,20 +26221,28 @@ var AccountModifier = function (_Modifier) {
       var data = Object.assign({}, store);
       delete data.repasswd;
       _this.pendingUI();
-      fetch(_Constants.host + '/account', _RequestPacker2.default.packAsPost(data)).then(function (res) {
+      var payload = _this.editMode ? _RequestPacker2.default.packAsPut(data) : _RequestPacker2.default.packAsPost(data);
+      fetch(_Constants.host + '/account', payload).then(function (res) {
         return res.json();
       }).then(function (resJson) {
         _this.resumeUI();
-        _this.handleResult(resJson);
+        _this.handleResult(resJson, store);
       });
     }, _this.qualify = function (store) {
-      var passChecker = _this.requiredFieldsFulfilled([{ value: store.username, trimApply: true, msg: 'Vui lòng nhập tên tài khoản!' }, { value: store.passwd, msg: 'Vui lòng nhập mật khẩu!' }, { value: store.repasswd, msg: 'Vui lòng nhập lại mật khẩu!' }, { value: store.name, trimApply: true, msg: 'Vui lòng nhập tên người dùng!' }]);
+      var requiredField = [];
+      if (!_this.editMode) {
+        requiredField.push({ value: store.username, trimApply: true, msg: 'Vui lòng nhập tên tài khoản!' });
+        requiredField.push({ value: store.passwd, msg: 'Vui lòng nhập mật khẩu!' });
+        requiredField.push({ value: store.repasswd, msg: 'Vui lòng nhập lại mật khẩu!' });
+      }
+      requiredField.push({ value: store.name, trimApply: true, msg: 'Vui lòng nhập tên người dùng!' });
+      var passChecker = _this.requiredFieldsFulfilled(requiredField);
       if (!passChecker) return false;
       if (!(store.role == 1 || store.role == 2)) {
-        _this.pushMessage('Vui lòng chọn nhóm tài khoản!', false);
+        _this.pushMessage('Vui lòng chọn chức vụ!', false);
         return false;
       }
-      if (store.passwd !== store.repasswd) {
+      if (!_this.editMode && store.passwd !== store.repasswd) {
         _this.pushMessage('Mật khẩu được lại không trùng khớp!');
         return false;
       }
@@ -26224,11 +26258,12 @@ var AccountModifier = function (_Modifier) {
         }
       }
       return true;
-    }, _this.handleResult = function (res) {
+    }, _this.handleResult = function (res, payload) {
       if (res.code === 200) {
         _this.pushMessage('Thao tác hoàn tất!', true);
+        _this.callback(payload);
       } else if (res.code === 400) {
-        if (res.cause === 'username') _this.pushMessage('Tên tài khoản đã tồn tại, vui lòng chọn tên tài khoản khác');else _this.pushMessage('Xảy ra lỗi cục bộ, vui lòng làm mới trang và thử lại!');
+        if (res.cause === 'username') _this.pushMessage('Tên tài khoản đã tồn tại, vui lòng chọn tên tài khoản khác!');else _this.pushMessage('Xảy ra lỗi cục bộ, vui lòng làm mới trang và thử lại!');
       } else if (res.code === 500) {
         _this.pushMessage('Xảy ra lỗi hệ thống, vui lòng thử lại sau!');
       }
@@ -26317,6 +26352,7 @@ var Modifier = function Modifier() {
 
   this.reactor = undefined;
   this.editMode = false;
+  this.callback = false;
 
   this.setReactor = function (reactor) {
     _this.reactor = reactor;
@@ -26332,6 +26368,7 @@ var Modifier = function Modifier() {
         isGood = props.isGood,
         loading = props.loading;
 
+    _this.callback = props.callback;
     return _react2.default.createElement(
       'form',
       { onSubmit: function onSubmit(e) {
@@ -26419,6 +26456,10 @@ var Modifier = function Modifier() {
 
   this.resumeUI = function () {
     _this.reactor((0, _actions.stateChange)(_Constants.MODIFIER_DIALOG, { loading: false }));
+  };
+
+  this.handlePayload = function (payload) {
+    return payload;
   };
 };
 
@@ -26920,8 +26961,8 @@ var UserQuerier = function (_Querier) {
             onClick: function onClick(event) {
               return _this.itemSelecting(event, user);
             },
-            onModify: function onModify() {
-              return window.alert('Modifying function was triggered!');
+            onModify: function onModify(event) {
+              return _this.triggerModifier(event, user);
             }
           });
         })
@@ -26936,6 +26977,10 @@ var UserQuerier = function (_Querier) {
       _this.dispatch((0, _actions.showTargetDetail)(event, user, _Constants.USER_DETAIL_LABELS));
     }, _this.isAutoLoad = function () {
       return true;
+    }, _this.triggerModifier = function (event, account) {
+      _this.dispatch((0, _actions.openModifier)(event, _Constants.ACCOUNT_CODE, account, function (updatedInfo) {
+        _this.dispatch((0, _actions.updateAccount)(Object.assign({}, account, updatedInfo)));
+      }));
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -26960,8 +27005,6 @@ var _Constants = require('../common/Constants');
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var chpasswdDialog = function chpasswdDialog() {
-  var _extends2;
-
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
     oldPasswd: '',
     newPasswd: '',
@@ -26971,7 +27014,13 @@ var chpasswdDialog = function chpasswdDialog() {
 
   switch (action.type) {
     case _actions.VALUE_CHANGE:
-      if (action.target === _Constants.CHPASSWD_DIALOG) return _extends({}, state, (_extends2 = {}, _defineProperty(_extends2, action.locate, action.value), _defineProperty(_extends2, 'msg', ''), _extends2));
+      console.log('cout << got action: ', action, _Constants.CHPASSWD_DIALOG);
+      if (action.target === _Constants.CHPASSWD_DIALOG) {
+        var _extends2;
+
+        console.log('cout << hit!');
+        return _extends({}, state, (_extends2 = {}, _defineProperty(_extends2, action.locate, action.value), _defineProperty(_extends2, 'msg', ''), _extends2));
+      }
     case _actions.STATE_CHANGE:
       if (action.target === _Constants.CHPASSWD_DIALOG) return _extends({}, state, action.stateFragment);
     default:
@@ -27025,6 +27074,10 @@ var _Mapper = require('../common/Mapper');
 
 var _Mapper2 = _interopRequireDefault(_Mapper);
 
+var _Constants = require('../common/Constants');
+
+var _Constants2 = _interopRequireDefault(_Constants);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -27058,7 +27111,7 @@ var dialogState = function dialogState() {
 
 exports.default = dialogState;
 
-},{"../actions":61,"../common/Mapper":66}],110:[function(require,module,exports){
+},{"../actions":61,"../common/Constants":62,"../common/Mapper":66}],110:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27183,22 +27236,41 @@ var _DataLoader = require('../common/DataLoader');
 
 var _DataLoader2 = _interopRequireDefault(_DataLoader);
 
+var _ModifierFactory = require('../common/ModifierFactory');
+
+var _ModifierFactory2 = _interopRequireDefault(_ModifierFactory);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var defaultState = { mode: _Constants.ADD_MODE, target: _Constants.ACCOUNT_CODE };
+
 var modifierDialog = function modifierDialog() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-    mode: _Constants.ADD_MODE,
-    target: _Constants.ACCOUNT_CODE
-  };
+  var _extends2;
+
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
   var action = arguments[1];
 
   switch (action.type) {
     case _actions.VALUE_CHANGE:
-      if (action.target === _Constants.MODIFIER_DIALOG) return _extends({}, _DataLoader2.default.load(state, action.locate, action.value), {
+      if (action.target === _Constants.MODIFIER_DIALOG) return _extends({}, state, _DataLoader2.default.load(state, action.locate, action.value), {
         msg: ''
       });
     case _actions.STATE_CHANGE:
       if (action.target === _Constants.MODIFIER_DIALOG) return _extends({}, state, action.stateFragment);
+
+    case _actions.OPEN_MODIFIER:
+      var modifier = _ModifierFactory2.default.buildFor(action.code);
+      return _extends({}, state, (_extends2 = {
+        mode: _Constants.EDIT_MODE,
+        msg: '',
+        target: action.code
+      }, _defineProperty(_extends2, modifier.getNamespace(), modifier.handlePayload(action.payload)), _defineProperty(_extends2, 'callback', action.callback), _extends2));
+
+    case _actions.OPEN_DIALOG:
+      if (action.dialogName === _Constants.MODIFIER_DIALOG) return defaultState;
+
     default:
       return state;
   }
@@ -27206,7 +27278,7 @@ var modifierDialog = function modifierDialog() {
 
 exports.default = modifierDialog;
 
-},{"../actions":61,"../common/Constants":62,"../common/DataLoader":63}],113:[function(require,module,exports){
+},{"../actions":61,"../common/Constants":62,"../common/DataLoader":63,"../common/ModifierFactory":67}],113:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -27248,6 +27320,16 @@ var queryDialog = function queryDialog() {
     case _actions.NO_RESULT_FOUND:
       if (action.target === 'query') return _extends({}, state, {
         hasNoResult: true
+      });
+    case _actions.UPDATE_ACCOUNT:
+      var users = state.queryData.users || [];
+      var nextUsers = users.map(function (e) {
+        return e.id === action.account.id ? action.account : e;
+      });
+      return _extends({}, state, {
+        queryData: _extends({}, state.queryData, {
+          users: nextUsers
+        })
       });
 
     default:

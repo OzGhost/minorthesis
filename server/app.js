@@ -82,8 +82,26 @@ app.get('/account', (req, res) => {
   const q = 'SELECT id, username, hoten, cmnd, diachi, chucvu'
           + ' FROM taikhoan'
           + ' ORDER BY username'
-  performQuery(q, objs => res.json(objs), true)
+  performQuery(q, objs => res.json(objs.map(convertToDto)), true)
 })
+
+const convertToDto = obj => {
+  let dto = {}
+  let key
+  Object.keys(obj).forEach(e => {
+    key = dtoKeyMap[e] ? dtoKeyMap[e] : e
+    dto[key] = obj[e]
+  })
+  return dto
+}
+
+const dtoKeyMap = {
+  password: 'passwd',
+  hoten: 'name',
+  cmnd: 'idNumber',
+  diachi: 'address',
+  chucvu: 'role'
+}
 
 app.post('/account/reset-passwd', (req, res) => {
   const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
@@ -230,6 +248,36 @@ buildInsertQuery = (pairArray, tableName) => {
     secondPhase += (',' + pairArray[i+1])
   }
   return firstPhase + ') ' + secondPhase + ')'
+}
+
+app.put('/account', (req, res) => {
+  const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
+  const body = JSON.parse(bodyStr)
+  const id = InputHandler.format(body.id, AS_NUMBER)
+  if (!id) {
+    res.json({code: 400})
+    return
+  }
+  delete body.username
+  delete body.id
+  delete body.passwd
+  const pairArray = convertPayload(body, accountKeyMap, accountKeyNumber, [])
+  const q = buildUpdateQuery(pairArray, 'taikhoan', 'id='+id)
+  performQuery(q, (_, rowCount) => {
+    rowCount === 1
+      ? res.json({code: 200})
+      : res.json({code: 500})
+  }, () => res.json({code: 500}))
+})
+
+buildUpdateQuery = (pairArray, tableName, identifyPhase) => {
+  const len = pairArray.length
+  if (len < 2)
+    return ''
+  let query = 'UPDATE ' + tableName + ' SET ' + pairArray[0] + '=' + pairArray[1]
+  for (let i = 2; i < len-1; i+=2)
+    query += (', ' + pairArray[i] + '=' + pairArray[i+1])
+  return query + ' where ' + identifyPhase
 }
 
 

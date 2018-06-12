@@ -1,6 +1,7 @@
 import { OPEN_DIALOG, CLOSE_DIALOG, CLEAR_DIALOGS,
-          QUERY_FIELD_CHANGE } from '../actions'
+          QUERY_FIELD_CHANGE, OPEN_MODIFIER } from '../actions'
 import Mapper from '../common/Mapper'
+import MODIFIER_DIALOG from '../common/Constants'
 
 const dialogState = (state = {}, action) => {
   switch (action.type) {

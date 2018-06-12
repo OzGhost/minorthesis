@@ -1,16 +1,17 @@
 import ChangePasswordDialogView from '../components/ChangePasswordDialogView'
 import { connect } from 'react-redux'
-import { host, closeDialog, valueChange, stateChange } from '../actions'
+import { closeDialog, valueChange, stateChange } from '../actions'
 import RequestPacker from '../common/RequestPacker'
+import { host, CHPASSWD_DIALOG } from '../common/Constants'
 
 const stateToProps = state => ({
   ...state.chpasswdDialog,
-  isActive: state.dialogState['chpasswd'],
+  isActive: state.dialogState[CHPASSWD_DIALOG],
 })
 
 const actToProps = dispatch => ({
-  onClose: () => dispatch(closeDialog('chpasswd')),
-  onChange: (key, value) => dispatch(valueChange('chpasswd', key, value)),
+  onClose: () => dispatch(closeDialog(CHPASSWD_DIALOG)),
+  onChange: (key, value) => dispatch(valueChange(CHPASSWD_DIALOG, key, value)),
   onSubmit: handleSubmit(dispatch)
 })
 
@@ -30,7 +31,7 @@ const handleSubmit = dispatch => (oldPass, newPass, renewPass) => {
   }
   
   if (msg)
-    dispatch(stateChange('chpasswd', {isGood: false, msg}))
+    dispatch(stateChange(CHPASSWD_DIALOG, {isGood: false, msg}))
 }
 
 const handleResult = (dispatch, res) => {
@@ -45,7 +46,7 @@ const handleResult = (dispatch, res) => {
     else
       stateFragment.msg = 'Xảy ra lỗi trong quá trình xử lý! Vui lòng thử lại sau'
   }
-  dispatch(stateChange('chpasswd', stateFragment))
+  dispatch(stateChange(CHPASSWD_DIALOG, stateFragment))
 }
 
 const handleReject = dispatch => {
@@ -53,7 +54,7 @@ const handleReject = dispatch => {
     isGood: false,
     msg: 'Xảy ra lỗi trong quá trình xử lý! Vui lòng thử lại sau'
   }
-  dispatch(stateChange('chpasswd', stateFragment))
+  dispatch(stateChange(CHPASSWD_DIALOG, stateFragment))
 }
 
 

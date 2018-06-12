@@ -127,13 +127,16 @@
     max-width: 600px;
     overflow-y: auto; }
     .detail-dialog .detail-content .w3-col:nth-child(odd) {
+      white-space: nowrap;
       font-size: 12px;
       line-height: 21px;
-      width: 120px; }
+      width: 130px; }
     .detail-dialog .detail-content .w3-col:nth-child(even) {
-      width: calc(100% - 120px); }
-    .detail-dialog .detail-content .w3-row:last-child {
-      border-width: 0 !important; }
+      width: calc(100% - 130px); }
+    .detail-dialog .detail-content .w3-row {
+      border-bottom: 1px dashed #ddd; }
+      .detail-dialog .detail-content .w3-row:last-child {
+        border-width: 0 !important; }
 
 .filter-dialog {
   min-width: 220px; }
@@ -174,11 +177,14 @@
 
 .modifier-dialog {
   width: 430px; }
+  .modifier-dialog select {
+    background: white; }
   .modifier-dialog .modifier {
     max-height: 280px;
     overflow-y: auto; }
     .modifier-dialog .modifier input:disabled {
-      cursor: not-allowed; }
+      cursor: not-allowed;
+      color: #888; }
     .modifier-dialog .modifier .w3-row {
       padding: 5px 0;
       border-bottom: 1px dashed #ddd; }

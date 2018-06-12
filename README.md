@@ -13,9 +13,9 @@ Just a Thesis :D
   - certificate query by certificate number (detail show off)
   - plan owner query by name
   - plan owner query by ID card number
+  - account manage (adding, change passwd, edit)
 
 [incomming features]
-  - account manage (adding, change passwd, edit)
   - certificate manage (adding, delete, edit)
   - login (role, permission, privilege, logout)
   - certificate query with admin role

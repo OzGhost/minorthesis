@@ -7,6 +7,7 @@ import DataLoader from '../common/DataLoader'
 class Modifier {
   reactor = undefined
   editMode = false
+  callback = false
 
   setReactor = reactor => {
     this.reactor = reactor
@@ -19,6 +20,7 @@ class Modifier {
   buildView = props => {
     const store = DataLoader.retrieve(props, this.getNamespace()) || {}
     const { msg, isGood, loading } = props
+    this.callback = props.callback
     return (
       <form onSubmit={e => {
         e.preventDefault()
@@ -95,6 +97,8 @@ class Modifier {
   resumeUI = () => {
     this.reactor(stateChange(MODIFIER_DIALOG, {loading: false}))
   }
+
+  handlePayload = payload => payload
 }
 
 export default Modifier

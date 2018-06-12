@@ -20,7 +20,7 @@ class ModifierDialogView extends Dialog {
   }
 
   buildDialogContent = () => {
-    const { mode, onChange, targets, target } = this.props
+    const { mode, onChange, targets, target, payload } = this.props
     const modifier = ModifierFactory.buildFor(target)
     modifier.setReactor(this.props.dispatch)
     return (

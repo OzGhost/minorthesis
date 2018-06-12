@@ -8,14 +8,18 @@
     overflow-y: auto
 
     .w3-col:nth-child(odd)
+      white-space: nowrap
       font-size: 12px
       line-height: 21px
-      width: 120px
+      width: 130px
 
     .w3-col:nth-child(even)
-      width: calc(100% - 120px)
+      width: calc(100% - 130px)
 
-    .w3-row:last-child
-      border-width: 0 !important
+    .w3-row
+      border-bottom: 1px dashed #ddd
+      
+      &:last-child
+        border-width: 0 !important
 
 
