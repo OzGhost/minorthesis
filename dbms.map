@@ -1,0 +1,89 @@
+MAP
+  NAME "normal map"
+  STATUS ON
+  SIZE 800 600
+  EXTENT 12070401 1338567 12072757 1340779
+  UNITS METERS
+  IMAGECOLOR 255 255 255
+
+  WEB
+    METADATA
+      "wms_title"           "WMS Demo Server"
+      "wms_onlineresource"  "http://localhost/cgi-bin/mapserv?map=/zk/t/tmp/full/dbms.map&"
+      "wms_srs"             "EPSG:3857 EPSG:4269 EPSG:4326"
+      "wms_server_version"  "1.1.1"
+      "wms_name"            "me"
+      "wms_enable_request"  "*"
+      "wms_feature_info_mime_type" "text/javascript"
+    END
+  END
+
+  PROJECTION
+    "init=epsg:3857"
+  END
+
+  CONFIG "MS_ERRORFILE" "/tmp/mapserv.log"
+
+  LAYER
+    NAME "thuadat"
+    METADATA
+      "wms_title"   "thuadat"
+      "wms_srs"     "EPSG:3857"
+      "wms_server_version"  "1.1.1"
+      "wms_name"            "me"
+      "wms_onlineresource"  "http://localhost/cgi-bin/mapserv?map=/zk/t/tmp/full/dbms.map&"
+      "wms_format"  "image/png"
+    END
+
+    TEMPLATE "featureTemplate.js"
+
+    PROJECTION
+      "init=epsg:3857"
+    END
+    STATUS ON
+    TYPE POLYGON
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "host=localhost port=5432 dbname=noop user=oz password=ngaymai"
+    DATA "geom from thuadat"
+
+    CLASS
+      NAME 'thuadat'
+      STYLE
+        COLOR 187 252 141
+        OUTLINECOLOR 96 96 96
+      END
+    END
+    COMPOSITE
+      OPACITY 70
+    END
+  END
+
+  LAYER
+    NAME "quihoach"
+    METADATA
+      "wms_title"   "quihoach"
+      "wms_srs"     "EPSG:3857"
+    END
+    TEMPLATE "featureTemplate.js"
+    PROJECTION
+      "init=epsg:3857"
+    END
+    STATUS ON
+    TYPE POLYGON
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "host=localhost port=5432 dbname=noop user=oz password=ngaymai"
+    DATA "geom from quihoach"
+
+    CLASS
+      NAME 'quihoach'
+      STYLE
+        COLOR 117 229 223
+        OUTLINECOLOR 252 144 144
+      END
+    END
+    COMPOSITE
+      OPACITY 50
+    END
+  END
+
+END
