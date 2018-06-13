@@ -3,9 +3,12 @@ const { Pool, Client } = require('pg')
 const app = require('express')()
 const cors = require('cors')
 const bodyParser = require('body-parser') 
+const jwt = require('jwt-simple')
 
 const AS_NUMBER = 'format as number'
 const AS_STRING = 'format as string'
+
+const secret = '0e678c9eb834f18154b55b0163763acc'
 
 app.use(cors())
 app.use(bodyParser.urlencoded({extended: true}))
@@ -102,6 +105,55 @@ const dtoKeyMap = {
   diachi: 'address',
   chucvu: 'role'
 }
+
+app.get('/account/b4c1db7e5a0dc91b7b739db0c3ece205dd8c9a66', (req, res) => {
+  const loggedRole = getLoggedRole(req)
+  res.json({code: 200, role: loggedRole})
+})
+
+const getLoggedRole = req => {
+  if (req.headers['x-access-token']) {
+    const deoken = jwt.decode(req.headers['x-access-token'], secret)
+    console.log(deoken)
+    if ( ! isExpired(deoken)) {
+      return deoken.role
+    } else {
+      console.log('cout << token expired')
+    }
+  } else {
+    console.log('cout << no token')
+  }
+  return 0
+}
+
+const isExpired = deoken => {
+  if (!deoken.ca)
+    return true
+  const now = (new Date()).getTime()
+  if (now - Number(deoken.ca) < 18000000)
+    return false
+  return true
+}
+
+app.post('/account/login', (req, res) => {
+  const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
+  const body = JSON.parse(bodyStr)
+  const q = 'SELECT id, chucvu as role FROM taikhoan'
+            + ' WHERE username=\''+body.ua+'\''
+            + ' AND password=md5(\''+body.passwd+'\')'
+  performQuery(q, (rows, rowCount) => {
+    if (rowCount == 1) {
+      const token = jwt.encode({
+        uid: rows[0].id,
+        role: rows[0].role,
+        ca: (new Date()).getTime()
+      }, secret)
+      res.json({code: 200, role: rows[0].role, token})
+    } else {
+      res.json({code: 403})
+    }
+  }, () => { res.json({code: 500}) })
+})
 
 app.post('/account/reset-passwd', (req, res) => {
   const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)

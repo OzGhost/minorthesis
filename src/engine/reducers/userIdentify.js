@@ -1,41 +1,45 @@
-import { IN_USERNAME, IN_PASSWORD, IN_LOGIN, LOGIN_RESULT } from '../actions'
+import { IN_USERNAME, IN_PASSWORD, IN_LOGIN, LOGIN_RESULT,
+          LOGIN_MSG } from '../actions'
 
-const userIdentify = (state = {username: '', password: ''}, action) => {
+const userIdentify = (state = {ua: '', passwd: ''}, action) => {
   switch(action.type) {
     
     case IN_USERNAME:
       return {
         ...state,
-        username: action.username
+        ua: action.username,
+        msg: ''
       }
 
     case IN_PASSWORD:
       return {
         ...state,
-        password: action.password
+        passwd: action.password,
+        msg: ''
       }
 
     case IN_LOGIN:
       return {
         ...state,
-        isLoading: true
+        isLoading: true,
+        msg: ''
       }
 
     case LOGIN_RESULT:
-      if (action.authenResult.isPass) {
-        return {
-          ...state,
-          username: '',
-          password: '',
-          isLoading: false,
-          result: action.authenResult
-        }
-      } else {
-        return {
-          ...state,
-          isLoading: false,
-          result: action.authenResult
-        }
+      typeof(localStorage) !== 'undefined'
+        && localStorage.setItem('token', action.authenResult.token)
+      return {
+        ...state,
+        username: '',
+        password: '',
+        isLoading: false,
+        msg: ''
+      }
+
+    case LOGIN_MSG:
+      return {
+        ...state,
+        msg: action.msg
       }
 
     default:

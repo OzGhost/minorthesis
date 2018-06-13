@@ -27,18 +27,17 @@ const adminEntries = [
     handler: (event, dispatch) => dispatch(logout())
   }
 ]
-const superAdminEntries = []
 
 const stateToProps = state => {
   let items = []
   switch (state.taskbar.role) {
 
-    case 'admin':
-      items = [...baseEntries, ...adminEntries]
+    case 2:
+      items = [...baseEntries]
       break
 
-    case 'superAdmin':
-      items = [...baseEntries, ...superAdminEntries, ...adminEntries]
+    case 1:
+      items = [...baseEntries, ...adminEntries]
       break
 
     default:

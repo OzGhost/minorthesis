@@ -3,7 +3,7 @@ import { render } from 'react-dom'
 import { Provider } from 'react-redux'
 import App from './containers/App'
 import store from './store'
-import { fetchLayers, performQuery } from './actions'
+import { fetchLayers, loadSession } from './actions'
 
 render(
   <Provider store={store}>
@@ -12,5 +12,6 @@ render(
   document.getElementById('frame')
 )
 
+store.dispatch(loadSession())
 store.dispatch(fetchLayers())
 

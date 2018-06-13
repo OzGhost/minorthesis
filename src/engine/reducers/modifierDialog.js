@@ -1,15 +1,28 @@
 import { VALUE_CHANGE, STATE_CHANGE, OPEN_MODIFIER, OPEN_DIALOG } from '../actions'
 import { MODIFIER_DIALOG, ADD_MODE, ACCOUNT_CODE,
-        EDIT_MODE } from '../common/Constants'
+        EDIT_MODE, CERTIFICATE_CODE } from '../common/Constants'
 import DataLoader from '../common/DataLoader'
 import ModifierFactory from '../common/ModifierFactory'
 
-const defaultState = {mode: ADD_MODE, target: ACCOUNT_CODE}
+const defaultState = {mode: ADD_MODE, target: CERTIFICATE_CODE}
 
 const modifierDialog = (state = defaultState, action) => {
   switch(action.type) {
     case VALUE_CHANGE:
       if (action.target === MODIFIER_DIALOG)
+        if (action.locate === CERTIFICATE_CODE+'.puser') {
+          const store = state[CERTIFICATE_CODE] || {}
+          const puser = store.puser || []
+          const nextPuser = [...puser, action.value]
+          return {
+            ...state,
+            [CERTIFICATE_CODE]: {
+              ...store,
+              puser: nextPuser
+            },
+            msg: ''
+          }
+        }
         return {
           ...state,
           ...DataLoader.load(state, action.locate, action.value),

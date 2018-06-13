@@ -5,15 +5,15 @@ import Dialog from './Dialog'
 class LoginDialogView extends Dialog {
 
   static propTypes = {
-    username: PropTypes.string.isRequired,
-    password: PropTypes.string.isRequired,
+    ua: PropTypes.string.isRequired,
+    passwd: PropTypes.string.isRequired,
     userNameChange: PropTypes.func.isRequired,
     passwordChange: PropTypes.func.isRequired,
     onSubmit: PropTypes.func.isRequired,
     isActive: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     isLoading: PropTypes.bool,
-    result: PropTypes.object
+    msg: PropTypes.string
   }
 
   getMetaData = () => ({
@@ -31,7 +31,7 @@ class LoginDialogView extends Dialog {
           <label className="w3-col s5 w3-text-blue">Tên tài khoản: </label>
           <input
             type="text"
-            value={this.props.username}
+            value={this.props.ua}
             className="w3-input w3-col s7 w3-white w3-border"
             onChange={ event => this.props.userNameChange(event.target.value) } />
         </div>
@@ -39,18 +39,19 @@ class LoginDialogView extends Dialog {
           <label className="w3-col s5 w3-text-blue">Mật khẩu: </label>
           <input
             type="password"
-            value={this.props.password}
+            value={this.props.passwd}
             className="w3-input w3-col s7 w3-white w3-border"
             onChange={ event => this.props.passwordChange(event.target.value) } />
         </div>
         <div className="w3-row w3-center">
-          { (typeof this.props.result === 'undefined')
-              ? ''
-              : this.props.result.isPass
-                ? ''
-                : <label className="w3-padding-small w3-text-red">
-                    Either username or password is incorrect!
-                  </label>
+          { 
+            this.props.msg
+              ?
+                <div className="w3-center">
+                  <hr/>
+                  <label className="w3-text-red">{this.props.msg}</label>
+                </div>
+              : ''
           }
         </div>
         <hr/>

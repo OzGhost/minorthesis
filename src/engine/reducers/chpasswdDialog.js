@@ -8,7 +8,6 @@ const chpasswdDialog = (state = {
                                 }, action) => {
   switch(action.type) {
     case VALUE_CHANGE:
-      console.log('cout << got action: ', action, CHPASSWD_DIALOG)
       if (action.target === CHPASSWD_DIALOG) {
         console.log('cout << hit!')
         return {

@@ -1,6 +1,6 @@
 import { ROLE_CHANGED } from '../actions'
 
-const taskbar = (state = {role: 'admin'}, action) => {
+const taskbar = (state = {role: 0}, action) => {
   switch(action.type) {
 
     case ROLE_CHANGED:

@@ -1,9 +1,32 @@
 
 .modifier-dialog
-  width: 430px
+  width: 470px
 
   select
     background: white
+
+  .removable-item
+    position: relative
+
+    &:hover
+      .remove-btn
+        background: rgba(255, 255, 255, .6)
+        color: red
+
+    .remove-btn
+      position: absolute
+      right: 7px
+      background: rgba(255, 10, 100, .6)
+      color: white
+      display: inline-block
+      padding: 0 5px 3px 5px
+      top: 10px
+      line-height: 1
+      cursor: pointer
+      font-weight: bold
+
+  .react-datepicker-wrapper, .react-datepicker__input-container
+    display: block
 
   .modifier
     max-height: 280px
@@ -23,4 +46,7 @@
       label
         display: inline-block
         padding-top: 8px
+
+    .w3-col:nth-child(odd)
+        text-align: right
 

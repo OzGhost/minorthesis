@@ -1,6 +1,6 @@
 import React from 'react'
 
-const PlanQuerierView = ({onChange}) => (
+const PlanQuerierView = ({onChange, data, dragStart, onClick}) => (
   <div>
     <div className="w3-row">
       <label className="w3-label w3-text-blue">Số tờ:</label>
@@ -24,6 +24,27 @@ const PlanQuerierView = ({onChange}) => (
         required={true}
       />
     </div>
+    {
+      data
+        ?
+          <div>
+            <div className="w3-row">
+              <small>Kết quả truy vấn:</small>
+            </div>
+            <div className="w3-row">
+              <ul className="w3-ul w3-hoverable">
+                <li
+                  draggable="true"
+                  onDragStart={e=>dragStart(e, data)}
+                  onClick={e=>onClick(e, data)}
+                >
+                  {'Số tờ: '+data.shbando+' | Số thửa: '+data.shthua}
+                </li>
+              </ul>
+            </div>
+          </div>
+        : ''
+    }
   </div>
 )
 

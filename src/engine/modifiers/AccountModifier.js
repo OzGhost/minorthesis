@@ -116,18 +116,13 @@ class AccountModifier extends Modifier {
     return true
   }
 
-  handleResult = (res, payload) => {
-    if (res.code === 200) {
-      this.pushMessage('Thao tác hoàn tất!', true)
-      this.callback(payload)
-    } else if (res.code === 400) {
-      if (res.cause === 'username')
-        this.pushMessage(
-          'Tên tài khoản đã tồn tại, vui lòng chọn tên tài khoản khác!')
-      else
-        this.pushMessage( 'Xảy ra lỗi cục bộ, vui lòng làm mới trang và thử lại!')
-    } else if (res.code === 500) {
-      this.pushMessage('Xảy ra lỗi hệ thống, vui lòng thử lại sau!')
+  handleErrorOnResult = (res, payload) => {
+    if (res.cause === 'username') {
+      this.pushMessage(
+        'Tên tài khoản đã tồn tại, vui lòng chọn tên tài khoản khác!')
+      return true
+    } else {
+      return false
     }
   }
 }

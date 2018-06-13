@@ -1,5 +1,6 @@
 
 export const host = 'http://localhost:8080'
+export const BASE_HASH = 'b4c1db7e5a0dc91b7b739db0c3ece205dd8c9a66'
 
 export const ACCOUNT_CODE = 'accountCode'
 export const CERTIFICATE_CODE = 'certificateCode'

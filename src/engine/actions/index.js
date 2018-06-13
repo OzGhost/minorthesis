@@ -1,7 +1,8 @@
 import MouseTrapper from '../common/MouseTrapper'
 import Mapper from '../common/Mapper'
 import Ruler from '../common/Ruler'
-import { host, MODIFIER_DIALOG } from '../common/Constants'
+import RequestPacker from '../common/RequestPacker'
+import { host, MODIFIER_DIALOG, BASE_HASH } from '../common/Constants'
 
 export const OPEN_DIALOG = 'OPEN DIALGO'
 export const CLOSE_DIALOG = 'CLOSE DIALGO'
@@ -32,6 +33,7 @@ export const IN_LOGIN = 'USER TRY TO LOGIN'
 export const LOGIN_RESULT = 'LOGIN RESULT'
 export const IDENTIFY_CLEAN = 'IDENTIFY CLEAN'
 export const ROLE_CHANGED = 'ROLE CHANGE'
+export const LOGIN_MSG = 'MESSaGE from login'
 
 export const QUERY_TARGET_CHANGE = 'Query Target Change'
 export const QUERY_FIELD_CHANGE = 'Query Field Change'
@@ -68,58 +70,7 @@ const receiveLayers = layers => ({
   type: RECEIVE_LAYERS,
   layers
 })
-/*
-export const storeLayerName = layerName => ({
-  type: STORE_LAYER,
-  layerName
-})
-export const fetchFields = layerName => dispatch => {
-  dispatch(requestFields())
-  return fetch(host + '/map/layers/'+layerName+'/fields')
-      .then(res => res.json())
-      .then(json => dispatch(receiveFields(json)))
-}
-const requestFields = () => ({
-  type: REQUEST_FIELDS
-})
-const receiveFields = fields => ({
-  type: RECEIVE_FIELDS,
-  fields
-})
-export const storeFieldName = fieldName => ({
-  type: STORE_FIELD,
-  fieldName
-})
-export const fetchValues = (fieldName) => (dispatch, getState) => {
-  dispatch(requestValues())
-  return fetch(
-      host
-      +'/map/layers/'+getState().queryDialog.layerName
-      +'/fields/'+fieldName+'/values'
-    )
-      .then(res => res.json())
-      .then(json => dispatch(receiveValues(json)))
-}
-const requestValues = () => ({
-  type: REQUEST_VALUES
-})
-const receiveValues = values => ({
-  type: RECEIVE_VALUES,
-  values
-})
-export const performQuery = value => (dispatch, getState) => {
-  dispatch(queryPerforming())
-  const localState = getState().queryDialog
-  return fetch(
-        host
-        + '/map/layers/'+localState.layerName
-        + '/fields/'+localState.fieldName
-        + '/values/'+value
-    )
-    .then(res => res.json())
-    .then(json => dispatch(receiveQueryResult(json)))
-}
-*/
+
 const queryPerforming = () => ({
   type: QUERING
 })
@@ -130,7 +81,8 @@ const receiveQueryResult = results => ({
 
 export const receiveTargetId = (event, targetId) => dispatch => {
   fetch(
-    host + '/plan/features/'+targetId
+    host + '/plan/features/'+targetId,
+    { headers: RequestPacker.buildHeader() }
   )
     .then(res => res.json())
     .then(json => dispatch(showFeatureTarget(event, json[0])))
@@ -166,12 +118,10 @@ export const inPassword = password => ({
 })
 export const inLogin = () => (dispatch, getState) => {
   dispatch(requestAuthen())
-  console.log(getState().userIdentify)
-  fetch(host + '/login', {
-    method: 'POST',
-    body: JSON.stringify( getState().userIdentify ),
-    headers: new Headers({'Content-Type': 'application/json'})
-  }).then(res => res.json())
+  fetch(
+    host + '/account/login',
+    RequestPacker.packAsPost(getState().userIdentify)
+  ).then(res => res.json())
     .then(json => dispatch(receiveAuthenResult(json)))
 }
 export const requestAuthen = () => ({
@@ -179,9 +129,13 @@ export const requestAuthen = () => ({
 })
 export const receiveAuthenResult = authenResult => dispatch => {
   dispatch(authenDone(authenResult))
-  if (authenResult.isPass) {
+  if (authenResult.code === 200) {
     dispatch(closeDialog('login'))
     dispatch(roleChanged(authenResult.role))
+  } else if (authenResult.code === 403) {
+    dispatch(loginMessage('Tên tài khoản hoặc mật khẩu không đúng!'))
+  } else if (authenResult.code === 500) {
+    dispatch(loginMessage('Hệ thống gặp lỗi, vui lòng thử lại sau!'))
   }
 }
 export const authenDone = authenResult => ({
@@ -192,6 +146,10 @@ export const roleChanged = newRole => ({
   type: ROLE_CHANGED,
   newRole
 })
+export const loginMessage = msg => ({
+  type: LOGIN_MSG,
+  msg
+})
 
 export const pickRuler = rulerName => dispatch => {
   dispatch(closeDialog('ruler'))
@@ -199,8 +157,10 @@ export const pickRuler = rulerName => dispatch => {
 }
 
 export const logout = () => dispatch => {
-  dispatch(roleChanged('guest'))
+  dispatch(roleChanged(0))
   dispatch(clearDialogs())
+  localStorage
+    && localStorage.removeItem('token')
 }
 
 const clearDialogs = () => ({
@@ -256,3 +216,13 @@ export const updateAccount = account => ({
   type: UPDATE_ACCOUNT,
   account
 })
+
+export const loadSession = () => dispatch => {
+  fetch(host + '/account/' + BASE_HASH, { headers: RequestPacker.buildHeader() })
+    .then(e => e.json())
+    .then(e => {
+      e.role === 0
+        ? localStorage.removeItem('token')
+        : dispatch(roleChanged(e.role))
+    })
+}
