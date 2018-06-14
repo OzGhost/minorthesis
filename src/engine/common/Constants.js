@@ -4,6 +4,7 @@ export const BASE_HASH = 'b4c1db7e5a0dc91b7b739db0c3ece205dd8c9a66'
 
 export const ACCOUNT_CODE = 'accountCode'
 export const CERTIFICATE_CODE = 'certificateCode'
+export const GOVERN_DOC_CODE = 'governmentDocCode'
 
 export const MODIFIER_DIALOG = 'modifierDialog'
 export const CHPASSWD_DIALOG = 'chpasswdDialog'

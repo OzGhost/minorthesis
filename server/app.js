@@ -196,7 +196,7 @@ const isExpired = deoken => {
   if (!deoken.ca)
     return true
   const now = (new Date()).getTime()
-  if (now - Number(deoken.ca) < 18000000)
+  if (now - Number(deoken.ca) < 3600000)
     return false
   return true
 }

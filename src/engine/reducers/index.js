@@ -7,6 +7,7 @@ import userIdentify from './userIdentify'
 import taskbar from './taskbar'
 import chpasswdDialog from './chpasswdDialog'
 import modifierDialog from './modifierDialog'
+import confirmer from './confirmer'
 
 const rootReducer = combineReducers({
   dialogState,
@@ -16,7 +17,8 @@ const rootReducer = combineReducers({
   userIdentify,
   taskbar,
   chpasswdDialog,
-  modifierDialog
+  modifierDialog,
+  confirmer
 })
 
 export default rootReducer

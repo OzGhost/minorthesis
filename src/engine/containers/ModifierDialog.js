@@ -2,11 +2,13 @@ import { connect } from 'react-redux'
 import ModifierDialogView from '../components/ModifierDialogView'
 import { valueChange, stateChange, closeDialog } from '../actions'
 import { MODIFIER_DIALOG,
-          ACCOUNT_CODE, CERTIFICATE_CODE } from '../common/Constants'
+          ACCOUNT_CODE, CERTIFICATE_CODE, 
+          GOVERN_DOC_CODE } from '../common/Constants'
 
 const targets = [
-  {code: ACCOUNT_CODE, label: 'Tài khoản'},
-  {code: CERTIFICATE_CODE, label: 'Giấy chứng nhận'}
+  {code: CERTIFICATE_CODE, label: 'Giấy chứng nhận'},
+  {code: GOVERN_DOC_CODE, label: 'Văn bản nhà nước'},
+  {code: ACCOUNT_CODE, label: 'Tài khoản'}
 ]
 
 const stateToProps = state => ({

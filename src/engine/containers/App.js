@@ -7,6 +7,7 @@ import LoginDialog from '../containers/LoginDialog'
 import RulerDialog from '../containers/RulerDialog'
 import ChangePasswordDialog from '../containers/ChangePasswordDialog'
 import ModifierDialog from '../containers/ModifierDialog'
+import Confirmer from '../containers/Confirmer'
 
 const App = () => (
   <div>
@@ -19,6 +20,7 @@ const App = () => (
     <RulerDialog />
     <ChangePasswordDialog />
     <ModifierDialog />
+    <Confirmer />
   </div>
 )
 

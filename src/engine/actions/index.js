@@ -8,26 +8,18 @@ import { host, MODIFIER_DIALOG, BASE_HASH } from '../common/Constants'
 export const OPEN_DIALOG = 'OPEN DIALGO'
 export const CLOSE_DIALOG = 'CLOSE DIALGO'
 export const CLEAR_DIALOGS = 'CLEAR DIALOGS'
-
 export const REQUEST_LAYERS = 'REQUEST LAYERS'
 export const RECEIVE_LAYERS = 'RECEIVE LAYERS'
-
 export const REQUEST_FIELDS = 'REQUEST FIELDS'
 export const RECEIVE_FIELDS = 'RECEIVE FIELDS'
-
 export const REQUEST_VALUES = 'REQUEST VALUES'
 export const RECEIVE_VALUES = 'RECEIVE VALUES'
-
 export const STORE_LAYER = 'STORE LAYER NAME'
 export const STORE_FIELD = 'STORE FIELD NAME'
-
 export const QUERING = 'QUERY-ING'
 export const RECEIVE_QUERY_RESULT = 'RECEIVE QUERY RESULT'
-
 export const OPEN_DETAIL = 'OPEN DETAIL DIALOG'
-
 export const TOGGLE_LAYER = 'TOGGLE LAYER'
-
 export const IN_USERNAME = 'USER INPUT USERNAME'
 export const IN_PASSWORD = 'USER INPUT PASSWORD'
 export const IN_LOGIN = 'USER TRY TO LOGIN'
@@ -35,16 +27,15 @@ export const LOGIN_RESULT = 'LOGIN RESULT'
 export const IDENTIFY_CLEAN = 'IDENTIFY CLEAN'
 export const ROLE_CHANGED = 'ROLE CHANGE'
 export const LOGIN_MSG = 'MESSaGE from login'
-
 export const QUERY_TARGET_CHANGE = 'Query Target Change'
 export const QUERY_FIELD_CHANGE = 'Query Field Change'
-
 export const NO_RESULT_FOUND = 'No Result Found'
 export const VALUE_CHANGE = 'Some value change'
 export const STATE_CHANGE = 'Some state change'
-
 export const OPEN_MODIFIER = 'Open Modifier'
 export const UPDATE_ACCOUNT = 'Update Account'
+export const OPEN_CONFIRMER = 'Open Confirm Popup'
+export const CLOSE_CONFIRMER = 'Close Confirm Popup'
 
 export const openDialog = (event, dialogName) => {
   MouseTrapper.trap(event)
@@ -231,3 +222,24 @@ export const loadSession = () => dispatch => {
     })
 }
 
+export const openConfirmer = (msg, onAccept, onDeny) => dispatch => {
+  console.log('cout << Action Fired!')
+  dispatch(
+    {
+      type: OPEN_CONFIRMER,
+      msg,
+      onAccept: () => {
+        dispatch(closeConfirmer())
+        onAccept()
+      },
+      onDeny: () => {
+      dispatch(closeConfirmer())
+        onDeny()
+      }
+    }
+  )
+}
+
+export const closeConfirmer = () => ({
+  type: CLOSE_CONFIRMER
+})

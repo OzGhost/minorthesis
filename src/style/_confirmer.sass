@@ -1,0 +1,47 @@
+
+.confirmer
+  position: fixed
+  height: 100vh
+  width: 100vw
+  top: 0
+  left: 0
+  background: rgba(0, 0, 0, .8)
+  z-index: 10001
+
+  .msg
+    position: absolute
+    top: 30vh
+    left: 50vw
+    transform: translateX(-50%)
+    width: 400px
+    background: white
+    padding: 12px
+    z-index: 10002
+    box-shadow: 0 0 8px white
+
+  .close-btn
+    display: block
+    position: absolute
+    z-index: 10003
+    top: -13px
+    right: -13px
+    width: 25px
+    height: 25px
+    border-radius: 50%
+    box-shadow: 0 0 6px grey
+
+    &:before, &:after
+      content: ""
+      display: block
+      position: absolute
+      top: 10px
+      left: 5px
+      width: 15px
+      height: 5px
+      background: red
+
+    &:before
+      transform: rotate(-45deg)
+
+    &:after
+      transform: rotate(45deg)

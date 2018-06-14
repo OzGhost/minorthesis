@@ -1,6 +1,6 @@
 import React from 'react'
 import { noResultFound, showFeatureTarget,
-        queryFieldChange, openModifier } from '../actions'
+        queryFieldChange, openModifier, openConfirmer } from '../actions'
 import DataLoader from '../common/DataLoader'
 import Querier from './Querier'
 import CertificateQuerierView from '../components/CertificateQuerierView'
@@ -49,16 +49,13 @@ class CertificateQuerier extends Querier {
   }
 
   preprocessPayload = payload => {
-    console.log(payload)
     if (typeof(payload) === 'undefined')
       return {}
     let rs = JSON.stringify(payload).replace(/null/g, '""')
-    console.log(rs)
     let ors = JSON.parse(rs)
     delete ors.chinhly
     ors.privateArea = Number(ors.privateArea) || 0
     ors.publicArea = Number(ors.publicArea) || 0
-    console.log(ors)
     return ors
   }
 
@@ -66,7 +63,14 @@ class CertificateQuerier extends Querier {
     if (Cacher.getRole() !== 1)
       return undefined
     return (_, certi) => {
-      console.log('cout << remove certificate: ', certi)
+      console.log('cout << triggered!')
+      this.dispatch(
+        openConfirmer(
+          'Do you really wanna do it?',
+          () => alert('Accepted!'),
+          () => alert('Denied!')
+        )
+      )
     }
   }
   
