@@ -1,5 +1,5 @@
 import React from 'react'
-import { MODIFIER_DIALOG, FIELD_LABELS } from '../common/Constants'
+import { MODIFIER_DIALOG } from '../common/Constants'
 import { valueChange, stateChange } from '../actions'
 import ModifierSimpleRowView from '../components/ModifierSimpleRowView'
 import DataLoader from '../common/DataLoader'

@@ -38,5 +38,8 @@ export const FIELD_LABELS = {
   name: 'Tên người dùng',
   idNumber: 'CMND/Hộ chiếu',
   address: 'Địa chỉ',
-  role: 'Chức vụ'
+  role: 'Chức vụ',
+  docId: 'Số hiệu văn bản',
+  docContent: 'Nội dung',
+  docLink: 'Liên kết'
 }

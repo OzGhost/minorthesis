@@ -34532,7 +34532,7 @@ var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
   nam: 'Năm',
   sogiayto: 'CMND',
   ngaycap: 'Ngày cấp'
-}, _defineProperty(_FIELD_LABELS, 'diachi', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'quoctich', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'phuong', 'Phường'), _defineProperty(_FIELD_LABELS, 'passwd', 'Mật khẩu'), _defineProperty(_FIELD_LABELS, 'repasswd', 'Nhập lại mật khẩu'), _defineProperty(_FIELD_LABELS, 'name', 'Tên người dùng'), _defineProperty(_FIELD_LABELS, 'idNumber', 'CMND/Hộ chiếu'), _defineProperty(_FIELD_LABELS, 'address', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'role', 'Chức vụ'), _FIELD_LABELS);
+}, _defineProperty(_FIELD_LABELS, 'diachi', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'quoctich', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'phuong', 'Phường'), _defineProperty(_FIELD_LABELS, 'passwd', 'Mật khẩu'), _defineProperty(_FIELD_LABELS, 'repasswd', 'Nhập lại mật khẩu'), _defineProperty(_FIELD_LABELS, 'name', 'Tên người dùng'), _defineProperty(_FIELD_LABELS, 'idNumber', 'CMND/Hộ chiếu'), _defineProperty(_FIELD_LABELS, 'address', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'role', 'Chức vụ'), _defineProperty(_FIELD_LABELS, 'docId', 'Số hiệu văn bản'), _defineProperty(_FIELD_LABELS, 'docContent', 'Nội dung'), _defineProperty(_FIELD_LABELS, 'docLink', 'Liên kết'), _FIELD_LABELS);
 
 },{}],70:[function(require,module,exports){
 'use strict';
@@ -34839,7 +34839,7 @@ var Mapper = function Mapper() {
 
 exports.default = new Mapper();
 
-},{"../actions":67,"../store":127,"./Ruler":78,"openlayers":30}],74:[function(require,module,exports){
+},{"../actions":67,"../store":128,"./Ruler":78,"openlayers":30}],74:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34860,6 +34860,10 @@ var _CertificateModifier = require('../modifiers/CertificateModifier');
 
 var _CertificateModifier2 = _interopRequireDefault(_CertificateModifier);
 
+var _GovernmentDocumentModifier = require('../modifiers/GovernmentDocumentModifier');
+
+var _GovernmentDocumentModifier2 = _interopRequireDefault(_GovernmentDocumentModifier);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -34873,6 +34877,8 @@ var ModifierFactory = function ModifierFactory() {
         return _AccountModifier2.default;
       case _Constants.CERTIFICATE_CODE:
         return _CertificateModifier2.default;
+      case _Constants.GOVERN_DOC_CODE:
+        return _GovernmentDocumentModifier2.default;
       default:
         return _EmptyModifier2.default;
     }
@@ -34881,7 +34887,7 @@ var ModifierFactory = function ModifierFactory() {
 
 exports.default = new ModifierFactory();
 
-},{"../common/Constants":69,"../modifiers/AccountModifier":106,"../modifiers/CertificateModifier":107,"../modifiers/EmptyModifier":108}],75:[function(require,module,exports){
+},{"../common/Constants":69,"../modifiers/AccountModifier":106,"../modifiers/CertificateModifier":107,"../modifiers/EmptyModifier":108,"../modifiers/GovernmentDocumentModifier":109}],75:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34973,7 +34979,7 @@ var QuerierFactory = function QuerierFactory() {
 
 exports.default = new QuerierFactory();
 
-},{"../queriers/CertificateQuerier":110,"../queriers/EmptyQuerier":111,"../queriers/GovernmentDocumentQuerier":112,"../queriers/PlanQuerier":113,"../queriers/PlanUserQuerier":114,"../queriers/UserQuerier":116}],77:[function(require,module,exports){
+},{"../queriers/CertificateQuerier":111,"../queriers/EmptyQuerier":112,"../queriers/GovernmentDocumentQuerier":113,"../queriers/PlanQuerier":114,"../queriers/PlanUserQuerier":115,"../queriers/UserQuerier":117}],77:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -35562,9 +35568,9 @@ var ConfirmerView = function ConfirmerView(_ref) {
 
 ConfirmerView.propTypes = {
   inUse: _propTypes2.default.bool,
-  message: _propTypes2.default.string.isRequired,
-  onDeny: _propTypes2.default.func.isRequired,
-  onAccept: _propTypes2.default.func.isRequired
+  message: _propTypes2.default.string,
+  onDeny: _propTypes2.default.func,
+  onAccept: _propTypes2.default.func
 };
 
 exports.default = ConfirmerView;
@@ -37107,8 +37113,8 @@ var targets = [{ code: _Constants.CERTIFICATE_CODE, label: 'Giấy chứng nhậ
 
 var stateToProps = function stateToProps(state) {
   return _extends({}, state.modifierDialog, {
-    isActive: state.dialogState[_Constants.MODIFIER_DIALOG],
-    //isActive: true,
+    //isActive: state.dialogState[MODIFIER_DIALOG],
+    isActive: true,
     targets: targets
   });
 };
@@ -37331,7 +37337,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 _store2.default.dispatch((0, _actions.loadSession)());
 _store2.default.dispatch((0, _actions.fetchLayers)());
 
-},{"./actions":67,"./containers/App":95,"./store":127,"react":61,"react-dom":41,"react-redux":53}],106:[function(require,module,exports){
+},{"./actions":67,"./containers/App":95,"./store":128,"react":61,"react-dom":41,"react-redux":53}],106:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37496,7 +37502,7 @@ var AccountModifier = function (_Modifier) {
 
 exports.default = new AccountModifier();
 
-},{"../common/Constants":69,"../common/RequestPacker":77,"./Modifier":109,"react":61}],107:[function(require,module,exports){
+},{"../common/Constants":69,"../common/RequestPacker":77,"./Modifier":110,"react":61}],107:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37822,7 +37828,7 @@ var CertificateModifier = function (_Modifier) {
 
 exports.default = new CertificateModifier();
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"./Modifier":109,"moment":28,"react":61,"react-datepicker":38}],108:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"./Modifier":110,"moment":28,"react":61,"react-datepicker":38}],108:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37865,7 +37871,58 @@ var EmptyModifier = function (_Modifier) {
 
 exports.default = new EmptyModifier();
 
-},{"./Modifier":109}],109:[function(require,module,exports){
+},{"./Modifier":110}],109:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _Modifier2 = require('./Modifier');
+
+var _Modifier3 = _interopRequireDefault(_Modifier2);
+
+var _Constants = require('../common/Constants');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var GovernmentDocumentModifier = function (_Modifier) {
+  _inherits(GovernmentDocumentModifier, _Modifier);
+
+  function GovernmentDocumentModifier() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, GovernmentDocumentModifier);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = GovernmentDocumentModifier.__proto__ || Object.getPrototypeOf(GovernmentDocumentModifier)).call.apply(_ref, [this].concat(args))), _this), _this.getEditableFields = function (store) {
+      return ['docId', 'docContent', 'docLink'].map(function (fieldName) {
+        return _this.getFieldByFieldName(store, fieldName);
+      });
+    }, _this.getTitle = function () {
+      return 'Thêm mới văn bản nhà nước';
+    }, _this.getNamespace = function () {
+      return _Constants.GOVERN_DOC_CODE;
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  return GovernmentDocumentModifier;
+}(_Modifier3.default);
+
+exports.default = new GovernmentDocumentModifier();
+
+},{"../common/Constants":69,"./Modifier":110}],110:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38027,7 +38084,7 @@ var Modifier = function Modifier() {
 
 exports.default = Modifier;
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/ModifierSimpleRowView":88,"react":61}],110:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/ModifierSimpleRowView":88,"react":61}],111:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38139,7 +38196,7 @@ var CertificateQuerier = function (_Querier) {
 
 exports.default = new CertificateQuerier();
 
-},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"../components/CertificateQuerierView":79,"./Querier":115,"react":61}],111:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"../components/CertificateQuerierView":79,"./Querier":116,"react":61}],112:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38192,7 +38249,7 @@ var EmptyQuerier = function (_Querier) {
 
 exports.default = new EmptyQuerier();
 
-},{"./Querier":115,"react":61}],112:[function(require,module,exports){
+},{"./Querier":116,"react":61}],113:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38302,7 +38359,7 @@ var GovernmentDocumentQuerier = function (_Querier) {
 
 exports.default = new GovernmentDocumentQuerier();
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"./Querier":115,"react":61}],113:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"./Querier":116,"react":61}],114:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38378,7 +38435,7 @@ var PlanQuerier = function (_Querier) {
 
 exports.default = new PlanQuerier();
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/PlanQuerierView":89,"./Querier":115,"react":61}],114:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/PlanQuerierView":89,"./Querier":116,"react":61}],115:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38459,7 +38516,7 @@ var PlanUserQuerier = function (_Querier) {
 
 exports.default = new PlanUserQuerier();
 
-},{"../actions":67,"../common/Cacher":68,"../common/DataLoader":70,"../components/PlanUserQuerierView":90,"./Querier":115,"react":61}],115:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/DataLoader":70,"../components/PlanUserQuerierView":90,"./Querier":116,"react":61}],116:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38522,7 +38579,7 @@ var Querier = function Querier() {
 
 exports.default = Querier;
 
-},{"../actions":67,"../common/Constants":69,"../common/RequestPacker":77,"../components/PlanQuerierView":89}],116:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/RequestPacker":77,"../components/PlanQuerierView":89}],117:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38621,7 +38678,7 @@ var UserQuerier = function (_Querier) {
 
 exports.default = new UserQuerier();
 
-},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/RequestPacker":77,"../components/ModifiableItem":86,"./Querier":115,"react":61}],117:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/RequestPacker":77,"../components/ModifiableItem":86,"./Querier":116,"react":61}],118:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38661,7 +38718,7 @@ var chpasswdDialog = function chpasswdDialog() {
 
 exports.default = chpasswdDialog;
 
-},{"../actions":67,"../common/Constants":69}],118:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69}],119:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38694,7 +38751,7 @@ var confirmer = function confirmer() {
 
 exports.default = confirmer;
 
-},{"../actions":67}],119:[function(require,module,exports){
+},{"../actions":67}],120:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38723,7 +38780,7 @@ var detailDialog = function detailDialog() {
 
 exports.default = detailDialog;
 
-},{"../actions":67}],120:[function(require,module,exports){
+},{"../actions":67}],121:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38775,7 +38832,7 @@ var dialogState = function dialogState() {
 
 exports.default = dialogState;
 
-},{"../actions":67,"../common/Constants":69,"../common/Mapper":73}],121:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/Mapper":73}],122:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38827,7 +38884,7 @@ var filterDialog = function filterDialog() {
 
 exports.default = filterDialog;
 
-},{"../actions":67,"../common/Mapper":73}],122:[function(require,module,exports){
+},{"../actions":67,"../common/Mapper":73}],123:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38888,7 +38945,7 @@ var rootReducer = (0, _redux.combineReducers)({
 
 exports.default = rootReducer;
 
-},{"./chpasswdDialog":117,"./confirmer":118,"./detailDialog":119,"./dialogState":120,"./filterDialog":121,"./modifierDialog":123,"./queryDialog":124,"./taskbar":125,"./userIdentify":126,"redux":64}],123:[function(require,module,exports){
+},{"./chpasswdDialog":118,"./confirmer":119,"./detailDialog":120,"./dialogState":121,"./filterDialog":122,"./modifierDialog":124,"./queryDialog":125,"./taskbar":126,"./userIdentify":127,"redux":64}],124:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38947,7 +39004,7 @@ var modifierDialog = function modifierDialog() {
 
 exports.default = modifierDialog;
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../common/ModifierFactory":74}],124:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../common/ModifierFactory":74}],125:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39013,7 +39070,7 @@ var queryDialog = function queryDialog() {
 
 exports.default = queryDialog;
 
-},{"../actions":67,"../common/DataLoader":70}],125:[function(require,module,exports){
+},{"../actions":67,"../common/DataLoader":70}],126:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39042,7 +39099,7 @@ var taskbar = function taskbar() {
 
 exports.default = taskbar;
 
-},{"../actions":67}],126:[function(require,module,exports){
+},{"../actions":67}],127:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39098,7 +39155,7 @@ var userIdentify = function userIdentify() {
 
 exports.default = userIdentify;
 
-},{"../actions":67}],127:[function(require,module,exports){
+},{"../actions":67}],128:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39125,4 +39182,4 @@ var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.a
 
 exports.default = store;
 
-},{"./reducers":122,"redux":64,"redux-logger":62,"redux-thunk":63}]},{},[105]);
+},{"./reducers":123,"redux":64,"redux-logger":62,"redux-thunk":63}]},{},[105]);

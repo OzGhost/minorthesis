@@ -41,9 +41,9 @@ const ConfirmerView = ({inUse, message, onDeny, onAccept}) => {
 
 ConfirmerView.propTypes = {
   inUse: PropTypes.bool,
-  message: PropTypes.string.isRequired,
-  onDeny: PropTypes.func.isRequired,
-  onAccept: PropTypes.func.isRequired
+  message: PropTypes.string,
+  onDeny: PropTypes.func,
+  onAccept: PropTypes.func
 }
 
 export default ConfirmerView
