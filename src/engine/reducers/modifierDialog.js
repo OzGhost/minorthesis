@@ -1,10 +1,10 @@
 import { VALUE_CHANGE, STATE_CHANGE, OPEN_MODIFIER, OPEN_DIALOG } from '../actions'
-import { MODIFIER_DIALOG, ADD_MODE, GOVERN_DOC_CODE,
+import { MODIFIER_DIALOG, ADD_MODE, PLAN_USER_CODE,
         EDIT_MODE } from '../common/Constants'
 import DataLoader from '../common/DataLoader'
 import ModifierFactory from '../common/ModifierFactory'
 
-const defaultState = {mode: ADD_MODE, target: GOVERN_DOC_CODE}
+const defaultState = {mode: ADD_MODE, target: PLAN_USER_CODE}
 
 const modifierDialog = (state = defaultState, action) => {
   switch(action.type) {

@@ -5,6 +5,7 @@ export const BASE_HASH = 'b4c1db7e5a0dc91b7b739db0c3ece205dd8c9a66'
 export const ACCOUNT_CODE = 'accountCode'
 export const CERTIFICATE_CODE = 'certificateCode'
 export const GOVERN_DOC_CODE = 'governmentDocCode'
+export const PLAN_USER_CODE = 'planUserCode'
 
 export const MODIFIER_DIALOG = 'modifierDialog'
 export const CHPASSWD_DIALOG = 'chpasswdDialog'
@@ -41,5 +42,10 @@ export const FIELD_LABELS = {
   role: 'Chức vụ',
   docId: 'Số hiệu văn bản',
   docContent: 'Nội dung',
-  docLink: 'Liên kết'
+  docLink: 'Liên kết',
+  nationality: 'Quốc tịch',
+  groupName: 'Tên tổ chức',
+  commerceId: 'Số giấy phép kinh doanh',
+  personalName: 'Tên cá nhân',
+  birthYear: 'Năm sinh'
 }

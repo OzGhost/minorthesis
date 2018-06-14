@@ -34507,6 +34507,7 @@ var BASE_HASH = exports.BASE_HASH = 'b4c1db7e5a0dc91b7b739db0c3ece205dd8c9a66';
 var ACCOUNT_CODE = exports.ACCOUNT_CODE = 'accountCode';
 var CERTIFICATE_CODE = exports.CERTIFICATE_CODE = 'certificateCode';
 var GOVERN_DOC_CODE = exports.GOVERN_DOC_CODE = 'governmentDocCode';
+var PLAN_USER_CODE = exports.PLAN_USER_CODE = 'planUserCode';
 
 var MODIFIER_DIALOG = exports.MODIFIER_DIALOG = 'modifierDialog';
 var CHPASSWD_DIALOG = exports.CHPASSWD_DIALOG = 'chpasswdDialog';
@@ -34532,7 +34533,7 @@ var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
   nam: 'Năm',
   sogiayto: 'CMND',
   ngaycap: 'Ngày cấp'
-}, _defineProperty(_FIELD_LABELS, 'diachi', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'quoctich', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'phuong', 'Phường'), _defineProperty(_FIELD_LABELS, 'passwd', 'Mật khẩu'), _defineProperty(_FIELD_LABELS, 'repasswd', 'Nhập lại mật khẩu'), _defineProperty(_FIELD_LABELS, 'name', 'Tên người dùng'), _defineProperty(_FIELD_LABELS, 'idNumber', 'CMND/Hộ chiếu'), _defineProperty(_FIELD_LABELS, 'address', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'role', 'Chức vụ'), _defineProperty(_FIELD_LABELS, 'docId', 'Số hiệu văn bản'), _defineProperty(_FIELD_LABELS, 'docContent', 'Nội dung'), _defineProperty(_FIELD_LABELS, 'docLink', 'Liên kết'), _FIELD_LABELS);
+}, _defineProperty(_FIELD_LABELS, 'diachi', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'quoctich', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'phuong', 'Phường'), _defineProperty(_FIELD_LABELS, 'passwd', 'Mật khẩu'), _defineProperty(_FIELD_LABELS, 'repasswd', 'Nhập lại mật khẩu'), _defineProperty(_FIELD_LABELS, 'name', 'Tên người dùng'), _defineProperty(_FIELD_LABELS, 'idNumber', 'CMND/Hộ chiếu'), _defineProperty(_FIELD_LABELS, 'address', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'role', 'Chức vụ'), _defineProperty(_FIELD_LABELS, 'docId', 'Số hiệu văn bản'), _defineProperty(_FIELD_LABELS, 'docContent', 'Nội dung'), _defineProperty(_FIELD_LABELS, 'docLink', 'Liên kết'), _defineProperty(_FIELD_LABELS, 'nationality', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'groupName', 'Tên tổ chức'), _defineProperty(_FIELD_LABELS, 'commerceId', 'Số giấy phép kinh doanh'), _defineProperty(_FIELD_LABELS, 'personalName', 'Tên cá nhân'), _defineProperty(_FIELD_LABELS, 'birthYear', 'Năm sinh'), _FIELD_LABELS);
 
 },{}],70:[function(require,module,exports){
 'use strict';
@@ -34839,7 +34840,7 @@ var Mapper = function Mapper() {
 
 exports.default = new Mapper();
 
-},{"../actions":67,"../store":128,"./Ruler":78,"openlayers":30}],74:[function(require,module,exports){
+},{"../actions":67,"../store":129,"./Ruler":78,"openlayers":30}],74:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34864,6 +34865,10 @@ var _GovernmentDocumentModifier = require('../modifiers/GovernmentDocumentModifi
 
 var _GovernmentDocumentModifier2 = _interopRequireDefault(_GovernmentDocumentModifier);
 
+var _PlanUserModifier = require('../modifiers/PlanUserModifier');
+
+var _PlanUserModifier2 = _interopRequireDefault(_PlanUserModifier);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -34879,6 +34884,8 @@ var ModifierFactory = function ModifierFactory() {
         return _CertificateModifier2.default;
       case _Constants.GOVERN_DOC_CODE:
         return _GovernmentDocumentModifier2.default;
+      case _Constants.PLAN_USER_CODE:
+        return _PlanUserModifier2.default;
       default:
         return _EmptyModifier2.default;
     }
@@ -34887,7 +34894,7 @@ var ModifierFactory = function ModifierFactory() {
 
 exports.default = new ModifierFactory();
 
-},{"../common/Constants":69,"../modifiers/AccountModifier":106,"../modifiers/CertificateModifier":107,"../modifiers/EmptyModifier":108,"../modifiers/GovernmentDocumentModifier":109}],75:[function(require,module,exports){
+},{"../common/Constants":69,"../modifiers/AccountModifier":106,"../modifiers/CertificateModifier":107,"../modifiers/EmptyModifier":108,"../modifiers/GovernmentDocumentModifier":109,"../modifiers/PlanUserModifier":111}],75:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34979,7 +34986,7 @@ var QuerierFactory = function QuerierFactory() {
 
 exports.default = new QuerierFactory();
 
-},{"../queriers/CertificateQuerier":111,"../queriers/EmptyQuerier":112,"../queriers/GovernmentDocumentQuerier":113,"../queriers/PlanQuerier":114,"../queriers/PlanUserQuerier":115,"../queriers/UserQuerier":117}],77:[function(require,module,exports){
+},{"../queriers/CertificateQuerier":112,"../queriers/EmptyQuerier":113,"../queriers/GovernmentDocumentQuerier":114,"../queriers/PlanQuerier":115,"../queriers/PlanUserQuerier":116,"../queriers/UserQuerier":118}],77:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37109,7 +37116,7 @@ var _Constants = require('../common/Constants');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var targets = [{ code: _Constants.CERTIFICATE_CODE, label: 'Giấy chứng nhận' }, { code: _Constants.GOVERN_DOC_CODE, label: 'Văn bản nhà nước' }, { code: _Constants.ACCOUNT_CODE, label: 'Tài khoản' }];
+var targets = [{ code: _Constants.PLAN_USER_CODE, label: 'Chủ sử dụng đất' }, { code: _Constants.CERTIFICATE_CODE, label: 'Giấy chứng nhận' }, { code: _Constants.GOVERN_DOC_CODE, label: 'Văn bản nhà nước' }, { code: _Constants.ACCOUNT_CODE, label: 'Tài khoản' }];
 
 var stateToProps = function stateToProps(state) {
   return _extends({}, state.modifierDialog, {
@@ -37337,7 +37344,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 _store2.default.dispatch((0, _actions.loadSession)());
 _store2.default.dispatch((0, _actions.fetchLayers)());
 
-},{"./actions":67,"./containers/App":95,"./store":128,"react":61,"react-dom":41,"react-redux":53}],106:[function(require,module,exports){
+},{"./actions":67,"./containers/App":95,"./store":129,"react":61,"react-dom":41,"react-redux":53}],106:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38095,6 +38102,154 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _Modifier2 = require('./Modifier');
+
+var _Modifier3 = _interopRequireDefault(_Modifier2);
+
+var _Constants = require('../common/Constants');
+
+var _reactDatepicker = require('react-datepicker');
+
+var _reactDatepicker2 = _interopRequireDefault(_reactDatepicker);
+
+var _moment = require('moment');
+
+var _moment2 = _interopRequireDefault(_moment);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var PlanUserModifier = function (_Modifier) {
+  _inherits(PlanUserModifier, _Modifier);
+
+  function PlanUserModifier() {
+    var _ref;
+
+    var _temp, _this, _ret;
+
+    _classCallCheck(this, PlanUserModifier);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = PlanUserModifier.__proto__ || Object.getPrototypeOf(PlanUserModifier)).call.apply(_ref, [this].concat(args))), _this), _this.buildViewUpperPart = function (store) {
+      var listener = _this.makeListenerFor('kind');
+      return _react2.default.createElement(
+        'div',
+        { className: 'w3-row' },
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-col s5' },
+          _react2.default.createElement(
+            'label',
+            { className: 'w3-text-blue' },
+            'Lo\u1EA1i ch\u1EE7:'
+          )
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-col s7' },
+          _react2.default.createElement(
+            'select',
+            {
+              className: 'w3-input w3-border',
+              onChange: function onChange(e) {
+                return listener(Number(e.target.value));
+              },
+              value: store.kind || 1
+            },
+            _react2.default.createElement(
+              'option',
+              { value: '1' },
+              'C\xE1 nh\xE2n'
+            ),
+            _react2.default.createElement(
+              'option',
+              { value: '2' },
+              'T\xF4n gi\xE1o/C\u1ED9ng \u0111\u1ED3ng/Ngo\u1EA1i giao'
+            ),
+            _react2.default.createElement(
+              'option',
+              { value: '3' },
+              'T\u1ED5 ch\u1EE9c kinh doanh'
+            )
+          )
+        )
+      );
+    }, _this.getEditableFields = function (store) {
+      var baseFields = ['address', 'nationality'];
+      var needFields = [];
+      switch (store.kind) {
+        case 2:
+          needFields = ['groupName'].concat(baseFields);
+          break;
+        case 3:
+          needFields = ['groupName'].concat(baseFields, ['commerceId']);
+          break;
+        default:
+          needFields = ['personalName', 'birthYear', 'idNumber'].concat(baseFields);
+          break;
+      }
+      return needFields.map(function (f) {
+        return _this.getFieldByFieldName(store, f);
+      });
+    }, _this.buildViewLowerPart = function (store) {
+      if (store.kind !== 3) return '';
+      var listener = _this.makeListenerFor('provideDate');
+      return _react2.default.createElement(
+        'div',
+        { className: 'w3-row' },
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-col s5' },
+          _react2.default.createElement(
+            'label',
+            { className: 'w3-text-blue' },
+            'Ng\xE0y c\u1EA5p:'
+          )
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-col s5' },
+          _react2.default.createElement(_reactDatepicker2.default, {
+            className: 'w3-input w3-border',
+            dateFormat: 'DD/MM/YYYY',
+            selected: (0, _moment2.default)(store.provideDate || new Date().getTime()),
+            onChange: function onChange(e) {
+              return listener(e.valueOf());
+            }
+          })
+        )
+      );
+    }, _this.getTitle = function () {
+      return _this.editMode ? 'Cập nhật chủ sử dụng đất' : 'Thêm mới chủ sử dụng đất';
+    }, _this.getNamespace = function () {
+      return _Constants.PLAN_USER_CODE;
+    }, _temp), _possibleConstructorReturn(_this, _ret);
+  }
+
+  return PlanUserModifier;
+}(_Modifier3.default);
+
+exports.default = new PlanUserModifier();
+
+},{"../common/Constants":69,"./Modifier":110,"moment":28,"react":61,"react-datepicker":38}],112:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
 var _actions = require('../actions');
 
 var _DataLoader = require('../common/DataLoader');
@@ -38196,7 +38351,7 @@ var CertificateQuerier = function (_Querier) {
 
 exports.default = new CertificateQuerier();
 
-},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"../components/CertificateQuerierView":79,"./Querier":116,"react":61}],112:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"../components/CertificateQuerierView":79,"./Querier":117,"react":61}],113:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38249,7 +38404,7 @@ var EmptyQuerier = function (_Querier) {
 
 exports.default = new EmptyQuerier();
 
-},{"./Querier":116,"react":61}],113:[function(require,module,exports){
+},{"./Querier":117,"react":61}],114:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38359,7 +38514,7 @@ var GovernmentDocumentQuerier = function (_Querier) {
 
 exports.default = new GovernmentDocumentQuerier();
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"./Querier":116,"react":61}],114:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"./Querier":117,"react":61}],115:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38435,7 +38590,7 @@ var PlanQuerier = function (_Querier) {
 
 exports.default = new PlanQuerier();
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/PlanQuerierView":89,"./Querier":116,"react":61}],115:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/PlanQuerierView":89,"./Querier":117,"react":61}],116:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38516,7 +38671,7 @@ var PlanUserQuerier = function (_Querier) {
 
 exports.default = new PlanUserQuerier();
 
-},{"../actions":67,"../common/Cacher":68,"../common/DataLoader":70,"../components/PlanUserQuerierView":90,"./Querier":116,"react":61}],116:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/DataLoader":70,"../components/PlanUserQuerierView":90,"./Querier":117,"react":61}],117:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38579,7 +38734,7 @@ var Querier = function Querier() {
 
 exports.default = Querier;
 
-},{"../actions":67,"../common/Constants":69,"../common/RequestPacker":77,"../components/PlanQuerierView":89}],117:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/RequestPacker":77,"../components/PlanQuerierView":89}],118:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38678,7 +38833,7 @@ var UserQuerier = function (_Querier) {
 
 exports.default = new UserQuerier();
 
-},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/RequestPacker":77,"../components/ModifiableItem":86,"./Querier":116,"react":61}],118:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/RequestPacker":77,"../components/ModifiableItem":86,"./Querier":117,"react":61}],119:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38718,7 +38873,7 @@ var chpasswdDialog = function chpasswdDialog() {
 
 exports.default = chpasswdDialog;
 
-},{"../actions":67,"../common/Constants":69}],119:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69}],120:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38751,7 +38906,7 @@ var confirmer = function confirmer() {
 
 exports.default = confirmer;
 
-},{"../actions":67}],120:[function(require,module,exports){
+},{"../actions":67}],121:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38780,7 +38935,7 @@ var detailDialog = function detailDialog() {
 
 exports.default = detailDialog;
 
-},{"../actions":67}],121:[function(require,module,exports){
+},{"../actions":67}],122:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38832,7 +38987,7 @@ var dialogState = function dialogState() {
 
 exports.default = dialogState;
 
-},{"../actions":67,"../common/Constants":69,"../common/Mapper":73}],122:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/Mapper":73}],123:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38884,7 +39039,7 @@ var filterDialog = function filterDialog() {
 
 exports.default = filterDialog;
 
-},{"../actions":67,"../common/Mapper":73}],123:[function(require,module,exports){
+},{"../actions":67,"../common/Mapper":73}],124:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38945,7 +39100,7 @@ var rootReducer = (0, _redux.combineReducers)({
 
 exports.default = rootReducer;
 
-},{"./chpasswdDialog":118,"./confirmer":119,"./detailDialog":120,"./dialogState":121,"./filterDialog":122,"./modifierDialog":124,"./queryDialog":125,"./taskbar":126,"./userIdentify":127,"redux":64}],124:[function(require,module,exports){
+},{"./chpasswdDialog":119,"./confirmer":120,"./detailDialog":121,"./dialogState":122,"./filterDialog":123,"./modifierDialog":125,"./queryDialog":126,"./taskbar":127,"./userIdentify":128,"redux":64}],125:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38970,7 +39125,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var defaultState = { mode: _Constants.ADD_MODE, target: _Constants.GOVERN_DOC_CODE };
+var defaultState = { mode: _Constants.ADD_MODE, target: _Constants.PLAN_USER_CODE };
 
 var modifierDialog = function modifierDialog() {
   var _extends2;
@@ -39004,7 +39159,7 @@ var modifierDialog = function modifierDialog() {
 
 exports.default = modifierDialog;
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../common/ModifierFactory":74}],125:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../common/ModifierFactory":74}],126:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39070,7 +39225,7 @@ var queryDialog = function queryDialog() {
 
 exports.default = queryDialog;
 
-},{"../actions":67,"../common/DataLoader":70}],126:[function(require,module,exports){
+},{"../actions":67,"../common/DataLoader":70}],127:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39099,7 +39254,7 @@ var taskbar = function taskbar() {
 
 exports.default = taskbar;
 
-},{"../actions":67}],127:[function(require,module,exports){
+},{"../actions":67}],128:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39155,7 +39310,7 @@ var userIdentify = function userIdentify() {
 
 exports.default = userIdentify;
 
-},{"../actions":67}],128:[function(require,module,exports){
+},{"../actions":67}],129:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39182,4 +39337,4 @@ var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.a
 
 exports.default = store;
 
-},{"./reducers":123,"redux":64,"redux-logger":62,"redux-thunk":63}]},{},[105]);
+},{"./reducers":124,"redux":64,"redux-logger":62,"redux-thunk":63}]},{},[105]);

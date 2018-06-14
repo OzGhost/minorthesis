@@ -3,9 +3,10 @@ import ModifierDialogView from '../components/ModifierDialogView'
 import { valueChange, stateChange, closeDialog } from '../actions'
 import { MODIFIER_DIALOG,
           ACCOUNT_CODE, CERTIFICATE_CODE, 
-          GOVERN_DOC_CODE } from '../common/Constants'
+          GOVERN_DOC_CODE, PLAN_USER_CODE } from '../common/Constants'
 
 const targets = [
+  {code: PLAN_USER_CODE, label: 'Chủ sử dụng đất'},
   {code: CERTIFICATE_CODE, label: 'Giấy chứng nhận'},
   {code: GOVERN_DOC_CODE, label: 'Văn bản nhà nước'},
   {code: ACCOUNT_CODE, label: 'Tài khoản'}
