@@ -34884,7 +34884,6 @@ var MouseTrapper = function MouseTrapper() {
   this.position = undefined;
 
   this.trap = function (event) {
-    return;
     _this.position = {};
     _this.position.x = event.pageX;
     _this.position.y = event.pageY;

@@ -4,7 +4,6 @@ class MouseTrapper {
   position = undefined
   
   trap =  (event) =>  {
-    return
     this.position = {}
     this.position.x = event.pageX
     this.position.y = event.pageY
