@@ -58,6 +58,49 @@ app.get('/certificate', (req, res) => {
   performQuery(q, (obj) => res.json(obj), true)
 })
 
+app.get('/certificate/:certId', (req, res)=>{
+  if ( ! isLoggedAsAdmin(req)) {
+    res.json({code: 403})
+    return
+  }
+  const id = InputHandler.format(req.params.certId, AS_STRING)
+  let main = undefined
+  let pusers = undefined
+  let plans = undefined
+  const main_q = 'SELECT * FROM giaychungnhan WHERE shgiaycn=\''+id+'\''
+  const pusers_q = 'SELECT c.machu, c.ten'
+                  + ' FROM chusudung_giaychungnhan b'
+                  + ' LEFT JOIN chusudung c ON c.machu = b.machu'
+                  + ' WHERE b.shgiaycn=\''+id+'\''
+  const plans_q = 'SELECT gid, shthua, shbando FROM thuadat'
+                  + ' WHERE shgiaycn=\''+id+'\''
+  performQuery(main_q, (rows, nrow) => {
+    if (nrow != 1) {
+      res.json({code: 500})
+      return
+    }
+    main = convertToDto(rows[0])
+    performQuery(pusers_q, (rows) => {
+      pusers = rows
+      packResult()
+    })
+    performQuery(plans_q, (rows) => {
+      plans = rows
+      packResult()
+    })
+  }, () => res.json({code: 500}))
+
+  packResult = () => {
+    if (typeof(pusers) === 'undefined')
+      return
+    if (typeof(plans) === 'undefined')
+      return
+    main.pusers = pusers
+    main.plans = plans
+    res.json({code: 200, payload: main})
+  }
+})
+
 const buildCertificateQueryByCertificateNumber = (value, additionalInfo) => {
   return buildCertificateCoreQuery(additionalInfo)
     + ' WHERE d.shgiaycn=\'' + value + '\''
@@ -108,7 +151,15 @@ const dtoKeyMap = {
   hoten: 'name',
   cmnd: 'idNumber',
   diachi: 'address',
-  chucvu: 'role'
+  chucvu: 'role',
+  shgiaycn: 'id',
+  ngayki: 'signDate',
+  coquancap: 'provider',
+  dtrieng: 'privateArea',
+  dtchung: 'publicArea',
+  mucdichsudung: 'targetOfUse',
+  nguongocsudung: 'sourceOfUse',
+  thoihansudung: 'goodUntil'
 }
 
 app.get('/account/b4c1db7e5a0dc91b7b739db0c3ece205dd8c9a66', (req, res) => {

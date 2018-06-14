@@ -34884,6 +34884,7 @@ var MouseTrapper = function MouseTrapper() {
   this.position = undefined;
 
   this.trap = function (event) {
+    return;
     _this.position = {};
     _this.position.x = event.pageX;
     _this.position.y = event.pageY;
@@ -35174,15 +35175,19 @@ var Ruler = function Ruler() {
 exports.default = new Ruler();
 
 },{"./Mapper":73,"openlayers":30}],79:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = require("react");
+var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _ModifiableItem = require('./ModifiableItem');
+
+var _ModifiableItem2 = _interopRequireDefault(_ModifiableItem);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -35190,59 +35195,61 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
   var _onChange = _ref.onChange,
       fieldName = _ref.fieldName,
       queryResult = _ref.queryResult,
-      resultSelect = _ref.resultSelect;
+      resultSelect = _ref.resultSelect,
+      _onModify = _ref.onModify,
+      _onRemove = _ref.onRemove;
   return _react2.default.createElement(
-    "div",
+    'div',
     null,
     _react2.default.createElement(
-      "div",
+      'div',
       null,
       _react2.default.createElement(
-        "label",
-        { className: "w3-text-blue" },
-        "Th\xF4ng tin d\xF9ng cho truy v\u1EA5n:"
+        'label',
+        { className: 'w3-text-blue' },
+        'Th\xF4ng tin d\xF9ng cho truy v\u1EA5n:'
       )
     ),
     _react2.default.createElement(
-      "div",
+      'div',
       null,
       _react2.default.createElement(
-        "select",
+        'select',
         {
-          className: "w3-input w3-border",
+          className: 'w3-input w3-border',
           onChange: function onChange(event) {
             _onChange('certi.cache', undefined);
             _onChange('certi.kind', event.target.value);
           }
         },
         _react2.default.createElement(
-          "option",
-          { value: "ownerId" },
-          "CMND/H\u1ED9 chi\u1EBFu c\u1EE7a ch\u1EE7 s\u1EED d\u1EE5ng"
+          'option',
+          { value: 'ownerId' },
+          'CMND/H\u1ED9 chi\u1EBFu c\u1EE7a ch\u1EE7 s\u1EED d\u1EE5ng'
         ),
         _react2.default.createElement(
-          "option",
-          { value: "certiNumber" },
-          "S\u1ED1 hi\u1EC7u gi\u1EA5y ch\u1EE9ng nh\u1EADn"
+          'option',
+          { value: 'certiNumber' },
+          'S\u1ED1 hi\u1EC7u gi\u1EA5y ch\u1EE9ng nh\u1EADn'
         )
       )
     ),
     _react2.default.createElement(
-      "div",
-      { className: "w3-row" },
+      'div',
+      { className: 'w3-row' },
       _react2.default.createElement(
-        "label",
-        { className: "w3-text-blue" },
+        'label',
+        { className: 'w3-text-blue' },
         fieldName,
-        ":"
+        ':'
       )
     ),
     _react2.default.createElement(
-      "div",
-      { className: "w3-row" },
-      _react2.default.createElement("input", {
-        type: "number",
-        className: "w3-input w3-border",
+      'div',
+      { className: 'w3-row' },
+      _react2.default.createElement('input', {
+        type: 'text',
+        className: 'w3-input w3-border',
         onChange: function onChange(event) {
           _onChange('certi.cache', undefined);
           _onChange('certi.value', event.target.value);
@@ -35250,24 +35257,40 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
       })
     ),
     queryResult && queryResult.certi && queryResult.certi.cache ? _react2.default.createElement(
-      "div",
+      'div',
       null,
-      _react2.default.createElement("hr", null),
+      _react2.default.createElement('hr', null),
       _react2.default.createElement(
-        "small",
+        'small',
         null,
-        "K\u1EBFt qu\u1EA3 truy v\u1EA5n:"
+        'K\u1EBFt qu\u1EA3 truy v\u1EA5n:'
       ),
       _react2.default.createElement(
-        "ul",
-        { className: "w3-ul w3-hoverable" },
+        'ul',
+        { className: 'w3-ul w3-hoverable' },
         queryResult.certi.cache.map(function (i) {
+          if (_onModify || _onRemove) return _react2.default.createElement(_ModifiableItem2.default, {
+            key: i.machu,
+            label: '[' + i.machu + '] ' + i.ten,
+            onClick: function onClick(event) {
+              return resultSelect(event, i);
+            },
+            onModify: function onModify(event) {
+              return _onModify(event, i);
+            },
+            onRemove: function onRemove(event) {
+              return _onRemove(event, i);
+            }
+          });
           return _react2.default.createElement(
-            "li",
-            { key: i.machu, onClick: function onClick(event) {
+            'li',
+            {
+              key: i.machu,
+              onClick: function onClick(event) {
                 return resultSelect(event, i);
-              } },
-            '[' + i.machu + ']' + ' ' + i.ten
+              }
+            },
+            '[' + i.machu + '] ' + i.ten
           );
         })
       )
@@ -35277,7 +35300,7 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
 
 exports.default = CertificateQuerierView;
 
-},{"react":61}],80:[function(require,module,exports){
+},{"./ModifiableItem":85,"react":61}],80:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37413,69 +37436,92 @@ var CertificateModifier = function (_Modifier) {
       var data = _DataLoader2.default.retrieve(props, _this.getNamespace()) || {};
       _this.logCache(data);
       return _react2.default.createElement(
-        'div',
-        { className: 'modifier', onDragOver: function onDragOver(e) {
+        'form',
+        {
+          onDragOver: function onDragOver(e) {
             return e.preventDefault();
-          }, onDrop: _this.onDrop },
-        _this.getFields(data).map(_this.buildField),
+          },
+          onDrop: _this.onDrop,
+          onSubmit: function onSubmit(e) {
+            e.preventDefault();
+            _this.onSubmit(data);
+          } },
         _react2.default.createElement(
           'div',
-          { className: 'w3-row', key: 'plan' },
+          { className: 'modifier' },
+          _this.getFields(data).map(_this.buildField),
           _react2.default.createElement(
             'div',
-            { className: 'w3-col s5' },
+            { className: 'w3-row', key: 'plan' },
             _react2.default.createElement(
-              'label',
-              { className: 'w3-text-blue' },
-              'Th\u1EEDa \u0111\u1EA5t:'
+              'div',
+              { className: 'w3-col s5' },
+              _react2.default.createElement(
+                'label',
+                { className: 'w3-text-blue' },
+                'Th\u1EEDa \u0111\u1EA5t:'
+              )
+            ),
+            _react2.default.createElement(
+              'div',
+              { className: 'w3-col s7' },
+              data.plans && data.plans.length > 0 ? _react2.default.createElement(
+                'div',
+                null,
+                data.plans.map(function (p) {
+                  return _this.buildRemovableItem('Tờ: ' + p.shbando + ' | Thửa: ' + p.shthua, function () {
+                    return _this.removePlan(p.gid);
+                  }, p.gid);
+                })
+              ) : _react2.default.createElement(
+                'small',
+                null,
+                'K\xE9o v\xE0 th\u1EA3 th\u1EEDa \u0111\u1EA5t t\u1EA1i \u0111\xE2y'
+              )
             )
           ),
           _react2.default.createElement(
             'div',
-            { className: 'w3-col s7' },
-            data.plans && data.plans.length > 0 ? _react2.default.createElement(
+            { className: 'w3-row', key: 'puser' },
+            _react2.default.createElement(
               'div',
-              null,
-              data.plans.map(function (p) {
-                return _this.buildRemovableItem('Tờ: ' + p.shbando + ' | Thửa: ' + p.shthua, function () {
-                  return _this.removePlan(p.gid);
-                }, p.gid);
-              })
-            ) : _react2.default.createElement(
-              'small',
-              null,
-              'K\xE9o v\xE0 th\u1EA3 th\u1EEDa \u0111\u1EA5t t\u1EA1i \u0111\xE2y'
+              { className: 'w3-col s5' },
+              _react2.default.createElement(
+                'label',
+                { className: 'w3-text-blue' },
+                'Ch\u1EE7 s\u1EED d\u1EE5ng:'
+              )
+            ),
+            _react2.default.createElement(
+              'div',
+              { className: 'w3-col s7' },
+              data.pusers && data.pusers.length > 0 ? _react2.default.createElement(
+                'div',
+                null,
+                data.pusers.map(function (u) {
+                  return _this.buildRemovableItem(u.ten, function () {
+                    return _this.removePuser(u.machu);
+                  }, u.machu);
+                })
+              ) : _react2.default.createElement(
+                'small',
+                null,
+                'K\xE9o v\xE0 th\u1EA3 ch\u1EE7 s\u1EED d\u1EE5ng \u0111\u1EA5t t\u1EA1i \u0111\xE2y'
+              )
             )
           )
         ),
+        _react2.default.createElement('hr', null),
         _react2.default.createElement(
           'div',
-          { className: 'w3-row', key: 'puser' },
+          { className: 'w3-row' },
           _react2.default.createElement(
-            'div',
-            { className: 'w3-col s5' },
-            _react2.default.createElement(
-              'label',
-              { className: 'w3-text-blue' },
-              'Ch\u1EE7 s\u1EED d\u1EE5ng:'
-            )
-          ),
-          _react2.default.createElement(
-            'div',
-            { className: 'w3-col s7' },
-            data.pusers && data.pusers.length > 0 ? _react2.default.createElement(
-              'div',
-              null,
-              data.pusers.map(function (u) {
-                return _this.buildRemovableItem(u.ten, function () {
-                  return _this.removePuser(u.machu);
-                }, u.machu);
-              })
-            ) : _react2.default.createElement(
-              'small',
-              null,
-              'K\xE9o v\xE0 th\u1EA3 ch\u1EE7 s\u1EED d\u1EE5ng \u0111\u1EA5t t\u1EA1i \u0111\xE2y'
-            )
+            'button',
+            {
+              className: 'w3-btn w3-blue w3-block',
+              type: 'submit'
+            },
+            _this.editMode ? 'Cập nhật' : 'Thêm'
           )
         )
       );
@@ -37535,7 +37581,7 @@ var CertificateModifier = function (_Modifier) {
           break;
         case 'number':
           tag = _react2.default.createElement('input', {
-            type: 'number',
+            type: 'text',
             className: 'w3-input w3-border',
             value: fieldInfo.value,
             onChange: function onChange(e) {
@@ -37858,6 +37904,14 @@ var _CertificateQuerierView2 = _interopRequireDefault(_CertificateQuerierView);
 
 var _Constants = require('../common/Constants');
 
+var _Cacher = require('../common/Cacher');
+
+var _Cacher2 = _interopRequireDefault(_Cacher);
+
+var _RequestPacker = require('../common/RequestPacker');
+
+var _RequestPacker2 = _interopRequireDefault(_RequestPacker);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -37885,15 +37939,42 @@ var CertificateQuerier = function (_Querier) {
         queryResult: data,
         onChange: onChange,
         fieldName: _this.getKind(data) === 'ownerId' ? 'CMND/Hộ chiếu' : 'Số hiệu giấy',
-        resultSelect: _this.itemSelect
+        resultSelect: _this.itemSelect,
+        onModify: _this.getModifyFunction(),
+        onRemove: _this.getRemoveFunction()
       });
+    }, _this.getKind = function (data) {
+      var field = _DataLoader2.default.retrieve(data, 'certi.kind') || '';
+      return field === 'certiNumber' ? field : 'ownerId';
+    }, _this.getModifyFunction = function () {
+      if (_Cacher2.default.getRole() !== 1) return undefined;
+      return function (event, certi) {
+        fetch(_Constants.host + '/certificate/' + certi.shgiaycn, { headers: _RequestPacker2.default.buildHeader() }).then(function (e) {
+          return e.json();
+        }).then(function (e) {
+          _this.dispatch((0, _actions.openModifier)(event, _Constants.CERTIFICATE_CODE, _this.preprocessPayload(e.payload), function () {/* do nothing */}));
+        });
+      };
+    }, _this.preprocessPayload = function (payload) {
+      console.log(payload);
+      if (typeof payload === 'undefined') return {};
+      var rs = JSON.stringify(payload).replace(/null/g, '""');
+      console.log(rs);
+      var ors = JSON.parse(rs);
+      delete ors.chinhly;
+      ors.privateArea = Number(ors.privateArea) || 0;
+      ors.publicArea = Number(ors.publicArea) || 0;
+      console.log(ors);
+      return ors;
+    }, _this.getRemoveFunction = function () {
+      if (_Cacher2.default.getRole() !== 1) return undefined;
+      return function (_, certi) {
+        console.log('cout << remove certificate: ', certi);
+      };
     }, _this.buildQuery = function (data) {
       var field = _this.getKind(data);
       var value = _DataLoader2.default.retrieve(data, 'certi.value') || 0;
       return '/certificate?kind=' + field + '&value=' + value;
-    }, _this.getKind = function (data) {
-      var field = _DataLoader2.default.retrieve(data, 'certi.kind') || '';
-      return field === 'certiNumber' ? field : 'ownerId';
     }, _this.receiveResult = function (event, res) {
       _this.dispatch((0, _actions.queryFieldChange)('certi.cache', res));
     }, _this.itemSelect = function (event, item) {
@@ -37906,7 +37987,7 @@ var CertificateQuerier = function (_Querier) {
 
 exports.default = new CertificateQuerier();
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/CertificateQuerierView":79,"./Querier":113,"react":61}],109:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"../components/CertificateQuerierView":79,"./Querier":113,"react":61}],109:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {

@@ -230,3 +230,4 @@ export const loadSession = () => dispatch => {
       dispatch(roleChanged(e.role))
     })
 }
+

@@ -54,43 +54,64 @@ class CertificateModifier extends Modifier {
     const data = DataLoader.retrieve(props, this.getNamespace()) || {}
     this.logCache(data)
     return (
-      <div className="modifier" onDragOver={e=>e.preventDefault()} onDrop={this.onDrop}>
-        {
-          this.getFields(data).map(this.buildField)
-        }
-        <div className="w3-row" key={'plan'}>
-          <div className="w3-col s5">
-            <label className="w3-text-blue">Thửa đất:</label>
+      <form
+          onDragOver={e=>e.preventDefault()}
+          onDrop={this.onDrop}
+          onSubmit={e => {
+            e.preventDefault()
+            this.onSubmit(data)
+          }}>
+        <div className="modifier">
+          {
+            this.getFields(data).map(this.buildField)
+          }
+          <div className="w3-row" key={'plan'}>
+            <div className="w3-col s5">
+              <label className="w3-text-blue">Thửa đất:</label>
+            </div>
+            <div className="w3-col s7">
+              {
+                (data.plans && data.plans.length > 0)
+                  ?
+                  <div>
+                    {
+                      data.plans.map(p => this.buildRemovableItem( 'Tờ: '+p.shbando+' | Thửa: '+p.shthua, () => this.removePlan(p.gid), p.gid))
+                    }
+                  </div>
+                  : <small>Kéo và thả thửa đất tại đây</small>
+              }
+            </div>
           </div>
-          <div className="w3-col s7">
-            {
-              (data.plans && data.plans.length > 0)
-                ?
-                <div>
-                  {
-                    data.plans.map(p => this.buildRemovableItem( 'Tờ: '+p.shbando+' | Thửa: '+p.shthua, () => this.removePlan(p.gid), p.gid))
-                  }
-                </div>
-                : <small>Kéo và thả thửa đất tại đây</small>
-            }
+          <div className="w3-row" key={'puser'}>
+            <div className="w3-col s5">
+              <label className="w3-text-blue">Chủ sử dụng:</label>
+            </div>
+            <div className="w3-col s7">
+              {
+                (data.pusers && data.pusers.length > 0)
+                  ?
+                  <div>
+                    { data.pusers.map(u => this.buildRemovableItem(u.ten, () => this.removePuser(u.machu), u.machu)) }
+                  </div>
+                  : <small>Kéo và thả chủ sử dụng đất tại đây</small>
+              }
+            </div>
           </div>
         </div>
-        <div className="w3-row" key={'puser'}>
-          <div className="w3-col s5">
-            <label className="w3-text-blue">Chủ sử dụng:</label>
-          </div>
-          <div className="w3-col s7">
+        <hr/>
+        <div className="w3-row">
+          <button
+            className="w3-btn w3-blue w3-block"
+            type="submit"
+          >
             {
-              (data.pusers && data.pusers.length > 0)
-                ?
-                <div>
-                  { data.pusers.map(u => this.buildRemovableItem(u.ten, () => this.removePuser(u.machu), u.machu)) }
-                </div>
-                : <small>Kéo và thả chủ sử dụng đất tại đây</small>
+              this.editMode
+                ? 'Cập nhật'
+                : 'Thêm'
             }
-          </div>
+          </button>
         </div>
-      </div>
+      </form>
     )
   }
 
@@ -145,7 +166,7 @@ class CertificateModifier extends Modifier {
       case 'number':
         tag =
           <input
-            type="number"
+            type="text"
             className="w3-input w3-border"
             value={fieldInfo.value}
             onChange={e=>fieldInfo.listener(e.target.value)}
