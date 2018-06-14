@@ -16,6 +16,7 @@ class PlanUserQuerier extends Querier {
         onChange={onChange}
         kind={kind}
         result={rs}
+        dragStart={this.onDrag}
         itemSelecting={this.itemSelecting}
       />
     )
@@ -33,6 +34,11 @@ class PlanUserQuerier extends Querier {
 
   itemSelecting = (event, item) => {
     this.dispatch(showTargetDetail(event, item))
+  }
+
+  onDrag = (event, data) => {
+    event.dataTransfer.setData('code', 'puser')
+    event.dataTransfer.setData('payload', JSON.stringify(data))
   }
 }
 

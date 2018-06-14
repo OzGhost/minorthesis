@@ -29,6 +29,8 @@ const targetOfUse = [
 
 class CertificateModifier extends Modifier {
 
+  cache
+
   getFields = data => [
     {name: 'id', label: 'Số hiệu GCN', type: 'text', value: data.id, listener: this.makeListenerFor('id')},
     {name: 'signDate', label: 'Ngày ký', type: 'date', value: data.signDate || moment().valueOf(), listener: this.makeListenerFor('signDate')},
@@ -50,6 +52,7 @@ class CertificateModifier extends Modifier {
 
   buildView = props => {
     const data = DataLoader.retrieve(props, this.getNamespace()) || {}
+    this.logCache(data)
     return (
       <div className="modifier" onDragOver={e=>e.preventDefault()} onDrop={this.onDrop}>
         {
@@ -61,12 +64,14 @@ class CertificateModifier extends Modifier {
           </div>
           <div className="w3-col s7">
             {
-              data.plan
-                ? this.buildRemovableItem(
-                  'Tờ: '+data.plan.shbando+' | Thửa: '+data.plan.shthua,
-                  () => this.reactor(valueChange(MODIFIER_DIALOG, this.getNamespace()+'.plan', undefined))
-                )
-                : <small>Kéo thả thửa đất vào cửa sổ để thêm</small>
+              (data.plans && data.plans.length > 0)
+                ?
+                <div>
+                  {
+                    data.plans.map(p => this.buildRemovableItem( 'Tờ: '+p.shbando+' | Thửa: '+p.shthua, () => this.removePlan(p.gid), p.gid))
+                  }
+                </div>
+                : <small>Kéo và thả thửa đất tại đây</small>
             }
           </div>
         </div>
@@ -75,11 +80,22 @@ class CertificateModifier extends Modifier {
             <label className="w3-text-blue">Chủ sử dụng:</label>
           </div>
           <div className="w3-col s7">
-            <small><i>Drag & drop plan inside this dialog</i></small>
+            {
+              (data.pusers && data.pusers.length > 0)
+                ?
+                <div>
+                  { data.pusers.map(u => this.buildRemovableItem(u.ten, () => this.removePuser(u.machu), u.machu)) }
+                </div>
+                : <small>Kéo và thả chủ sử dụng đất tại đây</small>
+            }
           </div>
         </div>
       </div>
     )
+  }
+
+  logCache = data => {
+    this.cache = data
   }
 
   buildField = fieldInfo => {
@@ -150,17 +166,52 @@ class CertificateModifier extends Modifier {
 
   onDrop = event => {
     event.preventDefault();
-    var code = event.dataTransfer.getData('code')
-    var payload = event.dataTransfer.getData('payload')
-    this.reactor(valueChange(MODIFIER_DIALOG, this.getNamespace()+'.'+code, JSON.parse(payload)))
+    const code = event.dataTransfer.getData('code')
+    const payload = JSON.parse(event.dataTransfer.getData('payload'))
+    if (code === 'plan') {
+      this.addPlan(payload)
+    }
+    if (code === 'puser') {
+      this.addPuser(payload)
+    }
   }
 
-  buildRemovableItem = (text, onRemove) => (
-    <div className="w3-card w3-hover-blue w3-padding removable-item">
+  addPlan = payload => {
+    const currentPlans = this.cache.plans || []
+    const existed = currentPlans.filter(p => p.gid === payload.gid).length > 0
+    if (existed)
+      return
+    const nextPlans = [...currentPlans, payload]
+    this.reactor(valueChange(MODIFIER_DIALOG, this.getNamespace()+'.plans', nextPlans))
+  }
+
+  addPuser = payload => {
+    const currentPusers = this.cache.pusers || []
+    const existed = currentPusers.filter(u => u.machu === payload.machu).length > 0
+    if (existed)
+      return
+    const nextPusers = [...currentPusers, payload]
+    this.reactor(valueChange(MODIFIER_DIALOG, this.getNamespace()+'.pusers', nextPusers))
+  }
+
+  buildRemovableItem = (text, onRemove, key) => (
+    <div key={key} className="w3-card w3-hover-blue w3-padding removable-item">
       {text}
       <span className="remove-btn" onClick={onRemove}>x</span>
     </div>
   )
+
+  removePlan = pid => {
+    const currentPlans = this.cache.plans || []
+    const nextPlans = currentPlans.filter(p => p.gid !== pid)
+    this.reactor(valueChange(MODIFIER_DIALOG, this.getNamespace()+'.plans', nextPlans))
+  }
+
+  removePuser = uid => {
+    const currentPusers = this.cache.pusers || []
+    const nextPusers = currentPusers.filter(u => u.machu !== uid)
+    this.reactor(valueChange(MODIFIER_DIALOG, this.getNamespace()+'.pusers', nextPusers))
+  }
 
   onSubmit = store => {
     if (!this.qualify(store))

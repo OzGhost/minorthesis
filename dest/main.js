@@ -36249,7 +36249,8 @@ var PlanUserQuerierView = function PlanUserQuerierView(_ref) {
   var _onChange = _ref.onChange,
       kind = _ref.kind,
       result = _ref.result,
-      itemSelecting = _ref.itemSelecting;
+      itemSelecting = _ref.itemSelecting,
+      dragStart = _ref.dragStart;
 
   return _react2.default.createElement(
     "div",
@@ -36322,7 +36323,12 @@ var PlanUserQuerierView = function PlanUserQuerierView(_ref) {
         result.map(function (item) {
           return _react2.default.createElement(
             "li",
-            { key: item.machu,
+            {
+              draggable: "true",
+              onDragStart: function onDragStart(e) {
+                return dragStart(e, item);
+              },
+              key: item.machu,
               onClick: function onClick(event) {
                 return itemSelecting(event, item);
               }
@@ -37405,6 +37411,7 @@ var CertificateModifier = function (_Modifier) {
       return _Constants.CERTIFICATE_CODE;
     }, _this.buildView = function (props) {
       var data = _DataLoader2.default.retrieve(props, _this.getNamespace()) || {};
+      _this.logCache(data);
       return _react2.default.createElement(
         'div',
         { className: 'modifier', onDragOver: function onDragOver(e) {
@@ -37426,12 +37433,18 @@ var CertificateModifier = function (_Modifier) {
           _react2.default.createElement(
             'div',
             { className: 'w3-col s7' },
-            data.plan ? _this.buildRemovableItem('Tờ: ' + data.plan.shbando + ' | Thửa: ' + data.plan.shthua, function () {
-              return _this.reactor((0, _actions.valueChange)(_Constants.MODIFIER_DIALOG, _this.getNamespace() + '.plan', undefined));
-            }) : _react2.default.createElement(
+            data.plans && data.plans.length > 0 ? _react2.default.createElement(
+              'div',
+              null,
+              data.plans.map(function (p) {
+                return _this.buildRemovableItem('Tờ: ' + p.shbando + ' | Thửa: ' + p.shthua, function () {
+                  return _this.removePlan(p.gid);
+                }, p.gid);
+              })
+            ) : _react2.default.createElement(
               'small',
               null,
-              'K\xE9o th\u1EA3 th\u1EEDa \u0111\u1EA5t v\xE0o c\u1EEDa s\u1ED5 \u0111\u1EC3 th\xEAm'
+              'K\xE9o v\xE0 th\u1EA3 th\u1EEDa \u0111\u1EA5t t\u1EA1i \u0111\xE2y'
             )
           )
         ),
@@ -37450,18 +37463,24 @@ var CertificateModifier = function (_Modifier) {
           _react2.default.createElement(
             'div',
             { className: 'w3-col s7' },
-            _react2.default.createElement(
+            data.pusers && data.pusers.length > 0 ? _react2.default.createElement(
+              'div',
+              null,
+              data.pusers.map(function (u) {
+                return _this.buildRemovableItem(u.ten, function () {
+                  return _this.removePuser(u.machu);
+                }, u.machu);
+              })
+            ) : _react2.default.createElement(
               'small',
               null,
-              _react2.default.createElement(
-                'i',
-                null,
-                'Drag & drop plan inside this dialog'
-              )
+              'K\xE9o v\xE0 th\u1EA3 ch\u1EE7 s\u1EED d\u1EE5ng \u0111\u1EA5t t\u1EA1i \u0111\xE2y'
             )
           )
         )
       );
+    }, _this.logCache = function (data) {
+      _this.cache = data;
     }, _this.buildField = function (fieldInfo) {
       return _react2.default.createElement(
         'div',
@@ -37539,12 +37558,33 @@ var CertificateModifier = function (_Modifier) {
     }, _this.onDrop = function (event) {
       event.preventDefault();
       var code = event.dataTransfer.getData('code');
-      var payload = event.dataTransfer.getData('payload');
-      _this.reactor((0, _actions.valueChange)(_Constants.MODIFIER_DIALOG, _this.getNamespace() + '.' + code, JSON.parse(payload)));
-    }, _this.buildRemovableItem = function (text, onRemove) {
+      var payload = JSON.parse(event.dataTransfer.getData('payload'));
+      if (code === 'plan') {
+        _this.addPlan(payload);
+      }
+      if (code === 'puser') {
+        _this.addPuser(payload);
+      }
+    }, _this.addPlan = function (payload) {
+      var currentPlans = _this.cache.plans || [];
+      var existed = currentPlans.filter(function (p) {
+        return p.gid === payload.gid;
+      }).length > 0;
+      if (existed) return;
+      var nextPlans = [].concat(_toConsumableArray(currentPlans), [payload]);
+      _this.reactor((0, _actions.valueChange)(_Constants.MODIFIER_DIALOG, _this.getNamespace() + '.plans', nextPlans));
+    }, _this.addPuser = function (payload) {
+      var currentPusers = _this.cache.pusers || [];
+      var existed = currentPusers.filter(function (u) {
+        return u.machu === payload.machu;
+      }).length > 0;
+      if (existed) return;
+      var nextPusers = [].concat(_toConsumableArray(currentPusers), [payload]);
+      _this.reactor((0, _actions.valueChange)(_Constants.MODIFIER_DIALOG, _this.getNamespace() + '.pusers', nextPusers));
+    }, _this.buildRemovableItem = function (text, onRemove, key) {
       return _react2.default.createElement(
         'div',
-        { className: 'w3-card w3-hover-blue w3-padding removable-item' },
+        { key: key, className: 'w3-card w3-hover-blue w3-padding removable-item' },
         text,
         _react2.default.createElement(
           'span',
@@ -37552,6 +37592,18 @@ var CertificateModifier = function (_Modifier) {
           'x'
         )
       );
+    }, _this.removePlan = function (pid) {
+      var currentPlans = _this.cache.plans || [];
+      var nextPlans = currentPlans.filter(function (p) {
+        return p.gid !== pid;
+      });
+      _this.reactor((0, _actions.valueChange)(_Constants.MODIFIER_DIALOG, _this.getNamespace() + '.plans', nextPlans));
+    }, _this.removePuser = function (uid) {
+      var currentPusers = _this.cache.pusers || [];
+      var nextPusers = currentPusers.filter(function (u) {
+        return u.machu !== uid;
+      });
+      _this.reactor((0, _actions.valueChange)(_Constants.MODIFIER_DIALOG, _this.getNamespace() + '.pusers', nextPusers));
     }, _this.onSubmit = function (store) {
       if (!_this.qualify(store)) return;
       var data = Object.assign({}, store);
@@ -38152,6 +38204,7 @@ var PlanUserQuerier = function (_Querier) {
         onChange: onChange,
         kind: kind,
         result: rs,
+        dragStart: _this.onDrag,
         itemSelecting: _this.itemSelecting
       });
     }, _this.buildQuery = function (data) {
@@ -38162,6 +38215,9 @@ var PlanUserQuerier = function (_Querier) {
       _this.dispatch((0, _actions.queryFieldChange)('puser.rs', res));
     }, _this.itemSelecting = function (event, item) {
       _this.dispatch((0, _actions.showTargetDetail)(event, item));
+    }, _this.onDrag = function (event, data) {
+      event.dataTransfer.setData('code', 'puser');
+      event.dataTransfer.setData('payload', JSON.stringify(data));
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -38586,29 +38642,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 var defaultState = { mode: _Constants.ADD_MODE, target: _Constants.CERTIFICATE_CODE };
 
 var modifierDialog = function modifierDialog() {
-  var _extends3;
+  var _extends2;
 
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
   var action = arguments[1];
 
   switch (action.type) {
     case _actions.VALUE_CHANGE:
-      if (action.target === _Constants.MODIFIER_DIALOG) if (action.locate === _Constants.CERTIFICATE_CODE + '.puser') {
-        var _extends2;
-
-        var store = state[_Constants.CERTIFICATE_CODE] || {};
-        var puser = store.puser || [];
-        var nextPuser = [].concat(_toConsumableArray(puser), [action.value]);
-        return _extends({}, state, (_extends2 = {}, _defineProperty(_extends2, _Constants.CERTIFICATE_CODE, _extends({}, store, {
-          puser: nextPuser
-        })), _defineProperty(_extends2, 'msg', ''), _extends2));
-      }
-      return _extends({}, state, _DataLoader2.default.load(state, action.locate, action.value), {
+      if (action.target === _Constants.MODIFIER_DIALOG) return _extends({}, state, _DataLoader2.default.load(state, action.locate, action.value), {
         msg: ''
       });
     case _actions.STATE_CHANGE:
@@ -38616,11 +38660,11 @@ var modifierDialog = function modifierDialog() {
 
     case _actions.OPEN_MODIFIER:
       var modifier = _ModifierFactory2.default.buildFor(action.code);
-      return _extends({}, state, (_extends3 = {
+      return _extends({}, state, (_extends2 = {
         mode: _Constants.EDIT_MODE,
         msg: '',
         target: action.code
-      }, _defineProperty(_extends3, modifier.getNamespace(), modifier.handlePayload(action.payload)), _defineProperty(_extends3, 'callback', action.callback), _extends3));
+      }, _defineProperty(_extends2, modifier.getNamespace(), modifier.handlePayload(action.payload)), _defineProperty(_extends2, 'callback', action.callback), _extends2));
 
     case _actions.OPEN_DIALOG:
       if (action.dialogName === _Constants.MODIFIER_DIALOG) return defaultState;

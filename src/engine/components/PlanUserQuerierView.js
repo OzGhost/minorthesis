@@ -1,6 +1,6 @@
 import React from 'react'
 
-const PlanUserQuerierView = ({onChange, kind, result, itemSelecting}) => {
+const PlanUserQuerierView = ({onChange, kind, result, itemSelecting, dragStart}) => {
   return (
     <div>
       <div className="w3-row">
@@ -40,7 +40,10 @@ const PlanUserQuerierView = ({onChange, kind, result, itemSelecting}) => {
               <ul className="w3-ul w3-hoverable">
                 {
                   result.map(item =>
-                    <li key={item.machu}
+                    <li
+                      draggable="true"
+                      onDragStart={e=>dragStart(e, item)}
+                      key={item.machu}
                       onClick={event => itemSelecting(event, item)}
                     >
                       {item.ten}
