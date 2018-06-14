@@ -1,6 +1,11 @@
 
 class RequestPacker {
 
+  packAsPost = data => ({
+    method: 'POST',
+    ...this.packBody(data)
+  })
+
   packBody = data => ({
     body: JSON.stringify(data),
     headers: this.buildHeader()
@@ -17,11 +22,6 @@ class RequestPacker {
         'Content-Type': 'application/json'
       }
   }
-
-  packAsPost = data => ({
-    method: 'POST',
-    ...this.packBody(data)
-  })
 
   packAsPut = data => ({
     method: 'PUT',

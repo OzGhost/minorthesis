@@ -26,12 +26,12 @@ const userIdentify = (state = {ua: '', passwd: ''}, action) => {
       }
 
     case LOGIN_RESULT:
-      typeof(localStorage) !== 'undefined'
+      localStorage
         && localStorage.setItem('token', action.authenResult.token)
       return {
         ...state,
-        username: '',
-        password: '',
+        ua: '',
+        passwd: '',
         isLoading: false,
         msg: ''
       }

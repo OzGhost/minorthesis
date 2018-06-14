@@ -14,11 +14,12 @@ Just a Thesis :D
   - plan owner query by name
   - plan owner query by ID card number
   - account manage (adding, change passwd, edit)
+  - login (role, permission, privilege, logout)
 
 [incomming features]
   - certificate manage (adding, delete, edit)
-  - login (role, permission, privilege, logout)
-  - certificate query with admin role
+  - government doc add
+  - plan owner management
   - fix query dialog
 
 

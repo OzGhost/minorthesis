@@ -27,13 +27,16 @@ class ModifierDialogView extends Dialog {
       <div>
       {
         mode === ADD_MODE
-          ? <div>
-              <div className="w3-row">
+          ?
+          <div>
+            <div className="w3-row">
+              <div className="w3-col s5">
                 <label>Đối tượng thêm mới:</label>
               </div>
-              <div className="w3-row">
+              <div className="w3-col s7">
                 <select
                   className="w3-input w3-border"
+                  value={target}
                   onChange={e => onChange('target', e.target.value) }
                 >
                   {
@@ -48,8 +51,9 @@ class ModifierDialogView extends Dialog {
                   }
                 </select>
               </div>
-              <hr/>
             </div>
+            <hr/>
+          </div>
           : ''
       }
       { modifier.buildView(this.props) }

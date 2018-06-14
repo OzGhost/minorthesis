@@ -34,6 +34,7 @@ class QueryDialogView extends Dialog {
         <div className="w3-row">
           <label>Đối tượng truy vấn:</label>
           <select
+              value={target}
               onChange={ (event) => targetChangeListener(event.target.value) }
               className="w3-input w3-border"
               {...block}

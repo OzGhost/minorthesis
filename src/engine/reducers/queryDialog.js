@@ -1,8 +1,10 @@
 import { QUERING, QUERY_TARGET_CHANGE, QUERY_FIELD_CHANGE,
-          NO_RESULT_FOUND, UPDATE_ACCOUNT } from '../actions'
+          NO_RESULT_FOUND, UPDATE_ACCOUNT, ROLE_CHANGED } from '../actions'
 import DataLoader from '../common/DataLoader'
 
-const queryDialog = (state = {target: 'plan', queryData: {}}, action) => {
+const defaultState = { target: 'plan', queryData: {} }
+
+const queryDialog = (state = defaultState, action) => {
   switch (action.type) {
     case QUERING:
       return {
@@ -44,6 +46,9 @@ const queryDialog = (state = {target: 'plan', queryData: {}}, action) => {
           users: nextUsers
         }
       }
+
+    case ROLE_CHANGED:
+      return defaultState
 
     default:
       return state

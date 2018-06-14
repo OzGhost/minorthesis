@@ -4,9 +4,13 @@ import { showTargetDetail, queryFieldChange, openModifier,
           updateAccount } from '../actions'
 import { host, USER_DETAIL_LABELS, ACCOUNT_CODE } from '../common/Constants'
 import ModifiableItem from '../components/ModifiableItem'
+import RequestPacker from '../common/RequestPacker'
+import Cacher from '../common/Cacher'
 
 class UserQuerier extends Querier {
   getView = (_, queryData) => {
+    if (Cacher.getRole() !== 1)
+      return
     if (!queryData.users) {
       this.loadUsers()
       return ''
@@ -30,7 +34,10 @@ class UserQuerier extends Querier {
   }
 
   loadUsers = () => {
-    fetch(host + '/account')
+    fetch(
+      host + '/account',
+      { headers: RequestPacker.buildHeader() }
+    )
       .then(res => res.json())
       .then(users => this.dispatch(queryFieldChange('users', users)))
   }

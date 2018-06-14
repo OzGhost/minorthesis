@@ -2,6 +2,7 @@ import MouseTrapper from '../common/MouseTrapper'
 import Mapper from '../common/Mapper'
 import Ruler from '../common/Ruler'
 import RequestPacker from '../common/RequestPacker'
+import Cacher from '../common/Cacher'
 import { host, MODIFIER_DIALOG, BASE_HASH } from '../common/Constants'
 
 export const OPEN_DIALOG = 'OPEN DIALGO'
@@ -142,10 +143,13 @@ export const authenDone = authenResult => ({
   type: LOGIN_RESULT,
   authenResult
 })
-export const roleChanged = newRole => ({
-  type: ROLE_CHANGED,
-  newRole
-})
+export const roleChanged = newRole => {
+  Cacher.setRole(newRole)
+  return {
+    type: ROLE_CHANGED,
+    newRole
+  }
+}
 export const loginMessage = msg => ({
   type: LOGIN_MSG,
   msg
@@ -222,7 +226,7 @@ export const loadSession = () => dispatch => {
     .then(e => e.json())
     .then(e => {
       e.role === 0
-        ? localStorage.removeItem('token')
-        : dispatch(roleChanged(e.role))
+        && localStorage.removeItem('token')
+      dispatch(roleChanged(e.role))
     })
 }

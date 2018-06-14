@@ -1,6 +1,7 @@
 import { noResultFound } from '../actions'
 import { host } from '../common/Constants'
 import PlanQuerierView from '../components/PlanQuerierView'
+import RequestPacker from '../common/RequestPacker'
 
 class Querier {
 
@@ -13,7 +14,10 @@ class Querier {
   isAutoLoad = () => false
   
   performQuery = (event, data) => {
-    fetch(host + this.buildQuery(data))
+    fetch(
+      host + this.buildQuery(data),
+      { headers: RequestPacker.buildHeader() }
+    )
     .then(res => res.json())
     .then(resJson => {
       if (resJson.length == 0)

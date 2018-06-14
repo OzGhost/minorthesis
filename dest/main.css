@@ -177,6 +177,8 @@
 
 .modifier-dialog {
   width: 470px; }
+  .modifier-dialog .w3-row .w3-col:nth-child(odd) {
+    line-height: 2.6; }
   .modifier-dialog select {
     background: white; }
   .modifier-dialog .removable-item {
@@ -190,7 +192,7 @@
       background: rgba(255, 10, 100, 0.6);
       color: white;
       display: inline-block;
-      padding: 0 5px 3px 5px;
+      padding: 2px 5px 3px 5px;
       top: 10px;
       line-height: 1;
       cursor: pointer;
@@ -209,8 +211,7 @@
       .modifier-dialog .modifier .w3-row:last-child {
         border-bottom: 0; }
       .modifier-dialog .modifier .w3-row label {
-        display: inline-block;
-        padding-top: 8px; }
+        display: inline-block; }
     .modifier-dialog .modifier .w3-col:nth-child(odd) {
       text-align: right; }
 

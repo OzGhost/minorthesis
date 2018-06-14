@@ -44,11 +44,12 @@ app.get('/plan/features/:featureId', (req, res) => {
 })
 
 app.get('/certificate', (req, res) => {
-  const shortInfo = 'c.ten, d.shgiaycn,'
+  const role = getLoggedRole(req)
+  const shortInfo = 'c.machu, c.ten, d.shgiaycn,'
   const fullInfo = shortInfo
-                  + ' c.machu, c.loaichu, c.nam, c.sogiayto, c.ngaycap,'
+                  + ' c.loaichu, c.nam, c.sogiayto, c.ngaycap,'
                   + 'c.diachi, c.quoctich, '
-  const additionalInfo = fullInfo
+  const additionalInfo = (role===1||role===2) ? fullInfo : shortInfo
   const val = req.query.value
   const q = req.query.kind === 'certiNumber'
             ? buildCertificateQueryByCertificateNumber(val, additionalInfo)
@@ -82,6 +83,10 @@ app.get('/government-doc', (req, res) => {
 })
 
 app.get('/account', (req, res) => {
+  if ( ! isLoggedAsAdmin(req)) {
+    res.json({code: 403})
+    return
+  }
   const q = 'SELECT id, username, hoten, cmnd, diachi, chucvu'
           + ' FROM taikhoan'
           + ' ORDER BY username'
@@ -112,18 +117,28 @@ app.get('/account/b4c1db7e5a0dc91b7b739db0c3ece205dd8c9a66', (req, res) => {
 })
 
 const getLoggedRole = req => {
+  const deoken = getDeoken(req)
+  return deoken.role || 0
+}
+
+const getDeoken = req => {
   if (req.headers['x-access-token']) {
     const deoken = jwt.decode(req.headers['x-access-token'], secret)
-    console.log(deoken)
+    console.log('cout << got token: ', deoken)
     if ( ! isExpired(deoken)) {
-      return deoken.role
+      return deoken
     } else {
-      console.log('cout << token expired')
+      console.log('cout << token expired!')
     }
   } else {
-    console.log('cout << no token')
+    console.log('cout << no token!')
   }
-  return 0
+  return {}
+}
+
+const getLoggedId = req => {
+  const deoken = getDeoken(req)
+  return deoken.uid || -1
 }
 
 const isExpired = deoken => {
@@ -156,15 +171,20 @@ app.post('/account/login', (req, res) => {
 })
 
 app.post('/account/reset-passwd', (req, res) => {
+  const uid = getLoggedId(req)
+  if (uid < 0) {
+    res.json({code: 403})
+    return
+  }
   const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
   const body = JSON.parse(bodyStr)
   const checkPasswdScript = 'SELECT id'
                           + ' FROM taikhoan'
-                          + ' WHERE id = 9'
+                          + ' WHERE id = ' + uid
                           + ' AND password = md5(\'' + body.oldPass + '\')'
   const updateScript = 'UPDATE taikhoan'
                         + ' SET password = md5(\'' + body.newPass + '\')'
-                        + ' WHERE id = 9'
+                        + ' WHERE id = ' + uid
   performQuery(checkPasswdScript, rows => {
     if (rows.length === 1) {
       performQuery(updateScript, (_, rowCount) => {
@@ -180,6 +200,10 @@ app.post('/account/reset-passwd', (req, res) => {
 })
 
 app.get('/plan-user', (req, res) => {
+  if ( ! isLoggedAsAdmin(req)) {
+    res.json({code: 403})
+    return
+  }
   const kind = InputHandler.format(req.query.kind, AS_STRING)
   const value = InputHandler.format(req.query.value, AS_STRING)
   const fieldName = getPlanUserFieldNameByKind(kind)
@@ -187,6 +211,11 @@ app.get('/plan-user', (req, res) => {
   const queryStr = 'SELECT * FROM chusudung WHERE ' + condition
   performQuery(queryStr, objs => res.json(objs), true)
 })
+
+const isLoggedAsAdmin = req => {
+  const deoken = getDeoken(req)
+  return deoken.role === 1
+}
 
 getPlanUserFieldNameByKind = kind => {
   switch(kind) {
@@ -223,6 +252,10 @@ InputHandler = {
 }
 
 app.post('/account', (req, res) => {
+  if ( ! isLoggedAsAdmin(req)) {
+    res.json({code: 403})
+    return
+  }
   const flat = InputHandler.format(JSON.stringify(req.body), AS_STRING)
   const payload = JSON.parse(flat)
   if (payload.role !== 1 && payload.role !== 2) {
@@ -303,6 +336,10 @@ buildInsertQuery = (pairArray, tableName) => {
 }
 
 app.put('/account', (req, res) => {
+  if ( ! isLoggedAsAdmin(req)) {
+    res.json({code: 403})
+    return
+  }
   const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
   const body = JSON.parse(bodyStr)
   const id = InputHandler.format(body.id, AS_NUMBER)

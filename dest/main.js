@@ -34153,6 +34153,10 @@ var _RequestPacker = require('../common/RequestPacker');
 
 var _RequestPacker2 = _interopRequireDefault(_RequestPacker);
 
+var _Cacher = require('../common/Cacher');
+
+var _Cacher2 = _interopRequireDefault(_Cacher);
+
 var _Constants = require('../common/Constants');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -34299,11 +34303,7 @@ var inPassword = exports.inPassword = function inPassword(password) {
 var inLogin = exports.inLogin = function inLogin() {
   return function (dispatch, getState) {
     dispatch(requestAuthen());
-    fetch(_Constants.host + '/account/login', {
-      method: 'POST',
-      body: JSON.stringify(getState().userIdentify),
-      headers: _RequestPacker2.default.buildHeader()
-    }).then(function (res) {
+    fetch(_Constants.host + '/account/login', _RequestPacker2.default.packAsPost(getState().userIdentify)).then(function (res) {
       return res.json();
     }).then(function (json) {
       return dispatch(receiveAuthenResult(json));
@@ -34335,6 +34335,7 @@ var authenDone = exports.authenDone = function authenDone(authenResult) {
   };
 };
 var roleChanged = exports.roleChanged = function roleChanged(newRole) {
+  _Cacher2.default.setRole(newRole);
   return {
     type: ROLE_CHANGED,
     newRole: newRole
@@ -34441,12 +34442,40 @@ var loadSession = exports.loadSession = function loadSession() {
     fetch(_Constants.host + '/account/' + _Constants.BASE_HASH, { headers: _RequestPacker2.default.buildHeader() }).then(function (e) {
       return e.json();
     }).then(function (e) {
-      e.role === 0 ? localStorage.removeItem('token') : dispatch(roleChanged(e.role));
+      e.role === 0 && localStorage.removeItem('token');
+      dispatch(roleChanged(e.role));
     });
   };
 };
 
-},{"../common/Constants":68,"../common/Mapper":72,"../common/MouseTrapper":74,"../common/RequestPacker":76,"../common/Ruler":77}],68:[function(require,module,exports){
+},{"../common/Cacher":68,"../common/Constants":69,"../common/Mapper":73,"../common/MouseTrapper":75,"../common/RequestPacker":77,"../common/Ruler":78}],68:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Cacher = function Cacher() {
+  var _this = this;
+
+  _classCallCheck(this, Cacher);
+
+  this.role = -1;
+
+  this.setRole = function (role) {
+    _this.role = role;
+  };
+
+  this.getRole = function () {
+    return _this.role;
+  };
+};
+
+exports.default = new Cacher();
+
+},{}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34489,7 +34518,7 @@ var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
   ngaycap: 'Ngày cấp'
 }, _defineProperty(_FIELD_LABELS, 'diachi', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'quoctich', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'phuong', 'Phường'), _defineProperty(_FIELD_LABELS, 'passwd', 'Mật khẩu'), _defineProperty(_FIELD_LABELS, 'repasswd', 'Nhập lại mật khẩu'), _defineProperty(_FIELD_LABELS, 'name', 'Tên người dùng'), _defineProperty(_FIELD_LABELS, 'idNumber', 'CMND/Hộ chiếu'), _defineProperty(_FIELD_LABELS, 'address', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'role', 'Chức vụ'), _FIELD_LABELS);
 
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34537,7 +34566,7 @@ var DataLoader = function DataLoader() {
 
 exports.default = new DataLoader();
 
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34573,7 +34602,7 @@ var DeepController = function DeepController() {
 
 exports.default = new DeepController();
 
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34634,7 +34663,7 @@ var Dragger = function Dragger() {
 
 exports.default = new Dragger().trap;
 
-},{}],72:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34794,7 +34823,7 @@ var Mapper = function Mapper() {
 
 exports.default = new Mapper();
 
-},{"../actions":67,"../store":123,"./Ruler":77,"openlayers":30}],73:[function(require,module,exports){
+},{"../actions":67,"../store":124,"./Ruler":78,"openlayers":30}],74:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34836,7 +34865,7 @@ var ModifierFactory = function ModifierFactory() {
 
 exports.default = new ModifierFactory();
 
-},{"../common/Constants":68,"../modifiers/AccountModifier":103,"../modifiers/CertificateModifier":104,"../modifiers/EmptyModifier":105}],74:[function(require,module,exports){
+},{"../common/Constants":69,"../modifiers/AccountModifier":104,"../modifiers/CertificateModifier":105,"../modifiers/EmptyModifier":106}],75:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -34870,7 +34899,7 @@ var MouseTrapper = function MouseTrapper() {
 
 exports.default = new MouseTrapper();
 
-},{}],75:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34928,7 +34957,7 @@ var QuerierFactory = function QuerierFactory() {
 
 exports.default = new QuerierFactory();
 
-},{"../queriers/CertificateQuerier":107,"../queriers/EmptyQuerier":108,"../queriers/GovernmentDocumentQuerier":109,"../queriers/PlanQuerier":110,"../queriers/PlanUserQuerier":111,"../queriers/UserQuerier":113}],76:[function(require,module,exports){
+},{"../queriers/CertificateQuerier":108,"../queriers/EmptyQuerier":109,"../queriers/GovernmentDocumentQuerier":110,"../queriers/PlanQuerier":111,"../queriers/PlanUserQuerier":112,"../queriers/UserQuerier":114}],77:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34943,6 +34972,12 @@ var RequestPacker = function RequestPacker() {
   var _this = this;
 
   _classCallCheck(this, RequestPacker);
+
+  this.packAsPost = function (data) {
+    return _extends({
+      method: 'POST'
+    }, _this.packBody(data));
+  };
 
   this.packBody = function (data) {
     return {
@@ -34961,12 +34996,6 @@ var RequestPacker = function RequestPacker() {
     };
   };
 
-  this.packAsPost = function (data) {
-    return _extends({
-      method: 'POST'
-    }, _this.packBody(data));
-  };
-
   this.packAsPut = function (data) {
     return _extends({
       method: 'PUT'
@@ -34976,7 +35005,7 @@ var RequestPacker = function RequestPacker() {
 
 exports.default = new RequestPacker();
 
-},{}],77:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -35144,7 +35173,7 @@ var Ruler = function Ruler() {
 
 exports.default = new Ruler();
 
-},{"./Mapper":72,"openlayers":30}],78:[function(require,module,exports){
+},{"./Mapper":73,"openlayers":30}],79:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -35248,7 +35277,7 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
 
 exports.default = CertificateQuerierView;
 
-},{"react":61}],79:[function(require,module,exports){
+},{"react":61}],80:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -35418,7 +35447,7 @@ ChangePasswordDialogView.propTypes = {
 };
 exports.default = ChangePasswordDialogView;
 
-},{"./Dialog":81,"prop-types":36,"react":61}],80:[function(require,module,exports){
+},{"./Dialog":82,"prop-types":36,"react":61}],81:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -35528,7 +35557,7 @@ DetailDialogView.propTypes = {
 
 exports.default = DetailDialogView;
 
-},{"../common/Constants":68,"../common/DeepController":70,"../common/Dragger":71,"../common/MouseTrapper":74,"prop-types":36,"react":61}],81:[function(require,module,exports){
+},{"../common/Constants":69,"../common/DeepController":71,"../common/Dragger":72,"../common/MouseTrapper":75,"prop-types":36,"react":61}],82:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -35624,7 +35653,7 @@ Dialog.propTypes = {
 };
 exports.default = Dialog;
 
-},{"../common/DeepController":70,"../common/Dragger":71,"../common/MouseTrapper":74,"prop-types":36,"react":61}],82:[function(require,module,exports){
+},{"../common/DeepController":71,"../common/Dragger":72,"../common/MouseTrapper":75,"prop-types":36,"react":61}],83:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -35735,7 +35764,7 @@ FilterDialogView.propTypes = {
 };
 exports.default = FilterDialogView;
 
-},{"./Dialog":81,"prop-types":36,"react":61}],83:[function(require,module,exports){
+},{"./Dialog":82,"prop-types":36,"react":61}],84:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -35863,7 +35892,7 @@ LoginDialogView.propTypes = {
 };
 exports.default = LoginDialogView;
 
-},{"./Dialog":81,"prop-types":36,"react":61}],84:[function(require,module,exports){
+},{"./Dialog":82,"prop-types":36,"react":61}],85:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -35923,7 +35952,7 @@ ModifiableItem.propTypes = {
 
 exports.default = ModifiableItem;
 
-},{"prop-types":36,"react":61}],85:[function(require,module,exports){
+},{"prop-types":36,"react":61}],86:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -35998,32 +36027,37 @@ var ModifierDialogView = function (_Dialog) {
             'div',
             { className: 'w3-row' },
             _react2.default.createElement(
-              'label',
-              null,
-              '\u0110\u1ED1i t\u01B0\u1EE3ng th\xEAm m\u1EDBi:'
-            )
-          ),
-          _react2.default.createElement(
-            'div',
-            { className: 'w3-row' },
+              'div',
+              { className: 'w3-col s5' },
+              _react2.default.createElement(
+                'label',
+                null,
+                '\u0110\u1ED1i t\u01B0\u1EE3ng th\xEAm m\u1EDBi:'
+              )
+            ),
             _react2.default.createElement(
-              'select',
-              {
-                className: 'w3-input w3-border',
-                onChange: function onChange(e) {
-                  return _onChange('target', e.target.value);
-                }
-              },
-              targets.map(function (tg) {
-                return _react2.default.createElement(
-                  'option',
-                  {
-                    key: tg.code,
-                    value: tg.code
-                  },
-                  tg.label
-                );
-              })
+              'div',
+              { className: 'w3-col s7' },
+              _react2.default.createElement(
+                'select',
+                {
+                  className: 'w3-input w3-border',
+                  value: target,
+                  onChange: function onChange(e) {
+                    return _onChange('target', e.target.value);
+                  }
+                },
+                targets.map(function (tg) {
+                  return _react2.default.createElement(
+                    'option',
+                    {
+                      key: tg.code,
+                      value: tg.code
+                    },
+                    tg.label
+                  );
+                })
+              )
             )
           ),
           _react2.default.createElement('hr', null)
@@ -36039,7 +36073,7 @@ var ModifierDialogView = function (_Dialog) {
 ModifierDialogView.propTypes = {};
 exports.default = ModifierDialogView;
 
-},{"../common/Constants":68,"../common/ModifierFactory":73,"./Dialog":81,"prop-types":36,"react":61}],86:[function(require,module,exports){
+},{"../common/Constants":69,"../common/ModifierFactory":74,"./Dialog":82,"prop-types":36,"react":61}],87:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36096,7 +36130,7 @@ ModifierSimpleRowView.propTypes = {
 
 exports.default = ModifierSimpleRowView;
 
-},{"../common/Constants":68,"prop-types":36,"react":61}],87:[function(require,module,exports){
+},{"../common/Constants":69,"prop-types":36,"react":61}],88:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -36198,7 +36232,7 @@ var PlanQuerierView = function PlanQuerierView(_ref) {
 
 exports.default = PlanQuerierView;
 
-},{"react":61}],88:[function(require,module,exports){
+},{"react":61}],89:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -36303,7 +36337,7 @@ var PlanUserQuerierView = function PlanUserQuerierView(_ref) {
 
 exports.default = PlanUserQuerierView;
 
-},{"react":61}],89:[function(require,module,exports){
+},{"react":61}],90:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36386,6 +36420,7 @@ var QueryDialogView = function (_Dialog) {
           _react2.default.createElement(
             'select',
             _extends({
+              value: target,
               onChange: function onChange(event) {
                 return targetChangeListener(event.target.value);
               },
@@ -36450,7 +36485,7 @@ QueryDialogView.propTypes = {
 };
 exports.default = QueryDialogView;
 
-},{"../common/QuerierFactory":75,"./Dialog":81,"prop-types":36,"react":61}],90:[function(require,module,exports){
+},{"../common/QuerierFactory":76,"./Dialog":82,"prop-types":36,"react":61}],91:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36521,7 +36556,7 @@ RulerDialogView.propTypes = {
 
 exports.default = RulerDialogView;
 
-},{"../common/MouseTrapper":74,"prop-types":36,"react":61}],91:[function(require,module,exports){
+},{"../common/MouseTrapper":75,"prop-types":36,"react":61}],92:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36562,7 +36597,7 @@ TaskbarIcon.propTypes = {
 
 exports.default = TaskbarIcon;
 
-},{"prop-types":36,"react":61}],92:[function(require,module,exports){
+},{"prop-types":36,"react":61}],93:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36610,7 +36645,7 @@ TaskbarView.propTypes = {
 
 exports.default = TaskbarView;
 
-},{"../actions":67,"./TaskbarIcon":91,"prop-types":36,"react":61}],93:[function(require,module,exports){
+},{"../actions":67,"./TaskbarIcon":92,"prop-types":36,"react":61}],94:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36673,7 +36708,7 @@ var App = function App() {
 
 exports.default = App;
 
-},{"../containers/ChangePasswordDialog":94,"../containers/DetailDialog":95,"../containers/FilterDialog":96,"../containers/LoginDialog":97,"../containers/ModifierDialog":98,"../containers/QueryDialog":99,"../containers/RulerDialog":100,"../containers/Taskbar":101,"react":61}],94:[function(require,module,exports){
+},{"../containers/ChangePasswordDialog":95,"../containers/DetailDialog":96,"../containers/FilterDialog":97,"../containers/LoginDialog":98,"../containers/ModifierDialog":99,"../containers/QueryDialog":100,"../containers/RulerDialog":101,"../containers/Taskbar":102,"react":61}],95:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36759,7 +36794,7 @@ var handleReject = function handleReject(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_ChangePasswordDialogView2.default);
 
-},{"../actions":67,"../common/Constants":68,"../common/RequestPacker":76,"../components/ChangePasswordDialogView":79,"react-redux":53}],95:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/RequestPacker":77,"../components/ChangePasswordDialogView":80,"react-redux":53}],96:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36798,7 +36833,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_DetailDialogView2.default);
 
-},{"../actions":67,"../components/DetailDialogView":80,"react":61,"react-redux":53}],96:[function(require,module,exports){
+},{"../actions":67,"../components/DetailDialogView":81,"react":61,"react-redux":53}],97:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36838,7 +36873,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_FilterDialogView2.default);
 
-},{"../actions":67,"../components/FilterDialogView":82,"react":61,"react-redux":53}],97:[function(require,module,exports){
+},{"../actions":67,"../components/FilterDialogView":83,"react":61,"react-redux":53}],98:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36887,7 +36922,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_LoginDialogView2.default);
 
-},{"../actions":67,"../components/LoginDialogView":83,"react":61,"react-redux":53}],98:[function(require,module,exports){
+},{"../actions":67,"../components/LoginDialogView":84,"react":61,"react-redux":53}],99:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36932,7 +36967,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_ModifierDialogView2.default);
 
-},{"../actions":67,"../common/Constants":68,"../components/ModifierDialogView":85,"react-redux":53}],99:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../components/ModifierDialogView":86,"react-redux":53}],100:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36949,14 +36984,27 @@ var _QueryDialogView = require('../components/QueryDialogView');
 
 var _QueryDialogView2 = _interopRequireDefault(_QueryDialogView);
 
+var _Cacher = require('../common/Cacher');
+
+var _Cacher2 = _interopRequireDefault(_Cacher);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var basicTargets = [{ value: 'plan', label: 'Thửa đất' }, { value: 'certi', label: 'Giấy chứng nhận' }, { value: 'govdoc', label: 'Văn bản nhà nước' }, { value: 'puser', label: 'Chủ sử dụng đất' }, { value: 'user', label: 'Tài khoản truy cập' }];
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var basicTargets = [{ value: 'plan', label: 'Thửa đất' }, { value: 'certi', label: 'Giấy chứng nhận' }, { value: 'govdoc', label: 'Văn bản nhà nước' }];
+
+var adminTargets = [{ value: 'puser', label: 'Chủ sử dụng đất' }, { value: 'user', label: 'Tài khoản truy cập' }];
+
+var getTargets = function getTargets() {
+  var additionalTargets = _Cacher2.default.getRole() === 1 ? additionalTargets : [];
+  return [].concat(basicTargets, _toConsumableArray(additionalTargets));
+};
 
 var stateToProps = function stateToProps(state) {
   return _extends({}, state.queryDialog, {
     isActive: state.dialogState['query'],
-    targets: basicTargets,
+    targets: _Cacher2.default.getRole() === 1 ? [].concat(basicTargets, adminTargets) : basicTargets,
     userRole: 'guest'
   });
 };
@@ -36984,7 +37032,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_QueryDialogView2.default);
 
-},{"../actions":67,"../components/QueryDialogView":89,"react-redux":53}],100:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../components/QueryDialogView":90,"react-redux":53}],101:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37021,7 +37069,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_RulerDialogView2.default);
 
-},{"../actions":67,"../components/RulerDialogView":90,"react":61,"react-redux":53}],101:[function(require,module,exports){
+},{"../actions":67,"../components/RulerDialogView":91,"react":61,"react-redux":53}],102:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37047,10 +37095,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var baseEntries = [{ icon: 'icon_query.png', label: 'Truy vấn thuộc tính', name: 'query' }, { icon: 'icon_filter.png', label: 'Ẩn/hiện lớp dữ liệu', name: 'filter' }, { icon: 'icon_ruler.png', label: undefined, name: 'ruler' }];
 var guestEntry = [{ icon: 'icon_authen.png', label: 'Đăng nhập', name: 'login' }];
 var adminEntries = [{
-  icon: 'icon_modifier.png',
-  label: 'Thêm mới dữ liệu',
-  name: _Constants.MODIFIER_DIALOG
-}, {
   icon: 'icon_change_passwd.png',
   label: 'Thay đổi mật khẩu',
   name: _Constants.CHPASSWD_DIALOG
@@ -37061,17 +37105,25 @@ var adminEntries = [{
     return dispatch((0, _actions.logout)());
   }
 }];
+var superAdminEntries = [{
+  icon: 'icon_modifier.png',
+  label: 'Thêm mới dữ liệu',
+  name: _Constants.MODIFIER_DIALOG
+}];
 
 var stateToProps = function stateToProps(state) {
   var items = [];
   switch (state.taskbar.role) {
 
     case 2:
-      items = [].concat(baseEntries);
+      items = [].concat(baseEntries, adminEntries);
       break;
 
     case 1:
-      items = [].concat(baseEntries, adminEntries);
+      items = [].concat(baseEntries, superAdminEntries, adminEntries);
+      break;
+
+    case -1:
       break;
 
     default:
@@ -37087,7 +37139,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps)(_TaskbarView2.default);
 
-},{"../actions":67,"../common/Constants":68,"../components/TaskbarView":92,"react":61,"react-redux":53}],102:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../components/TaskbarView":93,"react":61,"react-redux":53}],103:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -37119,7 +37171,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 _store2.default.dispatch((0, _actions.loadSession)());
 _store2.default.dispatch((0, _actions.fetchLayers)());
 
-},{"./actions":67,"./containers/App":93,"./store":123,"react":61,"react-dom":41,"react-redux":53}],103:[function(require,module,exports){
+},{"./actions":67,"./containers/App":94,"./store":124,"react":61,"react-dom":41,"react-redux":53}],104:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37284,7 +37336,7 @@ var AccountModifier = function (_Modifier) {
 
 exports.default = new AccountModifier();
 
-},{"../common/Constants":68,"../common/RequestPacker":76,"./Modifier":106,"react":61}],104:[function(require,module,exports){
+},{"../common/Constants":69,"../common/RequestPacker":77,"./Modifier":107,"react":61}],105:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37522,7 +37574,7 @@ var CertificateModifier = function (_Modifier) {
 
 exports.default = new CertificateModifier();
 
-},{"../actions":67,"../common/Constants":68,"../common/DataLoader":69,"../common/RequestPacker":76,"./Modifier":106,"moment":28,"react":61,"react-datepicker":38}],105:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"./Modifier":107,"moment":28,"react":61,"react-datepicker":38}],106:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37565,7 +37617,7 @@ var EmptyModifier = function (_Modifier) {
 
 exports.default = new EmptyModifier();
 
-},{"./Modifier":106}],106:[function(require,module,exports){
+},{"./Modifier":107}],107:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37727,7 +37779,7 @@ var Modifier = function Modifier() {
 
 exports.default = Modifier;
 
-},{"../actions":67,"../common/Constants":68,"../common/DataLoader":69,"../components/ModifierSimpleRowView":86,"react":61}],107:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/ModifierSimpleRowView":87,"react":61}],108:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37802,7 +37854,7 @@ var CertificateQuerier = function (_Querier) {
 
 exports.default = new CertificateQuerier();
 
-},{"../actions":67,"../common/Constants":68,"../common/DataLoader":69,"../components/CertificateQuerierView":78,"./Querier":112,"react":61}],108:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/CertificateQuerierView":79,"./Querier":113,"react":61}],109:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37855,7 +37907,7 @@ var EmptyQuerier = function (_Querier) {
 
 exports.default = new EmptyQuerier();
 
-},{"./Querier":112,"react":61}],109:[function(require,module,exports){
+},{"./Querier":113,"react":61}],110:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37965,7 +38017,7 @@ var GovernmentDocumentQuerier = function (_Querier) {
 
 exports.default = new GovernmentDocumentQuerier();
 
-},{"../actions":67,"../common/Constants":68,"../common/DataLoader":69,"./Querier":112,"react":61}],110:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"./Querier":113,"react":61}],111:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38041,7 +38093,7 @@ var PlanQuerier = function (_Querier) {
 
 exports.default = new PlanQuerier();
 
-},{"../actions":67,"../common/Constants":68,"../common/DataLoader":69,"../components/PlanQuerierView":87,"./Querier":112,"react":61}],111:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/PlanQuerierView":88,"./Querier":113,"react":61}],112:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38066,6 +38118,10 @@ var _DataLoader2 = _interopRequireDefault(_DataLoader);
 
 var _actions = require('../actions');
 
+var _Cacher = require('../common/Cacher');
+
+var _Cacher2 = _interopRequireDefault(_Cacher);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -38089,6 +38145,7 @@ var PlanUserQuerier = function (_Querier) {
     }
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = PlanUserQuerier.__proto__ || Object.getPrototypeOf(PlanUserQuerier)).call.apply(_ref, [this].concat(args))), _this), _this.getView = function (onChange, queryData) {
+      if (_Cacher2.default.getRole() !== 1) return '';
       var kind = _DataLoader2.default.retrieve(queryData, 'puser.kind') || 'id';
       var rs = _DataLoader2.default.retrieve(queryData, 'puser.rs') || [];
       return _react2.default.createElement(_PlanUserQuerierView2.default, {
@@ -38113,7 +38170,7 @@ var PlanUserQuerier = function (_Querier) {
 
 exports.default = new PlanUserQuerier();
 
-},{"../actions":67,"../common/DataLoader":69,"../components/PlanUserQuerierView":88,"./Querier":112,"react":61}],112:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/DataLoader":70,"../components/PlanUserQuerierView":89,"./Querier":113,"react":61}],113:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38127,6 +38184,10 @@ var _Constants = require('../common/Constants');
 var _PlanQuerierView = require('../components/PlanQuerierView');
 
 var _PlanQuerierView2 = _interopRequireDefault(_PlanQuerierView);
+
+var _RequestPacker = require('../common/RequestPacker');
+
+var _RequestPacker2 = _interopRequireDefault(_RequestPacker);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -38152,7 +38213,7 @@ var Querier = function Querier() {
   };
 
   this.performQuery = function (event, data) {
-    fetch(_Constants.host + _this.buildQuery(data)).then(function (res) {
+    fetch(_Constants.host + _this.buildQuery(data), { headers: _RequestPacker2.default.buildHeader() }).then(function (res) {
       return res.json();
     }).then(function (resJson) {
       if (resJson.length == 0) _this.handleFail();else _this.receiveResult(event, resJson);
@@ -38172,7 +38233,7 @@ var Querier = function Querier() {
 
 exports.default = Querier;
 
-},{"../actions":67,"../common/Constants":68,"../components/PlanQuerierView":87}],113:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/RequestPacker":77,"../components/PlanQuerierView":88}],114:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38194,6 +38255,14 @@ var _Constants = require('../common/Constants');
 var _ModifiableItem = require('../components/ModifiableItem');
 
 var _ModifiableItem2 = _interopRequireDefault(_ModifiableItem);
+
+var _RequestPacker = require('../common/RequestPacker');
+
+var _RequestPacker2 = _interopRequireDefault(_RequestPacker);
+
+var _Cacher = require('../common/Cacher');
+
+var _Cacher2 = _interopRequireDefault(_Cacher);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -38218,6 +38287,7 @@ var UserQuerier = function (_Querier) {
     }
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = UserQuerier.__proto__ || Object.getPrototypeOf(UserQuerier)).call.apply(_ref, [this].concat(args))), _this), _this.getView = function (_, queryData) {
+      if (_Cacher2.default.getRole() !== 1) return;
       if (!queryData.users) {
         _this.loadUsers();
         return '';
@@ -38241,7 +38311,7 @@ var UserQuerier = function (_Querier) {
         })
       );
     }, _this.loadUsers = function () {
-      fetch(_Constants.host + '/account').then(function (res) {
+      fetch(_Constants.host + '/account', { headers: _RequestPacker2.default.buildHeader() }).then(function (res) {
         return res.json();
       }).then(function (users) {
         return _this.dispatch((0, _actions.queryFieldChange)('users', users));
@@ -38262,7 +38332,7 @@ var UserQuerier = function (_Querier) {
 
 exports.default = new UserQuerier();
 
-},{"../actions":67,"../common/Constants":68,"../components/ModifiableItem":84,"./Querier":112,"react":61}],114:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/RequestPacker":77,"../components/ModifiableItem":85,"./Querier":113,"react":61}],115:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38302,7 +38372,7 @@ var chpasswdDialog = function chpasswdDialog() {
 
 exports.default = chpasswdDialog;
 
-},{"../actions":67,"../common/Constants":68}],115:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69}],116:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38331,7 +38401,7 @@ var detailDialog = function detailDialog() {
 
 exports.default = detailDialog;
 
-},{"../actions":67}],116:[function(require,module,exports){
+},{"../actions":67}],117:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38383,7 +38453,7 @@ var dialogState = function dialogState() {
 
 exports.default = dialogState;
 
-},{"../actions":67,"../common/Constants":68,"../common/Mapper":72}],117:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/Mapper":73}],118:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38435,7 +38505,7 @@ var filterDialog = function filterDialog() {
 
 exports.default = filterDialog;
 
-},{"../actions":67,"../common/Mapper":72}],118:[function(require,module,exports){
+},{"../actions":67,"../common/Mapper":73}],119:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38491,7 +38561,7 @@ var rootReducer = (0, _redux.combineReducers)({
 
 exports.default = rootReducer;
 
-},{"./chpasswdDialog":114,"./detailDialog":115,"./dialogState":116,"./filterDialog":117,"./modifierDialog":119,"./queryDialog":120,"./taskbar":121,"./userIdentify":122,"redux":64}],119:[function(require,module,exports){
+},{"./chpasswdDialog":115,"./detailDialog":116,"./dialogState":117,"./filterDialog":118,"./modifierDialog":120,"./queryDialog":121,"./taskbar":122,"./userIdentify":123,"redux":64}],120:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38562,7 +38632,7 @@ var modifierDialog = function modifierDialog() {
 
 exports.default = modifierDialog;
 
-},{"../actions":67,"../common/Constants":68,"../common/DataLoader":69,"../common/ModifierFactory":73}],120:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../common/ModifierFactory":74}],121:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38579,8 +38649,10 @@ var _DataLoader2 = _interopRequireDefault(_DataLoader);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var defaultState = { target: 'plan', queryData: {} };
+
 var queryDialog = function queryDialog() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { target: 'plan', queryData: {} };
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
   var action = arguments[1];
 
   switch (action.type) {
@@ -38616,6 +38688,9 @@ var queryDialog = function queryDialog() {
         })
       });
 
+    case _actions.ROLE_CHANGED:
+      return defaultState;
+
     default:
       return state;
   }
@@ -38623,7 +38698,7 @@ var queryDialog = function queryDialog() {
 
 exports.default = queryDialog;
 
-},{"../actions":67,"../common/DataLoader":69}],121:[function(require,module,exports){
+},{"../actions":67,"../common/DataLoader":70}],122:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38635,7 +38710,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 var _actions = require('../actions');
 
 var taskbar = function taskbar() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { role: 0 };
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { role: -1 };
   var action = arguments[1];
 
   switch (action.type) {
@@ -38652,7 +38727,7 @@ var taskbar = function taskbar() {
 
 exports.default = taskbar;
 
-},{"../actions":67}],122:[function(require,module,exports){
+},{"../actions":67}],123:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38688,10 +38763,10 @@ var userIdentify = function userIdentify() {
       });
 
     case _actions.LOGIN_RESULT:
-      typeof localStorage !== 'undefined' && localStorage.setItem('token', action.authenResult.token);
+      localStorage && localStorage.setItem('token', action.authenResult.token);
       return _extends({}, state, {
-        username: '',
-        password: '',
+        ua: '',
+        passwd: '',
         isLoading: false,
         msg: ''
       });
@@ -38708,7 +38783,7 @@ var userIdentify = function userIdentify() {
 
 exports.default = userIdentify;
 
-},{"../actions":67}],123:[function(require,module,exports){
+},{"../actions":67}],124:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38735,4 +38810,4 @@ var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.a
 
 exports.default = store;
 
-},{"./reducers":118,"redux":64,"redux-logger":62,"redux-thunk":63}]},{},[102]);
+},{"./reducers":119,"redux":64,"redux-logger":62,"redux-thunk":63}]},{},[103]);

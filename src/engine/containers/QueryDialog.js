@@ -8,19 +8,38 @@ import {
   noResultFound
 } from '../actions'
 import QueryDialogView from '../components/QueryDialogView'
+import Cacher from '../common/Cacher'
 
 const basicTargets = [
   {value: 'plan', label: 'Thửa đất'},
   {value: 'certi', label: 'Giấy chứng nhận'},
-  {value: 'govdoc', label: 'Văn bản nhà nước'},
+  {value: 'govdoc', label: 'Văn bản nhà nước'}
+]
+
+const adminTargets = [
   {value: 'puser', label: 'Chủ sử dụng đất'},
   {value: 'user', label: 'Tài khoản truy cập'}
 ]
 
+const getTargets = () => {
+  const additionalTargets = Cacher.getRole() === 1
+    ? additionalTargets
+    : []
+  return [
+    ...basicTargets,
+    ...additionalTargets
+  ]
+}
+
 const stateToProps = state => ({
   ...state.queryDialog,
   isActive: state.dialogState['query'],
-  targets: basicTargets,
+  targets: Cacher.getRole() === 1
+    ? [
+      ...basicTargets,
+      ...adminTargets
+    ]
+    : basicTargets,
   userRole: 'guest'
 })
 

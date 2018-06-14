@@ -3,9 +3,12 @@ import Querier from './Querier'
 import PlanUserQuerierView from '../components/PlanUserQuerierView'
 import DataLoader from '../common/DataLoader'
 import { queryFieldChange, showTargetDetail } from '../actions'
+import Cacher from '../common/Cacher'
 
 class PlanUserQuerier extends Querier {
   getView = (onChange, queryData) => {
+    if (Cacher.getRole() !== 1)
+      return ''
     const kind = DataLoader.retrieve(queryData, 'puser.kind') || 'id'
     const rs = DataLoader.retrieve(queryData, 'puser.rs') || []
     return (

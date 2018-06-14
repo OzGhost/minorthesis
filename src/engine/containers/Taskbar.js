@@ -12,11 +12,6 @@ const baseEntries = [
 const guestEntry = [ { icon: 'icon_authen.png', label: 'Đăng nhập', name: 'login' } ]
 const adminEntries = [
   {
-    icon: 'icon_modifier.png',
-    label: 'Thêm mới dữ liệu',
-    name: MODIFIER_DIALOG
-  },
-  {
     icon: 'icon_change_passwd.png',
     label: 'Thay đổi mật khẩu',
     name: CHPASSWD_DIALOG
@@ -27,17 +22,27 @@ const adminEntries = [
     handler: (event, dispatch) => dispatch(logout())
   }
 ]
+const superAdminEntries = [
+  {
+    icon: 'icon_modifier.png',
+    label: 'Thêm mới dữ liệu',
+    name: MODIFIER_DIALOG
+  }
+]
 
 const stateToProps = state => {
   let items = []
   switch (state.taskbar.role) {
 
     case 2:
-      items = [...baseEntries]
+      items = [...baseEntries, ...adminEntries]
       break
 
     case 1:
-      items = [...baseEntries, ...adminEntries]
+      items = [...baseEntries, ...superAdminEntries, ...adminEntries]
+      break
+
+    case -1:
       break
 
     default:
