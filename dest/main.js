@@ -34535,6 +34535,8 @@ var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
   ngaycap: 'Ngày cấp'
 }, _defineProperty(_FIELD_LABELS, 'diachi', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'quoctich', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'phuong', 'Phường'), _defineProperty(_FIELD_LABELS, 'passwd', 'Mật khẩu'), _defineProperty(_FIELD_LABELS, 'repasswd', 'Nhập lại mật khẩu'), _defineProperty(_FIELD_LABELS, 'name', 'Tên người dùng'), _defineProperty(_FIELD_LABELS, 'idNumber', 'CMND/Hộ chiếu'), _defineProperty(_FIELD_LABELS, 'address', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'role', 'Chức vụ'), _defineProperty(_FIELD_LABELS, 'docId', 'Số hiệu văn bản'), _defineProperty(_FIELD_LABELS, 'docContent', 'Nội dung'), _defineProperty(_FIELD_LABELS, 'docLink', 'Liên kết'), _defineProperty(_FIELD_LABELS, 'nationality', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'groupName', 'Tên tổ chức'), _defineProperty(_FIELD_LABELS, 'commerceId', 'Số giấy phép kinh doanh'), _defineProperty(_FIELD_LABELS, 'personalName', 'Tên cá nhân'), _defineProperty(_FIELD_LABELS, 'birthYear', 'Năm sinh'), _FIELD_LABELS);
 
+var NATIONALITIES = exports.NATIONALITIES = ['United States', 'United Kingdom', 'Afghanistan', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla', 'Antarctica', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Bouvet Island', 'Brazil', 'British Indian Ocean Territory', 'Brunei Darussalam', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Cayman Islands', 'Central African Republic', 'Chad', 'Chile', 'China', 'Christmas Island', 'Cocos (Keeling) Islands', 'Colombia', 'Comoros', 'Congo', 'Congo, The Democratic Republic of The', 'Cook Islands', 'Việt Nam'];
+
 },{}],70:[function(require,module,exports){
 'use strict';
 
@@ -36046,16 +36048,25 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var ModifiableItem = function ModifiableItem(_ref) {
   var label = _ref.label,
-      onClick = _ref.onClick,
+      _onClick = _ref.onClick,
       onRemove = _ref.onRemove,
-      onModify = _ref.onModify;
+      onModify = _ref.onModify,
+      _onDragStart = _ref.onDragStart;
 
   return _react2.default.createElement(
     'li',
-    { className: 'modifiable-item' },
+    {
+      draggable: !!_onDragStart,
+      onDragStart: function onDragStart(e) {
+        return _onDragStart(e);
+      },
+      className: 'modifiable-item'
+    },
     _react2.default.createElement(
       'p',
-      { onClick: onClick },
+      { onClick: function onClick(e) {
+          return _onClick(e);
+        } },
       label
     ),
     _react2.default.createElement(
@@ -36063,7 +36074,12 @@ var ModifiableItem = function ModifiableItem(_ref) {
       { className: 'modifiable-item-tray' },
       onModify ? _react2.default.createElement(
         'span',
-        { className: 'modifiable-item-icon edit-icon', onClick: onModify },
+        {
+          className: 'modifiable-item-icon edit-icon',
+          onClick: function onClick(e) {
+            return onModify(e);
+          }
+        },
         _react2.default.createElement('img', { src: '../res/icon_edit_item.png' })
       ) : '',
       onRemove ? _react2.default.createElement(
@@ -36082,7 +36098,8 @@ ModifiableItem.propTypes = {
   label: _propTypes2.default.string.isRequired,
   onClick: _propTypes2.default.func,
   onRemove: _propTypes2.default.func,
-  onModify: _propTypes2.default.func
+  onModify: _propTypes2.default.func,
+  onDragStart: _propTypes2.default.func
 };
 
 exports.default = ModifiableItem;
@@ -36368,15 +36385,19 @@ var PlanQuerierView = function PlanQuerierView(_ref) {
 exports.default = PlanQuerierView;
 
 },{"react":61}],90:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _react = require("react");
+var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _ModifiableItem = require('./ModifiableItem');
+
+var _ModifiableItem2 = _interopRequireDefault(_ModifiableItem);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -36384,58 +36405,60 @@ var PlanUserQuerierView = function PlanUserQuerierView(_ref) {
   var _onChange = _ref.onChange,
       kind = _ref.kind,
       result = _ref.result,
-      itemSelecting = _ref.itemSelecting,
-      dragStart = _ref.dragStart;
+      buildDragStart = _ref.buildDragStart,
+      buildOnClick = _ref.buildOnClick,
+      buildOnRemove = _ref.buildOnRemove,
+      buildOnModify = _ref.buildOnModify;
 
   return _react2.default.createElement(
-    "div",
+    'div',
     null,
     _react2.default.createElement(
-      "div",
-      { className: "w3-row" },
+      'div',
+      { className: 'w3-row' },
       _react2.default.createElement(
-        "label",
-        { className: "w3-text-blue" },
-        "Th\xF4ng tin d\xF9ng cho truy v\u1EA5n:"
+        'label',
+        { className: 'w3-text-blue' },
+        'Th\xF4ng tin d\xF9ng cho truy v\u1EA5n:'
       )
     ),
     _react2.default.createElement(
-      "div",
-      { className: "w3-row" },
+      'div',
+      { className: 'w3-row' },
       _react2.default.createElement(
-        "select",
-        { className: "w3-input w3-border",
+        'select',
+        { className: 'w3-input w3-border',
           onChange: function onChange(e) {
             return _onChange('puser.kind', e.target.value);
           }
         },
         _react2.default.createElement(
-          "option",
-          { value: "id" },
-          "S\u1ED1 CMND/H\u1ED9 chi\u1EBFu"
+          'option',
+          { value: 'id' },
+          'S\u1ED1 CMND/H\u1ED9 chi\u1EBFu'
         ),
         _react2.default.createElement(
-          "option",
-          { value: "name" },
-          "T\xEAn"
+          'option',
+          { value: 'name' },
+          'T\xEAn'
         )
       )
     ),
     _react2.default.createElement(
-      "div",
-      { className: "w3-row" },
+      'div',
+      { className: 'w3-row' },
       _react2.default.createElement(
-        "label",
-        { className: "w3-text-blue" },
+        'label',
+        { className: 'w3-text-blue' },
         (kind === 'id' ? 'Số CMND/Hộ chiếu' : 'Tên') + ':'
       )
     ),
     _react2.default.createElement(
-      "div",
-      { className: "w3-row" },
-      _react2.default.createElement("input", {
-        className: "w3-input w3-border",
-        type: "text",
+      'div',
+      { className: 'w3-row' },
+      _react2.default.createElement('input', {
+        className: 'w3-input w3-border',
+        type: 'text',
         required: true,
         onChange: function onChange(e) {
           _onChange('puser.value', e.target.value);
@@ -36444,32 +36467,26 @@ var PlanUserQuerierView = function PlanUserQuerierView(_ref) {
       })
     ),
     result.length < 1 ? '' : _react2.default.createElement(
-      "div",
+      'div',
       null,
-      _react2.default.createElement("hr", null),
+      _react2.default.createElement('hr', null),
       _react2.default.createElement(
-        "small",
+        'small',
         null,
-        "K\u1EBFt qu\u1EA3 t\xECm ki\u1EBFm:"
+        'K\u1EBFt qu\u1EA3 t\xECm ki\u1EBFm:'
       ),
       _react2.default.createElement(
-        "ul",
-        { className: "w3-ul w3-hoverable" },
+        'ul',
+        { className: 'w3-ul w3-hoverable' },
         result.map(function (item) {
-          return _react2.default.createElement(
-            "li",
-            {
-              draggable: "true",
-              onDragStart: function onDragStart(e) {
-                return dragStart(e, item);
-              },
-              key: item.machu,
-              onClick: function onClick(event) {
-                return itemSelecting(event, item);
-              }
-            },
-            item.ten
-          );
+          return _react2.default.createElement(_ModifiableItem2.default, {
+            key: item.machu,
+            label: item.ten,
+            onDragStart: buildDragStart(item),
+            onClick: buildOnClick(item),
+            onRemove: buildOnRemove(item),
+            onModify: buildOnModify(item)
+          });
         })
       )
     )
@@ -36478,7 +36495,7 @@ var PlanUserQuerierView = function PlanUserQuerierView(_ref) {
 
 exports.default = PlanUserQuerierView;
 
-},{"react":61}],91:[function(require,module,exports){
+},{"./ModifiableItem":86,"react":61}],91:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37120,8 +37137,8 @@ var targets = [{ code: _Constants.PLAN_USER_CODE, label: 'Chủ sử dụng đ�
 
 var stateToProps = function stateToProps(state) {
   return _extends({}, state.modifierDialog, {
-    //isActive: state.dialogState[MODIFIER_DIALOG],
-    isActive: true,
+    isActive: state.dialogState[_Constants.MODIFIER_DIALOG],
+    //isActive: true,
     targets: targets
   });
 };
@@ -38183,7 +38200,7 @@ var PlanUserModifier = function (_Modifier) {
         )
       );
     }, _this.getEditableFields = function (store) {
-      var baseFields = ['address', 'nationality'];
+      var baseFields = ['address'];
       var needFields = [];
       switch (store.kind) {
         case 2:
@@ -38200,8 +38217,41 @@ var PlanUserModifier = function (_Modifier) {
         return _this.getFieldByFieldName(store, f);
       });
     }, _this.buildViewLowerPart = function (store) {
-      if (store.kind !== 3) return '';
+      var nationalitySelector = _this.buildNationalitisSelector(store);
+      if (store.kind !== 3) return nationalitySelector;
       var listener = _this.makeListenerFor('provideDate');
+      return _react2.default.createElement(
+        'div',
+        null,
+        _react2.default.createElement(
+          'div',
+          { className: 'w3-row' },
+          _react2.default.createElement(
+            'div',
+            { className: 'w3-col s5' },
+            _react2.default.createElement(
+              'label',
+              { className: 'w3-text-blue' },
+              'Ng\xE0y c\u1EA5p:'
+            )
+          ),
+          _react2.default.createElement(
+            'div',
+            { className: 'w3-col s7' },
+            _react2.default.createElement(_reactDatepicker2.default, {
+              className: 'w3-input w3-border',
+              dateFormat: 'DD/MM/YYYY',
+              selected: (0, _moment2.default)(store.provideDate || new Date().getTime()),
+              onChange: function onChange(e) {
+                return listener(e.valueOf());
+              }
+            })
+          )
+        ),
+        nationalitySelector
+      );
+    }, _this.buildNationalitisSelector = function (store) {
+      var listener = _this.makeListenerFor('nationality');
       return _react2.default.createElement(
         'div',
         { className: 'w3-row' },
@@ -38211,20 +38261,29 @@ var PlanUserModifier = function (_Modifier) {
           _react2.default.createElement(
             'label',
             { className: 'w3-text-blue' },
-            'Ng\xE0y c\u1EA5p:'
+            'Qu\u1ED1c t\u1ECBch:'
           )
         ),
         _react2.default.createElement(
           'div',
-          { className: 'w3-col s5' },
-          _react2.default.createElement(_reactDatepicker2.default, {
-            className: 'w3-input w3-border',
-            dateFormat: 'DD/MM/YYYY',
-            selected: (0, _moment2.default)(store.provideDate || new Date().getTime()),
-            onChange: function onChange(e) {
-              return listener(e.valueOf());
-            }
-          })
+          { className: 'w3-col s7' },
+          _react2.default.createElement(
+            'select',
+            {
+              className: 'w3-input w3-border',
+              value: store.nationality || 'Việt Nam',
+              onChange: function onChange(e) {
+                return listener(e.target.value);
+              }
+            },
+            _Constants.NATIONALITIES.map(function (e, i) {
+              return _react2.default.createElement(
+                'option',
+                { key: i },
+                e
+              );
+            })
+          )
         )
       );
     }, _this.getTitle = function () {
@@ -38328,8 +38387,7 @@ var CertificateQuerier = function (_Querier) {
     }, _this.getRemoveFunction = function () {
       if (_Cacher2.default.getRole() !== 1) return undefined;
       return function (_, certi) {
-        console.log('cout << triggered!');
-        _this.dispatch((0, _actions.openConfirmer)('Do you really wanna do it?', function () {
+        _this.dispatch((0, _actions.openConfirmer)('Xác nhận xóa giấy chứng nhận [' + certi.shgiaycn + '] khỏi hệ thống?', function () {
           return alert('Accepted!');
         }, function () {
           return alert('Denied!');
@@ -38619,6 +38677,8 @@ var _Cacher = require('../common/Cacher');
 
 var _Cacher2 = _interopRequireDefault(_Cacher);
 
+var _Constants = require('../common/Constants');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -38649,8 +38709,10 @@ var PlanUserQuerier = function (_Querier) {
         onChange: onChange,
         kind: kind,
         result: rs,
-        dragStart: _this.onDrag,
-        itemSelecting: _this.itemSelecting
+        buildDragStart: _this.buildDragStart,
+        buildOnClick: _this.buildOnClick,
+        buildOnRemove: _this.buildOnRemove,
+        buildOnModify: _this.buildOnModify
       });
     }, _this.buildQuery = function (data) {
       var kind = _DataLoader2.default.retrieve(data, 'puser.kind');
@@ -38658,11 +38720,42 @@ var PlanUserQuerier = function (_Querier) {
       return '/plan-user?kind=' + kind + '&value=' + value;
     }, _this.receiveResult = function (event, res) {
       _this.dispatch((0, _actions.queryFieldChange)('puser.rs', res));
-    }, _this.itemSelecting = function (event, item) {
-      _this.dispatch((0, _actions.showTargetDetail)(event, item));
-    }, _this.onDrag = function (event, data) {
-      event.dataTransfer.setData('code', 'puser');
-      event.dataTransfer.setData('payload', JSON.stringify(data));
+    }, _this.buildDragStart = function (item) {
+      return function (event) {
+        event.dataTransfer.setData('code', 'puser');
+        event.dataTransfer.setData('payload', JSON.stringify(item));
+      };
+    }, _this.buildOnClick = function (item) {
+      return function (event) {
+        _this.dispatch((0, _actions.showTargetDetail)(event, item));
+      };
+    }, _this.buildOnModify = function (item) {
+      return function (event) {
+        if (_Cacher2.default.getRole() !== 1) return undefined;
+        var dto = _this.convertToDto(item);
+        _this.dispatch((0, _actions.openModifier)(event, _Constants.PLAN_USER_CODE, dto, function () {}));
+      };
+    }, _this.convertToDto = function (item) {
+      return {
+        puid: item.machu,
+        kind: item.loaichu,
+        personalName: item.ten,
+        groupName: item.ten,
+        birthYear: item.nam,
+        commerceId: item.sogiayto,
+        providDate: item.ngaycap,
+        address: item.diachi,
+        nationality: item.quoctich
+      };
+    }, _this.buildOnRemove = function (item) {
+      return function (event) {
+        if (_Cacher2.default.getRole() !== 1) return undefined;
+        _this.dispatch((0, _actions.openConfirmer)('Xác nhận xóa chủ sử dụng `' + item.ten + '` khỏi hệ thống?', function () {
+          return alert('Accepted!');
+        }, function () {
+          return alert('Denied!');
+        }));
+      };
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -38671,7 +38764,7 @@ var PlanUserQuerier = function (_Querier) {
 
 exports.default = new PlanUserQuerier();
 
-},{"../actions":67,"../common/Cacher":68,"../common/DataLoader":70,"../components/PlanUserQuerierView":90,"./Querier":117,"react":61}],117:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/DataLoader":70,"../components/PlanUserQuerierView":90,"./Querier":117,"react":61}],117:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {

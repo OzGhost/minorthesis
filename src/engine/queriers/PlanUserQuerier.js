@@ -2,8 +2,10 @@ import React from 'react'
 import Querier from './Querier'
 import PlanUserQuerierView from '../components/PlanUserQuerierView'
 import DataLoader from '../common/DataLoader'
-import { queryFieldChange, showTargetDetail } from '../actions'
+import { queryFieldChange, showTargetDetail, openConfirmer,
+          openModifier } from '../actions'
 import Cacher from '../common/Cacher'
+import { PLAN_USER_CODE } from '../common/Constants'
 
 class PlanUserQuerier extends Querier {
   getView = (onChange, queryData) => {
@@ -16,8 +18,10 @@ class PlanUserQuerier extends Querier {
         onChange={onChange}
         kind={kind}
         result={rs}
-        dragStart={this.onDrag}
-        itemSelecting={this.itemSelecting}
+        buildDragStart={this.buildDragStart}
+        buildOnClick={this.buildOnClick}
+        buildOnRemove={this.buildOnRemove}
+        buildOnModify={this.buildOnModify}
       />
     )
   }
@@ -32,13 +36,46 @@ class PlanUserQuerier extends Querier {
     this.dispatch(queryFieldChange('puser.rs', res))
   }
 
-  itemSelecting = (event, item) => {
+  buildDragStart = item => event => {
+    event.dataTransfer.setData('code', 'puser')
+    event.dataTransfer.setData('payload', JSON.stringify(item))
+  }
+
+  buildOnClick = item => event => {
     this.dispatch(showTargetDetail(event, item))
   }
 
-  onDrag = (event, data) => {
-    event.dataTransfer.setData('code', 'puser')
-    event.dataTransfer.setData('payload', JSON.stringify(data))
+  buildOnModify = item => event => {
+    if (Cacher.getRole() !== 1)
+      return undefined
+    const dto = this.convertToDto(item)
+    this.dispatch(openModifier(
+      event, PLAN_USER_CODE, dto, ()=>{} 
+    ))
+  }
+
+  convertToDto = item => {
+    return {
+      puid: item.machu,
+      kind: item.loaichu,
+      personalName: item.ten,
+      groupName: item.ten,
+      birthYear: item.nam,
+      commerceId: item.sogiayto,
+      providDate: item.ngaycap,
+      address: item.diachi,
+      nationality: item.quoctich
+    }
+  }
+
+  buildOnRemove = item => event => {
+    if (Cacher.getRole() !== 1)
+      return undefined
+    this.dispatch(openConfirmer(
+      'Xác nhận xóa chủ sử dụng `'+item.ten+'` khỏi hệ thống?',
+      ()=>alert('Accepted!'),
+      ()=>alert('Denied!')
+    ))
   }
 }
 

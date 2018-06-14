@@ -1,6 +1,6 @@
 import React from 'react'
 import Modifier from './Modifier' 
-import { PLAN_USER_CODE } from '../common/Constants'
+import { PLAN_USER_CODE, NATIONALITIES } from '../common/Constants'
 import DatePicker from 'react-datepicker'
 import moment from 'moment'
 
@@ -29,7 +29,7 @@ class PlanUserModifier extends Modifier {
   }
 
   getEditableFields = store => {
-    const baseFields = ['address', 'nationality']
+    const baseFields = ['address']
     let needFields = []
     switch(store.kind) {
       case 2:
@@ -46,21 +46,47 @@ class PlanUserModifier extends Modifier {
   }
 
   buildViewLowerPart = store => {
+    const nationalitySelector = this.buildNationalitisSelector(store)
     if (store.kind !== 3)
-      return ''
+      return nationalitySelector
     let listener = this.makeListenerFor('provideDate')
+    return (
+      <div>
+        <div className="w3-row">
+          <div className="w3-col s5">
+            <label className="w3-text-blue">Ngày cấp:</label>
+          </div>
+          <div className="w3-col s7">
+            <DatePicker
+              className="w3-input w3-border"
+              dateFormat="DD/MM/YYYY"
+              selected={moment(store.provideDate || (new Date()).getTime())}
+              onChange={e=>listener(e.valueOf())}
+            />
+          </div>
+        </div>
+        {nationalitySelector}
+      </div>
+    )
+  }
+
+  buildNationalitisSelector = (store) => {
+    const listener = this.makeListenerFor('nationality')
     return (
       <div className="w3-row">
         <div className="w3-col s5">
-          <label className="w3-text-blue">Ngày cấp:</label>
+          <label className="w3-text-blue">Quốc tịch:</label>
         </div>
-        <div className="w3-col s5">
-          <DatePicker
+        <div className="w3-col s7">
+          <select
             className="w3-input w3-border"
-            dateFormat="DD/MM/YYYY"
-            selected={moment(store.provideDate || (new Date()).getTime())}
-            onChange={e=>listener(e.valueOf())}
-          />
+            value={store.nationality || 'Việt Nam'}
+            onChange={e => listener(e.target.value)}
+          >
+            {
+              NATIONALITIES.map((e, i)=><option key={i}>{e}</option>)
+            }
+          </select>
         </div>
       </div>
     )

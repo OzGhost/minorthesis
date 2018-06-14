@@ -63,10 +63,9 @@ class CertificateQuerier extends Querier {
     if (Cacher.getRole() !== 1)
       return undefined
     return (_, certi) => {
-      console.log('cout << triggered!')
       this.dispatch(
         openConfirmer(
-          'Do you really wanna do it?',
+          'Xác nhận xóa giấy chứng nhận ['+certi.shgiaycn+'] khỏi hệ thống?',
           () => alert('Accepted!'),
           () => alert('Denied!')
         )

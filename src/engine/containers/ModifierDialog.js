@@ -14,8 +14,8 @@ const targets = [
 
 const stateToProps = state => ({
   ...state.modifierDialog,
-  //isActive: state.dialogState[MODIFIER_DIALOG],
-  isActive: true,
+  isActive: state.dialogState[MODIFIER_DIALOG],
+  //isActive: true,
   targets
 })
 
