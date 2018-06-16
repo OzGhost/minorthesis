@@ -3,7 +3,8 @@ import Mapper from '../common/Mapper'
 import Ruler from '../common/Ruler'
 import RequestPacker from '../common/RequestPacker'
 import Cacher from '../common/Cacher'
-import { host, MODIFIER_DIALOG, BASE_HASH } from '../common/Constants'
+import { host, MODIFIER_DIALOG, BASE_HASH,
+          DETAIL_DIALOG, LOGIN_DIALOG, RULER_DIALOG } from '../common/Constants'
 
 export const OPEN_DIALOG = 'OPEN DIALGO'
 export const CLOSE_DIALOG = 'CLOSE DIALGO'
@@ -41,6 +42,7 @@ export const openDialog = (event, dialogName) => {
   MouseTrapper.trap(event)
   return {
     type: OPEN_DIALOG,
+    offset: MouseTrapper.getTrappedPosition(),
     dialogName
   }
 }
@@ -81,12 +83,12 @@ export const receiveTargetId = (event, targetId) => dispatch => {
 }
 export const showFeatureTarget = (event, target) => dispatch => {
   Mapper.viewTarget(target)
-  dispatch(openDialog(event, 'detail'))
+  dispatch(openDialog(event, DETAIL_DIALOG))
   dispatch(openDetail(target))
 }
 
 export const showTargetDetail = (event, target) => dispatch => {
-  dispatch(openDialog(event, 'detail'))
+  dispatch(openDialog(event, DETAIL_DIALOG))
   dispatch(openDetail(target))
 }
 
@@ -122,7 +124,7 @@ export const requestAuthen = () => ({
 export const receiveAuthenResult = authenResult => dispatch => {
   dispatch(authenDone(authenResult))
   if (authenResult.code === 200) {
-    dispatch(closeDialog('login'))
+    dispatch(closeDialog(LOGIN_DIALOG))
     dispatch(roleChanged(authenResult.role))
   } else if (authenResult.code === 403) {
     dispatch(loginMessage('Tên tài khoản hoặc mật khẩu không đúng!'))
@@ -147,7 +149,7 @@ export const loginMessage = msg => ({
 })
 
 export const pickRuler = rulerName => dispatch => {
-  dispatch(closeDialog('ruler'))
+  dispatch(closeDialog(RULER_DIALOG))
   Ruler.addInteraction(rulerName, Mapper.getMap(), Mapper.getSource())
 }
 

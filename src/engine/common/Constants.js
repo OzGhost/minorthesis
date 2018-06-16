@@ -9,6 +9,11 @@ export const PLAN_USER_CODE = 'planUserCode'
 
 export const MODIFIER_DIALOG = 'modifierDialog'
 export const CHPASSWD_DIALOG = 'chpasswdDialog'
+export const DETAIL_DIALOG = 'detailDialog'
+export const QUERY_DIALOG = 'queryDialog'
+export const FILTER_DIALOG = 'filterDialog'
+export const RULER_DIALOG = 'rulerDialog'
+export const LOGIN_DIALOG = 'loginDialog'
 
 export const EDIT_MODE = 'edit_mode_for_modifier'
 export const ADD_MODE = 'add_mode_for_modifier'

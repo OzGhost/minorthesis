@@ -1,4 +1,4 @@
-import { VALUE_CHANGE, STATE_CHANGE } from '../actions'
+import { OPEN_DIALOG, VALUE_CHANGE, STATE_CHANGE } from '../actions'
 import { CHPASSWD_DIALOG } from '../common/Constants'
 
 const chpasswdDialog = (state = {
@@ -16,12 +16,21 @@ const chpasswdDialog = (state = {
           msg: ''
         }
       }
+
     case STATE_CHANGE:
       if (action.target === CHPASSWD_DIALOG)
         return {
           ...state,
           ...action.stateFragment
         }
+
+    case OPEN_DIALOG:
+      if (action.dialogName === CHPASSWD_DIALOG)
+        return {
+          ...state,
+          offset: action.offset
+        }
+
     default:
       return state
   }

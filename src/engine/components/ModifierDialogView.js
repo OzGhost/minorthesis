@@ -11,7 +11,8 @@ class ModifierDialogView extends Dialog {
   getMetaData = props => {
     const modifier = ModifierFactory.buildFor(props.target)
     props.mode === EDIT_MODE
-      && modifier.turnOnEditMode()
+      ? modifier.turnOnEditMode()
+      : modifier.turnOffEditMode()
     return {
       styleClass: 'modifier-dialog',
       title: modifier.getTitle(),

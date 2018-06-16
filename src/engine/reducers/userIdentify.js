@@ -1,9 +1,9 @@
 import { IN_USERNAME, IN_PASSWORD, IN_LOGIN, LOGIN_RESULT,
-          LOGIN_MSG } from '../actions'
+          LOGIN_MSG, OPEN_DIALOG } from '../actions'
+import { LOGIN_DIALOG } from '../common/Constants'
 
 const userIdentify = (state = {ua: '', passwd: ''}, action) => {
   switch(action.type) {
-    
     case IN_USERNAME:
       return {
         ...state,
@@ -42,6 +42,13 @@ const userIdentify = (state = {ua: '', passwd: ''}, action) => {
         msg: action.msg
       }
 
+    case OPEN_DIALOG:
+      if (action.dialogName === LOGIN_DIALOG)
+        return {
+          ...state,
+          offset: action.offset
+        }
+    
     default:
       return state
   }

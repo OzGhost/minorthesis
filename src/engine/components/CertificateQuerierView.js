@@ -1,7 +1,8 @@
 import React from 'react'
 import ModifiableItem from './ModifiableItem'
 
-const CertificateQuerierView = ({onChange, fieldName, queryResult, resultSelect, onModify, onRemove}) => (
+const CertificateQuerierView = ({onChange,
+      fieldName, queryResult, buildOnClick, buildOnModify, buildOnRemove}) => (
   <div>
     <div>
       <label className="w3-text-blue">Thông tin dùng cho truy vấn:</label>
@@ -40,20 +41,20 @@ const CertificateQuerierView = ({onChange, fieldName, queryResult, resultSelect,
             <ul className="w3-ul w3-hoverable">
               {
                 queryResult.certi.cache.map(i => {
-                  if (onModify || onRemove)
+                  if (buildOnModify || buildOnRemove)
                     return (
                       <ModifiableItem
                         key={i.machu}
                         label={'['+i.machu+'] '+i.ten}
-                        onClick={event => resultSelect(event, i)}
-                        onModify={event => onModify(event, i)}
-                        onRemove={event => onRemove(event, i)}
+                        onClick={buildOnClick(i)}
+                        onModify={buildOnModify(i)}
+                        onRemove={buildOnRemove(i)}
                       />
                     )
                   return (
                     <li
                       key={i.machu}
-                      onClick={event => resultSelect(event, i)}
+                      onClick={event => buildOnClick(i)(event)}
                     >
                       {'['+i.machu+'] '+i.ten}
                     </li>

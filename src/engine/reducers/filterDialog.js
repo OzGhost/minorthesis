@@ -1,15 +1,17 @@
-import { RECEIVE_LAYERS, TOGGLE_LAYER } from '../actions'
+import { RECEIVE_LAYERS, TOGGLE_LAYER, OPEN_DIALOG } from '../actions'
+import { FILTER_DIALOG } from '../common/Constants'
 import Mapper from '../common/Mapper'
 
 const filterDialog = (state = [], action) => {
   switch (action.type) {
-
     case RECEIVE_LAYERS:
-      
       Mapper.init(action.layers.map(layer => layer.value))
-      return [...(action.layers.map(layer => ({...layer, isChecked: true}))),
-                {value: 'osm', label: 'Open Street Map', isChecked: true}
-              ]
+      return {
+        layers: [
+          ...(action.layers.map(layer => ({...layer, isChecked: true}))),
+          {value: 'osm', label: 'Open Street Map', isChecked: true}
+        ]
+      }
 
     case TOGGLE_LAYER:
       const newState = state.map( layer => 
@@ -24,6 +26,13 @@ const filterDialog = (state = [], action) => {
       )
       return newState
   
+    case OPEN_DIALOG:
+      if (action.dialogName === FILTER_DIALOG)
+        return {
+          ...state,
+          offset: action.offset
+        }
+
     default:
       return state
   }

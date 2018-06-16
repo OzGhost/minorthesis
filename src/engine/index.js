@@ -4,6 +4,7 @@ import { Provider } from 'react-redux'
 import App from './containers/App'
 import store from './store'
 import { fetchLayers, loadSession } from './actions'
+import mock from './mock'
 
 render(
   <Provider store={store}>
@@ -15,3 +16,4 @@ render(
 store.dispatch(loadSession())
 store.dispatch(fetchLayers())
 
+mock()

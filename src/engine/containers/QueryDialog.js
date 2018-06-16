@@ -7,6 +7,7 @@ import {
   queryFieldChange,
   noResultFound
 } from '../actions'
+import { QUERY_DIALOG } from '../common/Constants'
 import QueryDialogView from '../components/QueryDialogView'
 import Cacher from '../common/Cacher'
 
@@ -33,7 +34,7 @@ const getTargets = () => {
 
 const stateToProps = state => ({
   ...state.queryDialog,
-  isActive: state.dialogState['query'],
+  isActive: state.dialogState[QUERY_DIALOG],
   targets: Cacher.getRole() === 1
     ? [
       ...basicTargets,
@@ -48,7 +49,7 @@ const actToProps = dispatch => ({
   targetChangeListener: val => dispatch(queryTargetChangeTo(val)),
   valueChange: value => dispatch(performQuery(value)),
   viewDetail: (event, result) => dispatch(showFeatureTarget(event, result)),
-  onClose: () => dispatch(closeDialog('query')),
+  onClose: () => dispatch(closeDialog(QUERY_DIALOG)),
   dispatch: dispatch
 })
 

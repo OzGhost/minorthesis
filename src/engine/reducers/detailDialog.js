@@ -1,4 +1,5 @@
-import { OPEN_DETAIL } from '../actions'
+import { OPEN_DIALOG, OPEN_DETAIL } from '../actions'
+import { DETAIL_DIALOG } from '../common/Constants'
 
 const detailDialog = (state = { obj: {} }, action) => {
   switch (action.type) {
@@ -8,6 +9,13 @@ const detailDialog = (state = { obj: {} }, action) => {
         ...state,
         obj: action.object
       }
+
+    case OPEN_DIALOG:
+      if (action.dialogName === DETAIL_DIALOG)
+        return {
+          ...state,
+          offset: action.offset
+        }
 
     default:
       return state

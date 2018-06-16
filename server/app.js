@@ -17,9 +17,13 @@ app.use(bodyParser.json())
 const performQuery = (queryStr, resolve, reject) => {
   const pool = new Pool()
   pool.query(queryStr, (err, result) => {
-    result
-      ? resolve(result.rows, result.rowCount)
-      : reject(err, result)
+    if (result) {
+      resolve &&
+        resolve(result.rows, result.rowCount)
+    } else {
+      reject &&
+        reject(err, result)
+    }
     pool.end()
   })
 }
@@ -64,6 +68,14 @@ app.get('/certificate/:certId', (req, res)=>{
     return
   }
   const id = InputHandler.format(req.params.certId, AS_STRING)
+  fetchCertificateById(
+    id,
+    obj => res.json({code: 200, payload: obj}),
+    () => res.json({code: 500})
+  )
+})
+
+fetchCertificateById = (id, onDone, onErr) => {
   let main = undefined
   let pusers = undefined
   let plans = undefined
@@ -74,9 +86,20 @@ app.get('/certificate/:certId', (req, res)=>{
                   + ' WHERE b.shgiaycn=\''+id+'\''
   const plans_q = 'SELECT gid, shthua, shbando FROM thuadat'
                   + ' WHERE shgiaycn=\''+id+'\''
+
+  packResult = () => {
+    if (typeof(pusers) === 'undefined')
+      return
+    if (typeof(plans) === 'undefined')
+      return
+    main.pusers = pusers
+    main.plans = plans
+    onDone(main)
+  }
+
   performQuery(main_q, (rows, nrow) => {
     if (nrow != 1) {
-      res.json({code: 500})
+      onErr && onErr()
       return
     }
     main = convertToDto(rows[0])
@@ -88,18 +111,8 @@ app.get('/certificate/:certId', (req, res)=>{
       plans = rows
       packResult()
     })
-  }, () => res.json({code: 500}))
-
-  packResult = () => {
-    if (typeof(pusers) === 'undefined')
-      return
-    if (typeof(plans) === 'undefined')
-      return
-    main.pusers = pusers
-    main.plans = plans
-    res.json({code: 200, payload: main})
-  }
-})
+  }, () => {onErr && onErr()})
+}
 
 const buildCertificateQueryByCertificateNumber = (value, additionalInfo) => {
   return buildCertificateCoreQuery(additionalInfo)
@@ -118,6 +131,77 @@ const buildCertificateCoreQuery = additionalInfo => {
             + ' FROM chusudung c'
             + ' LEFT JOIN chusudung_giaychungnhan s ON s.machu = c.machu'
             + ' LEFT JOIN thuadat d ON d.shgiaycn = s.shgiaycn'
+}
+
+app.put('/certificate', (req, res) => {
+  const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
+  let body = JSON.parse(bodyStr)
+  if (body.goodUntil)
+    body.goodUntil = new Date(body.goodUntil)
+  if (body.signDate)
+    body.signDate = new Date(body.signDate)
+  const pairArray = convertPayload(body, certiKeyMap, certiNumberFields, [])
+  const q = buildUpdateQuery(
+    pairArray,
+    'giaychungnhan',
+    'shgiaycn=\''+body.id+'\''
+  )
+  performQuery(q, (_, affectedRows)=>{
+    if (affectedRows !== 1) {
+      res.json(SERVER_ERROR_PAYLOAD)
+      return
+    }
+    updatePlansInCertificate(body)
+    updatePusersInCertificate(body)
+    res.json({SUCCESS_PAYLOAD})
+  }, ()=>{res.json(SERVER_ERROR_PAYLOAD)})
+})
+
+const SERVER_ERROR_PAYLOAD = {code: 500}
+const SUCCESS_PAYLOAD = {code: 200}
+
+const certiKeyMap = {
+  goodUntil: 'thoihansudung',
+  signDate: 'ngayki',
+  provider: 'coquancap',
+  privateArea: 'dtrieng',
+  publicArea: 'dtchung',
+  targetOfUse: 'mucdichsudung',
+  sourceOfUse: 'nguongocsudung'
+}
+const certiNumberFields = {
+  privateArea: true,
+  publicArea: true
+}
+
+updatePlansInCertificate = certiPayload => {
+  const clean_q = 'UPDATE thuadat SET shgiayto=null'
+                  + ' WHERE shgiayto=\''+certiPayload.id+'\''
+  //performQuery(clean_q)
+  console.log(clean_q)
+  if (certiPayload.plans && certiPayload.length > 0) {
+    const planIds = '(' + certiPayload.join(',') + ')'
+    const attach_q = 'UPDATE thuadat SET shgiayto=\''+certiPayload.id+'\''
+            + ' WHERE gid IN ' + planIds
+  //performQuery(attach_q)
+  console.log(attach_q)
+  }
+}
+
+updatePusersInCertificate = payload => {
+  const clean_q = 'DELETE FROM chusudung_giaychungnhan'
+                + ' WHERE shgiaycn=\''+payload.id+'\''
+  //performQuery(clean_q)
+  console.log(clean_q)
+  if (payload.pusers && payload.pusers.length > 0) {
+    let valuePhase = payload.pusers.map(puserId => {
+      return "('"+puserId+"', '"+payload.id+"')"
+    }).join(',')
+    const insert_q = 'INSERT INTO chusudung_giaychungnhan(machu, shgiaycn) '
+                    + valuePhase
+    //performQuery(insert_q)
+    console.log(insert_q)
+  }
 }
 
 app.get('/government-doc', (req, res) => {

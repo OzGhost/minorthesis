@@ -37,7 +37,8 @@ class CertificateModifier extends Modifier {
       label: 'Số hiệu GCN',
       type: 'text',
       value: data.id,
-      listener: this.makeListenerFor('id')
+      listener: this.makeListenerFor('id'),
+      readOnly: this.editMode
     },
     {
       name: 'signDate',
@@ -224,6 +225,7 @@ class CertificateModifier extends Modifier {
             className="w3-input w3-border"
             value={fieldInfo.value}
             onChange={e=>fieldInfo.listener(e.target.value)}
+            disabled={fieldInfo.readOnly}
           />
         break
     }
@@ -296,12 +298,24 @@ class CertificateModifier extends Modifier {
   }
 
   onSubmit = store => {
-    if (!this.qualify(store))
-      return
+    const payload = {
+      ...store,
+      pusers: store.pusers
+        ? store.pusers.map(u => u.machu)
+        : [],
+      plans: store.plans
+        ? store.plans.map(p => p.gid)
+        : []
+    }
+    this.lauchPayload(payload)
   }
 
-  qualify = store => {
-    return true
+  lauchPayload = payload => {
+    fetch(
+      host + '/certificate',
+      RequestPacker.packAsPut(payload)
+    ).then(e=>e.json())
+    .then(rs => this.handleResult(rs, payload))
   }
 
 }

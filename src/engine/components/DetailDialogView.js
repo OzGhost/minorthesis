@@ -4,7 +4,35 @@ import mouseStart from '../common/Dragger'
 import MouseTrapper from '../common/MouseTrapper'
 import DeepController from '../common/DeepController'
 import { FIELD_LABELS } from '../common/Constants'
+import Dialog from './Dialog'
 
+class DetailDialogView extends Dialog {
+  getMetaData = () => ({
+    styleClass: 'detail-dialog',
+    icon: '../res/icon_detail.png',
+    title: 'Thông tin chi tiết'
+  })
+
+  buildDialogContent = () => {
+    const {obj, labels} = this.props
+    if (typeof(obj) === 'undefined')
+      return ''
+    return (
+      <div className="detail-content">
+        { objectDump(obj, labels).map( row => (
+          <div key={row.key} className="w3-row">
+            <div className="w3-col w3-right-align w3-padding-small" >
+              {row.key + ':'}
+            </div>
+            <div className="w3-col w3-padding-small">{row.value}</div>
+          </div>
+        ) ) }
+      </div>
+    )
+  }
+}
+
+/*
 const DetailDialogView = ({ obj, labels, onClose, isActive }) => {
   const styleClass = 'dialog detail-dialog' + (isActive ? '' : ' hidden')
   const mousePos = MouseTrapper.getTrappedPosition()
@@ -38,6 +66,7 @@ const DetailDialogView = ({ obj, labels, onClose, isActive }) => {
     </div>
   )
 }
+*/
 
 const objectDump = obj => {
   return Object.keys(obj)
@@ -54,13 +83,6 @@ const isSkipField = fieldName => {
     default:
       return false
   }
-}
-
-DetailDialogView.propTypes = {
-  obj: PropTypes.object.isRequired,
-  lables: PropTypes.object,
-  onClose: PropTypes.func.isRequired,
-  isActive: PropTypes.bool
 }
 
 export default DetailDialogView

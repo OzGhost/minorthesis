@@ -4,11 +4,7 @@ import Dialog from './Dialog'
 
 class FilterDialogView extends Dialog {
   static propTypes = {
-    layers: PropTypes.arrayOf(PropTypes.shape({
-      value: PropTypes.string.isRequired,
-      label: PropTypes.string.isRequired,
-      isChecked: PropTypes.bool
-    })).isRequired,
+    layers: PropTypes.array,
     onToggle: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
     isActive: PropTypes.bool
@@ -21,7 +17,8 @@ class FilterDialogView extends Dialog {
   })
 
   buildDialogContent = () => {
-    const { layers, onToggle } = this.props
+    const { onToggle } = this.props
+    const layers = this.props.layers || []
     return (
       <div>
         <div className="w3-row w3-border-bottom">

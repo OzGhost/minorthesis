@@ -1,5 +1,7 @@
 import { QUERING, QUERY_TARGET_CHANGE, QUERY_FIELD_CHANGE,
-          NO_RESULT_FOUND, UPDATE_ACCOUNT, ROLE_CHANGED } from '../actions'
+          NO_RESULT_FOUND, UPDATE_ACCOUNT, ROLE_CHANGED,
+          OPEN_DIALOG } from '../actions'
+import { QUERY_DIALOG } from '../common/Constants'
 import DataLoader from '../common/DataLoader'
 
 const defaultState = { target: 'plan', queryData: {} }
@@ -27,7 +29,7 @@ const queryDialog = (state = defaultState, action) => {
       }
 
     case NO_RESULT_FOUND:
-      if (action.target === 'query')
+      if (action.target === QUERY_DIALOG)
         return {
           ...state,
           hasNoResult: true
@@ -49,6 +51,13 @@ const queryDialog = (state = defaultState, action) => {
 
     case ROLE_CHANGED:
       return defaultState
+
+    case OPEN_DIALOG:
+      if (action.dialogName === QUERY_DIALOG)
+        return {
+          ...state,
+          offset: action.offset
+        }
 
     default:
       return state

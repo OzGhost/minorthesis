@@ -17,6 +17,10 @@ class Modifier {
     this.editMode = true
   }
 
+  turnOffEditMode = () => {
+    this.editMode = false
+  }
+
   buildView = props => {
     const store = DataLoader.retrieve(props, this.getNamespace()) || {}
     const { msg, isGood, loading } = props
@@ -103,7 +107,8 @@ class Modifier {
   handleResult = (res, payload) => {
     if (res.code === 200) {
       this.pushMessage('Thao tác hoàn tất!', true)
-      this.callback(payload)
+      typeof(this.callback) === 'function'
+        && this.callback(payload)
     } else if (res.code === 400) {
       if (this.handleErrorOnResult(res, payload))
         return
@@ -112,6 +117,8 @@ class Modifier {
                               +' vui lòng làm mới trang và thử lại!')
     } else if (res.code === 500) {
       this.pushMessage('Xảy ra lỗi hệ thống, vui lòng thử lại sau!')
+    } else {
+      this.pushMessage('Xảy ra lỗi, vui lòng thử lại sau!')
     }
   }
 

@@ -35,7 +35,10 @@ const modifierDialog = (state = defaultState, action) => {
 
     case OPEN_DIALOG:
       if (action.dialogName === MODIFIER_DIALOG)
-        return defaultState
+        return {
+          ...defaultState,
+          offset: action.offset
+        }
 
     default:
       return state

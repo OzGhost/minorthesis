@@ -17,9 +17,9 @@ class CertificateQuerier extends Querier {
       fieldName={this.getKind(data) === 'ownerId'
                   ? 'CMND/Hộ chiếu'
                   : 'Số hiệu giấy'}
-      resultSelect={this.itemSelect}
-      onModify={this.getModifyFunction()}
-      onRemove={this.getRemoveFunction()}
+      buildOnClick={this.buildOnClick}
+      buildOnModify={this.buildOnModify}
+      buildOnRemove={this.buildOnRemove}
     />
   )
 
@@ -28,10 +28,11 @@ class CertificateQuerier extends Querier {
     return field === 'certiNumber' ? field : 'ownerId'
   }
 
-  getModifyFunction = () => {
+  buildOnModify = certi => {
     if (Cacher.getRole() !== 1)
       return undefined
-    return (event, certi) => {
+    return (event) => {
+      const cachedEvent = {pageX: event.pageX, pageY: event.pageY}
       fetch(
         host + '/certificate/'+certi.shgiaycn,
         {headers: RequestPacker.buildHeader()}
@@ -39,11 +40,12 @@ class CertificateQuerier extends Querier {
       .then(e => {
         this.dispatch(
           openModifier(
-            event,
+            cachedEvent,
             CERTIFICATE_CODE,
             this.preprocessPayload(e.payload),
             () => { /* do nothing */ }
-          ))
+          )
+        )
       })
     }
   }
@@ -59,10 +61,10 @@ class CertificateQuerier extends Querier {
     return ors
   }
 
-  getRemoveFunction = () => {
+  buildOnRemove = certi => {
     if (Cacher.getRole() !== 1)
       return undefined
-    return (_, certi) => {
+    return (e) => {
       this.dispatch(
         openConfirmer(
           'Xác nhận xóa giấy chứng nhận ['+certi.shgiaycn+'] khỏi hệ thống?',
@@ -83,7 +85,7 @@ class CertificateQuerier extends Querier {
     this.dispatch(queryFieldChange('certi.cache', res))
   }
 
-  itemSelect = (event, item) => {
+  buildOnClick = item => event => {
     this.dispatch(showFeatureTarget(event, item, CERTIFICATE_DETAIL_LABELS))
   }
 }
