@@ -44,7 +44,7 @@ class CertificateModifier extends Modifier {
       name: 'signDate',
       label: 'Ngày ký',
       type: 'date',
-      value: data.signDate || moment().valueOf(),
+      value: data.signDate,
       listener: this.makeListenerFor('signDate')
     },
     {
@@ -79,7 +79,7 @@ class CertificateModifier extends Modifier {
       name: 'goodUntil',
       label: 'Thời hạn sử dụng',
       type: 'date',
-      value: data.goodUntil || moment().valueOf(),
+      value: data.goodUntil,
       listener: this.makeListenerFor('goodUntil')
     },
     {
@@ -203,9 +203,12 @@ class CertificateModifier extends Modifier {
       case 'date':
         tag = 
           <DatePicker
+            showMonthDropdown
+            showYearDropdown
+            dropdownMode="select"
             className="w3-input w3-border"
             dateFormat="DD/MM/YYYY"
-            selected={moment(fieldInfo.value)}
+            selected={fieldInfo.value ? moment(fieldInfo.value) : undefined}
             onChange={e=>fieldInfo.listener(e.valueOf())}
           />
         break
@@ -313,9 +316,15 @@ class CertificateModifier extends Modifier {
   lauchPayload = payload => {
     fetch(
       host + '/certificate',
-      RequestPacker.packAsPut(payload)
+      this.editMode
+        ? RequestPacker.packAsPut(payload)
+        : RequestPacker.packAsPost(payload)
     ).then(e=>e.json())
     .then(rs => this.handleResult(rs, payload))
+  }
+
+  handleErrorOnResult = (res, payload) => {
+    return false
   }
 
 }

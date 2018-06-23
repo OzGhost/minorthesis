@@ -34442,17 +34442,16 @@ var loadSession = exports.loadSession = function loadSession() {
 
 var openConfirmer = exports.openConfirmer = function openConfirmer(msg, _onAccept, _onDeny) {
   return function (dispatch) {
-    console.log('cout << Action Fired!');
     dispatch({
       type: OPEN_CONFIRMER,
       msg: msg,
       onAccept: function onAccept() {
         dispatch(closeConfirmer());
-        _onAccept();
+        _onAccept && _onAccept();
       },
       onDeny: function onDeny() {
         dispatch(closeConfirmer());
-        _onDeny();
+        _onDeny && _onDeny();
       }
     });
   };
@@ -34539,7 +34538,7 @@ var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
   nam: 'Năm',
   sogiayto: 'CMND',
   ngaycap: 'Ngày cấp'
-}, _defineProperty(_FIELD_LABELS, 'diachi', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'quoctich', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'phuong', 'Phường'), _defineProperty(_FIELD_LABELS, 'passwd', 'Mật khẩu'), _defineProperty(_FIELD_LABELS, 'repasswd', 'Nhập lại mật khẩu'), _defineProperty(_FIELD_LABELS, 'name', 'Tên người dùng'), _defineProperty(_FIELD_LABELS, 'idNumber', 'CMND/Hộ chiếu'), _defineProperty(_FIELD_LABELS, 'address', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'role', 'Chức vụ'), _defineProperty(_FIELD_LABELS, 'docId', 'Số hiệu văn bản'), _defineProperty(_FIELD_LABELS, 'docContent', 'Nội dung'), _defineProperty(_FIELD_LABELS, 'docLink', 'Liên kết'), _defineProperty(_FIELD_LABELS, 'nationality', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'groupName', 'Tên tổ chức'), _defineProperty(_FIELD_LABELS, 'commerceId', 'Số giấy phép kinh doanh'), _defineProperty(_FIELD_LABELS, 'personalName', 'Tên cá nhân'), _defineProperty(_FIELD_LABELS, 'birthYear', 'Năm sinh'), _FIELD_LABELS);
+}, _defineProperty(_FIELD_LABELS, 'diachi', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'quoctich', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'phuong', 'Phường'), _defineProperty(_FIELD_LABELS, 'passwd', 'Mật khẩu'), _defineProperty(_FIELD_LABELS, 'repasswd', 'Nhập lại mật khẩu'), _defineProperty(_FIELD_LABELS, 'name', 'Tên người dùng'), _defineProperty(_FIELD_LABELS, 'idNumber', 'CMND/Hộ chiếu'), _defineProperty(_FIELD_LABELS, 'address', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'role', 'Chức vụ'), _defineProperty(_FIELD_LABELS, 'docCode', 'Số hiệu văn bản'), _defineProperty(_FIELD_LABELS, 'docContent', 'Nội dung'), _defineProperty(_FIELD_LABELS, 'docLink', 'Liên kết'), _defineProperty(_FIELD_LABELS, 'nationality', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'groupName', 'Tên tổ chức'), _defineProperty(_FIELD_LABELS, 'commerceId', 'Số giấy phép kinh doanh'), _defineProperty(_FIELD_LABELS, 'personalName', 'Tên cá nhân'), _defineProperty(_FIELD_LABELS, 'birthYear', 'Năm sinh'), _FIELD_LABELS);
 
 var NATIONALITIES = exports.NATIONALITIES = ['United States', 'United Kingdom', 'Afghanistan', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla', 'Antarctica', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Bouvet Island', 'Brazil', 'British Indian Ocean Territory', 'Brunei Darussalam', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Cayman Islands', 'Central African Republic', 'Chad', 'Chile', 'China', 'Christmas Island', 'Cocos (Keeling) Islands', 'Colombia', 'Comoros', 'Congo', 'Congo, The Democratic Republic of The', 'Cook Islands', 'Việt Nam'];
 
@@ -34579,6 +34578,7 @@ var DataLoader = function DataLoader() {
   };
 
   this.retrieve = function (source, locate) {
+    if (typeof source === 'undefined') return undefined;
     var node = source;
     var nodeNames = _this.resolveLocation(locate);
     var len = nodeNames.length;
@@ -35049,6 +35049,13 @@ var RequestPacker = function RequestPacker() {
       method: 'PUT'
     }, _this.packBody(data));
   };
+
+  this.packAsDelete = function () {
+    return {
+      method: 'DELETE',
+      headers: _this.buildHeader()
+    };
+  };
 };
 
 exports.default = new RequestPacker();
@@ -35236,6 +35243,10 @@ var _ModifiableItem = require('./ModifiableItem');
 
 var _ModifiableItem2 = _interopRequireDefault(_ModifiableItem);
 
+var _DataLoader = require('../common/DataLoader');
+
+var _DataLoader2 = _interopRequireDefault(_DataLoader);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var CertificateQuerierView = function CertificateQuerierView(_ref) {
@@ -35245,6 +35256,8 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
       buildOnClick = _ref.buildOnClick,
       buildOnModify = _ref.buildOnModify,
       buildOnRemove = _ref.buildOnRemove;
+
+  var qr = _DataLoader2.default.retrieve(queryResult, 'certi.cache') || [];
   return _react2.default.createElement(
     'div',
     null,
@@ -35303,7 +35316,7 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
         }
       })
     ),
-    queryResult && queryResult.certi && queryResult.certi.cache ? _react2.default.createElement(
+    qr.length > 0 ? _react2.default.createElement(
       'div',
       null,
       _react2.default.createElement('hr', null),
@@ -35315,9 +35328,9 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
       _react2.default.createElement(
         'ul',
         { className: 'w3-ul w3-hoverable' },
-        queryResult.certi.cache.map(function (i) {
+        qr.map(function (i) {
           if (buildOnModify || buildOnRemove) return _react2.default.createElement(_ModifiableItem2.default, {
-            key: i.machu,
+            key: i.machu + i.shgiaycn,
             label: '[' + i.machu + '] ' + i.ten,
             onClick: buildOnClick(i),
             onModify: buildOnModify(i),
@@ -35326,7 +35339,7 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
           return _react2.default.createElement(
             'li',
             {
-              key: i.machu,
+              key: i.machu + i.shgiaycn,
               onClick: function onClick(event) {
                 return buildOnClick(i)(event);
               }
@@ -35341,7 +35354,7 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
 
 exports.default = CertificateQuerierView;
 
-},{"./ModifiableItem":86,"react":61}],80:[function(require,module,exports){
+},{"../common/DataLoader":70,"./ModifiableItem":86,"react":61}],80:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37438,41 +37451,25 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _RequestPacker = require('./common/RequestPacker');
-
-var _RequestPacker2 = _interopRequireDefault(_RequestPacker);
-
-var _Constants = require('./common/Constants');
-
 var _store = require('./store');
 
 var _store2 = _interopRequireDefault(_store);
+
+var _Constants = require('./common/Constants');
 
 var _actions = require('./actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var preprocessPayload = function preprocessPayload(payload) {
-  if (typeof payload === 'undefined') return {};
-  var rs = JSON.stringify(payload).replace(/null/g, '""');
-  var ors = JSON.parse(rs);
-  delete ors.chinhly;
-  ors.privateArea = Number(ors.privateArea) || 0;
-  ors.publicArea = Number(ors.publicArea) || 0;
-  return ors;
-};
-
 var mock = function mock() {
-  fetch(_Constants.host + '/certificate/4201010815', { headers: _RequestPacker2.default.buildHeader() }).then(function (e) {
-    return e.json();
-  }).then(function (e) {
-    _store2.default.dispatch((0, _actions.openModifier)({ pageX: 100, pageY: 100 }, _Constants.CERTIFICATE_CODE, preprocessPayload(e.payload), function () {/* do nothing */}));
-  });
+  var ev = { pageX: 100, pageY: 100 };
+  _store2.default.dispatch((0, _actions.openDialog)(ev, _Constants.QUERY_DIALOG));
+  _store2.default.dispatch((0, _actions.queryTargetChangeTo)('certi'));
 };
 
 exports.default = mock;
 
-},{"./actions":67,"./common/Constants":69,"./common/RequestPacker":77,"./store":130}],107:[function(require,module,exports){
+},{"./actions":67,"./common/Constants":69,"./store":130}],107:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37712,7 +37709,7 @@ var CertificateModifier = function (_Modifier) {
         name: 'signDate',
         label: 'Ngày ký',
         type: 'date',
-        value: data.signDate || (0, _moment2.default)().valueOf(),
+        value: data.signDate,
         listener: _this.makeListenerFor('signDate')
       }, {
         name: 'provider',
@@ -37742,7 +37739,7 @@ var CertificateModifier = function (_Modifier) {
         name: 'goodUntil',
         label: 'Thời hạn sử dụng',
         type: 'date',
-        value: data.goodUntil || (0, _moment2.default)().valueOf(),
+        value: data.goodUntil,
         listener: _this.makeListenerFor('goodUntil')
       }, {
         name: 'sourceOfUse',
@@ -37875,9 +37872,12 @@ var CertificateModifier = function (_Modifier) {
           break;
         case 'date':
           tag = _react2.default.createElement(_reactDatepicker2.default, {
+            showMonthDropdown: true,
+            showYearDropdown: true,
+            dropdownMode: 'select',
             className: 'w3-input w3-border',
             dateFormat: 'DD/MM/YYYY',
-            selected: (0, _moment2.default)(fieldInfo.value),
+            selected: fieldInfo.value ? (0, _moment2.default)(fieldInfo.value) : undefined,
             onChange: function onChange(e) {
               return fieldInfo.listener(e.valueOf());
             }
@@ -37966,11 +37966,13 @@ var CertificateModifier = function (_Modifier) {
       });
       _this.lauchPayload(payload);
     }, _this.lauchPayload = function (payload) {
-      fetch(_Constants.host + '/certificate', _RequestPacker2.default.packAsPut(payload)).then(function (e) {
+      fetch(_Constants.host + '/certificate', _this.editMode ? _RequestPacker2.default.packAsPut(payload) : _RequestPacker2.default.packAsPost(payload)).then(function (e) {
         return e.json();
       }).then(function (rs) {
         return _this.handleResult(rs, payload);
       });
+    }, _this.handleErrorOnResult = function (res, payload) {
+      return false;
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -38035,6 +38037,10 @@ var _Modifier3 = _interopRequireDefault(_Modifier2);
 
 var _Constants = require('../common/Constants');
 
+var _RequestPacker = require('../common/RequestPacker');
+
+var _RequestPacker2 = _interopRequireDefault(_RequestPacker);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -38058,13 +38064,38 @@ var GovernmentDocumentModifier = function (_Modifier) {
     }
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = GovernmentDocumentModifier.__proto__ || Object.getPrototypeOf(GovernmentDocumentModifier)).call.apply(_ref, [this].concat(args))), _this), _this.getEditableFields = function (store) {
-      return ['docId', 'docContent', 'docLink'].map(function (fieldName) {
+      return ['docCode', 'docContent', 'docLink'].map(function (fieldName) {
         return _this.getFieldByFieldName(store, fieldName);
       });
     }, _this.getTitle = function () {
       return 'Thêm mới văn bản nhà nước';
     }, _this.getNamespace = function () {
       return _Constants.GOVERN_DOC_CODE;
+    }, _this.onSubmit = function (store) {
+      if (!_this.isPassPreCondition(store)) return;
+      fetch(_Constants.host + '/government-doc', _RequestPacker2.default.packAsPost(store)).then(function (res) {
+        return res.json();
+      }).then(function (res) {
+        return _this.handleResult(res, store);
+      });
+    }, _this.isPassPreCondition = function (store) {
+      var docCode = store.docCode,
+          docContent = store.docContent,
+          docLink = store.docLink;
+
+      if (typeof docCode !== 'string' || docCode.trim() === '') {
+        _this.pushMessage('Vui lòng điền số hiệu văn bản!', false);
+        return false;
+      }
+      if (typeof docContent !== 'string' || docContent.trim() === '') {
+        _this.pushMessage('Vui lòng điền nội dung văn bản!', false);
+        return false;
+      }
+      if (typeof docLink !== 'string' || docLink.trim() === '') {
+        _this.pushMessage('Vui lòng điền liên kết văn bản!', false);
+        return false;
+      }
+      return true;
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -38073,7 +38104,7 @@ var GovernmentDocumentModifier = function (_Modifier) {
 
 exports.default = new GovernmentDocumentModifier();
 
-},{"../common/Constants":69,"./Modifier":111}],111:[function(require,module,exports){
+},{"../common/Constants":69,"../common/RequestPacker":77,"./Modifier":111}],111:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38522,9 +38553,11 @@ var CertificateQuerier = function (_Querier) {
       if (_Cacher2.default.getRole() !== 1) return undefined;
       return function (e) {
         _this.dispatch((0, _actions.openConfirmer)('Xác nhận xóa giấy chứng nhận [' + certi.shgiaycn + '] khỏi hệ thống?', function () {
-          return alert('Accepted!');
-        }, function () {
-          return alert('Denied!');
+          fetch(_Constants.host + '/certificate/' + certi.shgiaycn, _RequestPacker2.default.packAsDelete()).then(function (res) {
+            return res.json();
+          }).then(function () {
+            _this.dispatch((0, _actions.queryFieldChange)('certi.cache', []));
+          });
         }));
       };
     }, _this.buildQuery = function (data) {
@@ -38951,7 +38984,7 @@ var Querier = function Querier() {
   };
 
   this.handleFail = function () {
-    _this.dispatch((0, _actions.noResultFound)('query'));
+    _this.dispatch((0, _actions.noResultFound)(_Constants.QUERY_DIALOG));
   };
 
   this.buildQuery = function () {

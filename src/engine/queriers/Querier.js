@@ -1,5 +1,5 @@
 import { noResultFound } from '../actions'
-import { host } from '../common/Constants'
+import { host, QUERY_DIALOG } from '../common/Constants'
 import PlanQuerierView from '../components/PlanQuerierView'
 import RequestPacker from '../common/RequestPacker'
 
@@ -28,7 +28,7 @@ class Querier {
   }
 
   handleFail = () => {
-    this.dispatch(noResultFound('query'))
+    this.dispatch(noResultFound(QUERY_DIALOG))
   }
 
   buildQuery = () => ('')

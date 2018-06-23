@@ -20,6 +20,5 @@ Just a Thesis :D
   - certificate manage (adding, delete, edit)
   - government doc add
   - plan owner management
-  - fix query dialog
 
 

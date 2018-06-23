@@ -1,6 +1,6 @@
 import { QUERING, QUERY_TARGET_CHANGE, QUERY_FIELD_CHANGE,
           NO_RESULT_FOUND, UPDATE_ACCOUNT, ROLE_CHANGED,
-          OPEN_DIALOG } from '../actions'
+          OPEN_DIALOG, VALUE_CHANGE } from '../actions'
 import { QUERY_DIALOG } from '../common/Constants'
 import DataLoader from '../common/DataLoader'
 

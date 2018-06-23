@@ -225,18 +225,17 @@ export const loadSession = () => dispatch => {
 }
 
 export const openConfirmer = (msg, onAccept, onDeny) => dispatch => {
-  console.log('cout << Action Fired!')
   dispatch(
     {
       type: OPEN_CONFIRMER,
       msg,
       onAccept: () => {
         dispatch(closeConfirmer())
-        onAccept()
+        onAccept && onAccept()
       },
       onDeny: () => {
-      dispatch(closeConfirmer())
-        onDeny()
+        dispatch(closeConfirmer())
+        onDeny && onDeny()
       }
     }
   )

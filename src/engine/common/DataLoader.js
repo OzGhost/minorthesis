@@ -22,6 +22,8 @@ class DataLoader {
   }
 
   retrieve = (source, locate) => {
+    if (typeof(source) === 'undefined')
+      return undefined
     let node = source
     const nodeNames = this.resolveLocation(locate)
     const len = nodeNames.length

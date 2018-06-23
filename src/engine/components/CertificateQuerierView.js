@@ -1,8 +1,11 @@
 import React from 'react'
 import ModifiableItem from './ModifiableItem'
+import DataLoader from '../common/DataLoader'
 
 const CertificateQuerierView = ({onChange,
-      fieldName, queryResult, buildOnClick, buildOnModify, buildOnRemove}) => (
+      fieldName, queryResult, buildOnClick, buildOnModify, buildOnRemove}) => {
+  const qr = DataLoader.retrieve(queryResult, 'certi.cache') || []
+  return(
   <div>
     <div>
       <label className="w3-text-blue">Thông tin dùng cho truy vấn:</label>
@@ -33,18 +36,18 @@ const CertificateQuerierView = ({onChange,
       />
     </div>
     {
-      (queryResult && queryResult.certi && queryResult.certi.cache)
+      (qr.length > 0)
         ? (
           <div>
             <hr/>
             <small>Kết quả truy vấn:</small>
             <ul className="w3-ul w3-hoverable">
               {
-                queryResult.certi.cache.map(i => {
+                qr.map(i => {
                   if (buildOnModify || buildOnRemove)
                     return (
                       <ModifiableItem
-                        key={i.machu}
+                        key={i.machu+i.shgiaycn}
                         label={'['+i.machu+'] '+i.ten}
                         onClick={buildOnClick(i)}
                         onModify={buildOnModify(i)}
@@ -53,7 +56,7 @@ const CertificateQuerierView = ({onChange,
                     )
                   return (
                     <li
-                      key={i.machu}
+                      key={i.machu+i.shgiaycn}
                       onClick={event => buildOnClick(i)(event)}
                     >
                       {'['+i.machu+'] '+i.ten}
@@ -67,7 +70,7 @@ const CertificateQuerierView = ({onChange,
         : ''
     }
   </div>
-)
+)}
 
 export default CertificateQuerierView
 

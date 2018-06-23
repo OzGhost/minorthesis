@@ -27,6 +27,11 @@ class RequestPacker {
     method: 'PUT',
     ...this.packBody(data)
   })
+
+  packAsDelete = () => ({
+    method: 'DELETE',
+    headers: this.buildHeader()
+  })
 }
 
 export default new RequestPacker

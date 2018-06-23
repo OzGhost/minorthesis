@@ -5,7 +5,7 @@ import DataLoader from '../common/DataLoader'
 import Querier from './Querier'
 import CertificateQuerierView from '../components/CertificateQuerierView'
 import { host, CERTIFICATE_DETAIL_LABELS,
-          CERTIFICATE_CODE } from '../common/Constants'
+          CERTIFICATE_CODE, QUERY_DIALOG } from '../common/Constants'
 import Cacher from '../common/Cacher'
 import RequestPacker from '../common/RequestPacker'
 
@@ -68,8 +68,17 @@ class CertificateQuerier extends Querier {
       this.dispatch(
         openConfirmer(
           'Xác nhận xóa giấy chứng nhận ['+certi.shgiaycn+'] khỏi hệ thống?',
-          () => alert('Accepted!'),
-          () => alert('Denied!')
+          () => {
+            fetch(
+              host + '/certificate/' + certi.shgiaycn,
+              RequestPacker.packAsDelete()
+            ).then(res=>res.json())
+            .then(()=>{
+              this.dispatch(
+                queryFieldChange('certi.cache', [])
+              )
+            })
+          }
         )
       )
     }

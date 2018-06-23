@@ -17,12 +17,15 @@ app.use(bodyParser.json())
 const performQuery = (queryStr, resolve, reject) => {
   const pool = new Pool()
   pool.query(queryStr, (err, result) => {
-    if (result) {
-      resolve &&
-        resolve(result.rows, result.rowCount)
-    } else {
+    if (err) {
+      console.log('cout << error occur when: ', queryStr)
+      console.log(err)
       reject &&
         reject(err, result)
+    } else {
+      console.log('cout << loaded: ', queryStr)
+      resolve &&
+        resolve(result.rows, result.rowCount)
     }
     pool.end()
   })
@@ -133,34 +136,71 @@ const buildCertificateCoreQuery = additionalInfo => {
             + ' LEFT JOIN thuadat d ON d.shgiaycn = s.shgiaycn'
 }
 
-app.put('/certificate', (req, res) => {
+app.post('/certificate', (req, res) => {
   const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
   let body = JSON.parse(bodyStr)
-  if (body.goodUntil)
-    body.goodUntil = new Date(body.goodUntil)
-  if (body.signDate)
-    body.signDate = new Date(body.signDate)
-  const pairArray = convertPayload(body, certiKeyMap, certiNumberFields, [])
-  const q = buildUpdateQuery(
-    pairArray,
-    'giaychungnhan',
-    'shgiaycn=\''+body.id+'\''
-  )
-  performQuery(q, (_, affectedRows)=>{
-    if (affectedRows !== 1) {
-      res.json(SERVER_ERROR_PAYLOAD)
-      return
-    }
-    updatePlansInCertificate(body)
-    updatePusersInCertificate(body)
-    res.json({SUCCESS_PAYLOAD})
-  }, ()=>{res.json(SERVER_ERROR_PAYLOAD)})
+  preCheckPayload(body, res, () => performInsertCertificate(body, res))
 })
+
+const preCheckPayload = (payload, res, onPass) => {
+  if (typeof(payload.id) !== 'string') {
+    res.json({...INVALID_REQUEST_PAYLOAD, caurse: 'id'})
+    return
+  }
+  const q = 'SELECT shgiaycn FROM giaychungnhan WHERE shgiaycn=\''+payload.id+'\''
+  performQuery(q, (_, rows)=>{
+    if (rows > 0) {
+      res.json({...INVALID_REQUEST_PAYLOAD, caurse: 'id'})
+    } else {
+      onPass()
+    }
+  })
+}
+
+const INVALID_REQUEST_PAYLOAD = {code: 400}
+
+const performInsertCertificate = (payload, res) => {
+  const pairArr = buildPairArrayForCertificate(payload)
+  const q = buildInsertQuery(pairArr, 'giaychungnhan')
+  performQuery(q, (_, rows) => {
+    if (rows === 1) {
+      connectPuser(payload)
+      attachPlan(payload)
+      res.json(SUCCESS_PAYLOAD)
+    } else
+      res.json(SERVER_ERROR_PAYLOAD)
+  }, ()=>res.json(SERVER_ERROR_PAYLOAD))
+}
+
+const buildPairArrayForCertificate = payload => {
+  if (payload.goodUntil)
+    payload.goodUntil = correctDate(payload.goodUntil)
+  if (payload.signDate)
+    payload.signDate = correctDate(payload.signDate)
+  return convertPayload(
+    payload, certiKeyMap, certiNumberFields, [], certiNullableFields
+  )
+}
+
+const correctDate = dateStr => {
+  const theDate = new Date(dateStr)
+  return ''
+    + theDate.getFullYear() + '-'
+    + buildTwoDigit(theDate.getMonth()+1) + '-'
+    + buildTwoDigit(theDate.getDate())
+}
+
+const buildTwoDigit = input => {
+  return input < 10
+    ? '0'+input
+    : ''+input
+}
 
 const SERVER_ERROR_PAYLOAD = {code: 500}
 const SUCCESS_PAYLOAD = {code: 200}
 
 const certiKeyMap = {
+  id: 'shgiaycn',
   goodUntil: 'thoihansudung',
   signDate: 'ngayki',
   provider: 'coquancap',
@@ -174,40 +214,142 @@ const certiNumberFields = {
   publicArea: true
 }
 
-updatePlansInCertificate = certiPayload => {
-  const clean_q = 'UPDATE thuadat SET shgiayto=null'
-                  + ' WHERE shgiayto=\''+certiPayload.id+'\''
-  //performQuery(clean_q)
-  console.log(clean_q)
-  if (certiPayload.plans && certiPayload.length > 0) {
-    const planIds = '(' + certiPayload.join(',') + ')'
-    const attach_q = 'UPDATE thuadat SET shgiayto=\''+certiPayload.id+'\''
-            + ' WHERE gid IN ' + planIds
-  //performQuery(attach_q)
-  console.log(attach_q)
-  }
+const certiNullableFields = {
+  goodUntil: true,
+  signDate: true
 }
 
-updatePusersInCertificate = payload => {
-  const clean_q = 'DELETE FROM chusudung_giaychungnhan'
-                + ' WHERE shgiaycn=\''+payload.id+'\''
-  //performQuery(clean_q)
-  console.log(clean_q)
-  if (payload.pusers && payload.pusers.length > 0) {
-    let valuePhase = payload.pusers.map(puserId => {
-      return "('"+puserId+"', '"+payload.id+"')"
-    }).join(',')
-    const insert_q = 'INSERT INTO chusudung_giaychungnhan(machu, shgiaycn) '
-                    + valuePhase
-    //performQuery(insert_q)
-    console.log(insert_q)
-  }
+app.put('/certificate', (req, res) => {
+  const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
+  let body = JSON.parse(bodyStr)
+  const id = body.id
+  delete body.id
+  const pairArray = buildPairArrayForCertificate(body)
+  const q = buildUpdateQuery(
+    pairArray,
+    'giaychungnhan',
+    'shgiaycn=\''+id+'\''
+  )
+  performQuery(q, (_, affectedRows)=>{
+    if (affectedRows !== 1) {
+      res.json(SERVER_ERROR_PAYLOAD)
+      return
+    }
+    updatePlansInCertificate(body)
+    updatePusersInCertificate(body)
+    res.json(SUCCESS_PAYLOAD)
+  }, ()=>{
+    res.json(SERVER_ERROR_PAYLOAD)
+  })
+})
+
+updatePlansInCertificate = certiPayload => {
+  const clean_q = buildCleanPlansQueryByCertificateId(certiPayload.id)
+  performQuery(clean_q, ()=>{
+    if (certiPayload.plans && certiPayload.plans.length > 0) {
+      attachPlan( certiPayload )
+    } else {
+      console.log('cout << no plans')
+    }
+  })
 }
+
+const buildCleanPlansQueryByCertificateId = certificateId => {
+  return 'UPDATE thuadat SET shgiaycn=null'
+                  + ' WHERE shgiaycn=\''+certificateId+'\''
+}
+
+const attachPlan = payload => {
+  const planIds = '(' + payload.plans.join(',') + ')'
+  const q = 'UPDATE thuadat SET shgiaycn=\''+payload.id+'\''
+                + ' WHERE gid IN ' + planIds
+  performQuery(q)
+}
+
+const updatePusersInCertificate = payload => {
+  const clean_q = buildCleanPusersQueryByCertificateId(payload.id)
+  performQuery(clean_q, ()=>{
+    if (payload.pusers && payload.pusers.length > 0) {
+      connectPuser(payload)
+    } else {
+      console.log('cout << no puser!')
+    }
+  })
+}
+
+const connectPuser = payload => {
+  let valuePhase = payload.pusers.map(puserId => {
+    return "('"+puserId+"', '"+payload.id+"')"
+  }).join(',')
+  const insert_q = 'INSERT INTO chusudung_giaychungnhan(machu, shgiaycn)'
+    +' VALUES ' + valuePhase
+  performQuery(insert_q)
+}
+
+const buildCleanPusersQueryByCertificateId = certificateId => {
+  return 'DELETE FROM chusudung_giaychungnhan'
+                + ' WHERE shgiaycn=\''+certificateId+'\''
+}
+
+app.delete('/certificate/:certiId', (req, res) => {
+  if (! isLoggedAsAdmin(req)) {
+    res.json(UNAUTHOR_PAYLOAD)
+    return
+  }
+  const certiId = InputHandler.format(req.params.certiId, AS_STRING)
+
+  let plans_cleaned = false
+  let pusers_cleaned = false
+
+  performQuery(buildCleanPlansQueryByCertificateId(certiId), ()=> {
+    plans_cleaned = true
+    tryToEliminateCertificate()
+  })
+
+  performQuery(buildCleanPusersQueryByCertificateId(certiId), ()=>{
+    pusers_cleaned = true
+    tryToEliminateCertificate()
+  })
+
+  const tryToEliminateCertificate = () => {
+    if ( ! plans_cleaned)
+      return
+    if ( ! pusers_cleaned)
+      return
+    performQuery('DELETE FROM giaychungnhan WHERE shgiaycn=\''+certiId+'\'')
+    res.json(SUCCESS_PAYLOAD)
+  }
+})
+
+const UNAUTHOR_PAYLOAD = {code: 403}
 
 app.get('/government-doc', (req, res) => {
   const q = 'SELECT sohieu, noidung, link FROM vanbannhanuoc'
   performQuery(q, objs => res.json(objs), true)
 })
+
+app.post('/government-doc', (req, res) => {
+  if ( ! isLoggedAsAdmin(req)) {
+    res.json({code: 403})
+    return
+  }
+  const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
+  const body = JSON.parse(bodyStr)
+  const pairArr = convertPayload(body, governmentKeyMap, [], [], [])
+  const q = buildInsertQuery(pairArr, 'vanbannhanuoc')
+  performQuery(q, (_, rows)=>{
+    if ( rows !== 1)
+      res.json(SERVER_ERROR_PAYLOAD)
+    else
+      res.json(SUCCESS_PAYLOAD)
+  }, ()=>{res.json(SERVER_ERROR_PAYLOAD)})
+})
+
+const governmentKeyMap = {
+  docCode: 'sohieu',
+  docContent: 'noidung',
+  docLink: 'link'
+}
 
 app.get('/account', (req, res) => {
   if ( ! isLoggedAsAdmin(req)) {
@@ -439,7 +581,7 @@ const accountKeyEncrypt = {
   passwd: true
 }
 
-convertPayload = (payload, keyMap, numberType, encryptField) => {
+const convertPayload = (payload, keyMap, numberType, encryptField, nullable) => {
   let pairArray = []
   const keys = Object.keys(payload)
   const len = keys.length
@@ -451,13 +593,18 @@ convertPayload = (payload, keyMap, numberType, encryptField) => {
       pairArray.push(payload[keys[i]])
     else if (encryptField[keys[i]])
       pairArray.push('md5('+'\''+payload[keys[i]]+'\''+')')
+    else if (nullable[keys[i]])
+      if (payload[keys[i]])
+        pairArray.push('\''+payload[keys[i]]+'\'')
+      else
+        pairArray.push('null')
     else
       pairArray.push('\''+payload[keys[i]]+'\'')
   }
   return pairArray
 }
 
-buildInsertQuery = (pairArray, tableName) => {
+const buildInsertQuery = (pairArray, tableName) => {
   const len = pairArray.length
   if (len < 2)
     return ''
