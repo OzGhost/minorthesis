@@ -1,8 +1,9 @@
 import React from 'react'
 import Modifier from './Modifier' 
-import { PLAN_USER_CODE, NATIONALITIES } from '../common/Constants'
+import { host, PLAN_USER_CODE, NATIONALITIES } from '../common/Constants'
 import DatePicker from 'react-datepicker'
 import moment from 'moment'
+import RequestPacker from '../common/RequestPacker'
 
 class PlanUserModifier extends Modifier {
 
@@ -97,6 +98,16 @@ class PlanUserModifier extends Modifier {
     : 'Thêm mới chủ sử dụng đất'
 
   getNamespace = () => PLAN_USER_CODE
+
+  onSubmit = store => {
+    fetch(
+      host+'/plan-user',
+      this.editMode
+        ? RequestPacker.packAsPut(store)
+        : RequestPacker.packAsPost(store)
+    ).then(res=>res.json())
+    .then(res => this.handleResult(res, store))
+  }
 }
 
 export default new PlanUserModifier

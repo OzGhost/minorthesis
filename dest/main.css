@@ -224,6 +224,9 @@
     text-align: right;
     line-height: 2.6; }
 
+li:hover .modifiable-item-tray {
+  background: #ccc; }
+
 .modifiable-item {
   position: relative; }
   .modifiable-item p {
@@ -231,6 +234,7 @@
     padding: 8px 16px; }
   .modifiable-item-tray {
     position: absolute;
+    background: white;
     right: 0;
     top: 5px; }
   .modifiable-item-icon {

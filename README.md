@@ -15,10 +15,11 @@ Just a Thesis :D
   - plan owner query by ID card number
   - account manage (adding, change passwd, edit)
   - login (role, permission, privilege, logout)
+  - plan owner management
+  - government doc add
+  - certificate manage (adding, delete, edit)
 
 [incomming features]
-  - certificate manage (adding, delete, edit)
-  - government doc add
-  - plan owner management
+  - [BUG] certificate query
 
 

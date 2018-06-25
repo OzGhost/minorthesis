@@ -18,7 +18,21 @@ export const LOGIN_DIALOG = 'loginDialog'
 export const EDIT_MODE = 'edit_mode_for_modifier'
 export const ADD_MODE = 'add_mode_for_modifier'
 
+export const FIELD_MASK = {
+  kind: k => {
+    switch (k) {
+      case 2:
+        return 'Tôn giáo/Cộng đồng/Ngoại giao'
+      case 3:
+        return 'Tổ chức kinh doanh'
+      default:
+        return 'Cá nhân'
+    }
+  }
+}
 export const FIELD_LABELS = {
+  kind: 'Loại chủ sử dụng',
+  puserId: 'Mã chủ sử dụng',
   username: 'Tên tài khoản',
   hoten: 'Họ tên',
   cmnd: 'CMND',

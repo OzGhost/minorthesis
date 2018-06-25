@@ -44,8 +44,10 @@ const PlanUserQuerierView = ({onChange, kind, result,
                 {
                   result.map(item =>
                     <ModifiableItem
-                      key={item.machu}
-                      label={item.ten}
+                      key={item.puserId}
+                      label={
+                        '['+item.puserId+'] '+(item.personalName || item.groupName)
+                      }
                       onDragStart={buildDragStart(item)}
                       onClick={buildOnClick(item)}
                       onRemove={buildOnRemove(item)}

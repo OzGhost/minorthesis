@@ -34520,7 +34520,21 @@ var LOGIN_DIALOG = exports.LOGIN_DIALOG = 'loginDialog';
 var EDIT_MODE = exports.EDIT_MODE = 'edit_mode_for_modifier';
 var ADD_MODE = exports.ADD_MODE = 'add_mode_for_modifier';
 
+var FIELD_MASK = exports.FIELD_MASK = {
+  kind: function kind(k) {
+    switch (k) {
+      case 2:
+        return 'Tôn giáo/Cộng đồng/Ngoại giao';
+      case 3:
+        return 'Tổ chức kinh doanh';
+      default:
+        return 'Cá nhân';
+    }
+  }
+};
 var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
+  kind: 'Loại chủ sử dụng',
+  puserId: 'Mã chủ sử dụng',
   username: 'Tên tài khoản',
   hoten: 'Họ tên',
   cmnd: 'CMND',
@@ -35701,47 +35715,14 @@ var DetailDialogView = function (_Dialog) {
   return DetailDialogView;
 }(_Dialog3.default);
 
-/*
-const DetailDialogView = ({ obj, labels, onClose, isActive }) => {
-  const styleClass = 'dialog detail-dialog' + (isActive ? '' : ' hidden')
-  const mousePos = MouseTrapper.getTrappedPosition()
-  const depth = DeepController.getNextDeepLevel()
-  const dialogStyle = mousePos
-      ? { top: mousePos.y +'px', left: mousePos.x + 'px', zIndex: depth }
-      : { top: '240px', left: '80px', zIndex: depth }
-  return (
-    <div
-      className={styleClass}
-      style={dialogStyle}
-      onMouseDown={e => DeepController.pushElement(e.target)}
-    >
-      <span className="close-btn" onClick={onClose}></span>
-      <div className="dragger" onMouseDown={mouseStart}></div>
-      <img className="dialog-icon" src="../res/icon_detail.png" />
-      <p className="dialog-title">Thông tin chi tiết</p>
-      <hr/>
-
-      <div className="detail-content">
-        { objectDump(obj, labels).map( row => (
-          <div key={row.key} className="w3-row">
-            <div className="w3-col w3-right-align w3-padding-small" >
-              {row.key + ':'}
-            </div>
-            <div className="w3-col w3-padding-small">{row.value}</div>
-          </div>
-        ) ) }
-      </div>
-      
-    </div>
-  )
-}
-*/
-
 var objectDump = function objectDump(obj) {
   return Object.keys(obj).filter(function (key) {
     return !isSkipField(key);
   }).map(function (key) {
-    return { key: _Constants.FIELD_LABELS[key] || key, value: obj[key] };
+    return {
+      key: _Constants.FIELD_LABELS[key] || key,
+      value: _Constants.FIELD_MASK[key] ? _Constants.FIELD_MASK[key](obj[key]) : obj[key]
+    };
   });
 };
 
@@ -36542,8 +36523,8 @@ var PlanUserQuerierView = function PlanUserQuerierView(_ref) {
         { className: 'w3-ul w3-hoverable' },
         result.map(function (item) {
           return _react2.default.createElement(_ModifiableItem2.default, {
-            key: item.machu,
-            label: item.ten,
+            key: item.puserId,
+            label: '[' + item.puserId + '] ' + (item.personalName || item.groupName),
             onDragStart: buildDragStart(item),
             onClick: buildOnClick(item),
             onRemove: buildOnRemove(item),
@@ -37461,10 +37442,16 @@ var _actions = require('./actions');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var mock = function mock() {
+var mock = function mock() {};
+
+var smock = function smock() {
   var ev = { pageX: 100, pageY: 100 };
-  _store2.default.dispatch((0, _actions.openDialog)(ev, _Constants.QUERY_DIALOG));
-  _store2.default.dispatch((0, _actions.queryTargetChangeTo)('certi'));
+  _store2.default.dispatch((0, _actions.openDialog)(ev, _Constants.MODIFIER_DIALOG));
+  _store2.default.dispatch((0, _actions.valueChange)(_Constants.MODIFIER_DIALOG, 'target', _Constants.PLAN_USER_CODE));
+  var pa = ['kind', 1, 'address', 'no address', 'personalName', 'no personalName', 'birthYear', '1991', 'idNumber', '272416796', 'nationality', 'Cook Islands', 'kind', 3, 'groupName', 'no groupName', 'commerceId', '1233332', 'provideDate', 1530154519000];
+  for (var i = 0; i < pa.length - 1; i += 2) {
+    _store2.default.dispatch((0, _actions.valueChange)(_Constants.MODIFIER_DIALOG, _Constants.PLAN_USER_CODE + '.' + pa[i], pa[i + 1]));
+  }
 };
 
 exports.default = mock;
@@ -38297,6 +38284,10 @@ var _moment = require('moment');
 
 var _moment2 = _interopRequireDefault(_moment);
 
+var _RequestPacker = require('../common/RequestPacker');
+
+var _RequestPacker2 = _interopRequireDefault(_RequestPacker);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -38454,6 +38445,12 @@ var PlanUserModifier = function (_Modifier) {
       return _this.editMode ? 'Cập nhật chủ sử dụng đất' : 'Thêm mới chủ sử dụng đất';
     }, _this.getNamespace = function () {
       return _Constants.PLAN_USER_CODE;
+    }, _this.onSubmit = function (store) {
+      fetch(_Constants.host + '/plan-user', _this.editMode ? _RequestPacker2.default.packAsPut(store) : _RequestPacker2.default.packAsPost(store)).then(function (res) {
+        return res.json();
+      }).then(function (res) {
+        return _this.handleResult(res, store);
+      });
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -38462,7 +38459,7 @@ var PlanUserModifier = function (_Modifier) {
 
 exports.default = new PlanUserModifier();
 
-},{"../common/Constants":69,"./Modifier":111,"moment":28,"react":61,"react-datepicker":38}],113:[function(require,module,exports){
+},{"../common/Constants":69,"../common/RequestPacker":77,"./Modifier":111,"moment":28,"react":61,"react-datepicker":38}],113:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38848,6 +38845,10 @@ var _Cacher2 = _interopRequireDefault(_Cacher);
 
 var _Constants = require('../common/Constants');
 
+var _RequestPacker = require('../common/RequestPacker');
+
+var _RequestPacker2 = _interopRequireDefault(_RequestPacker);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -38870,10 +38871,11 @@ var PlanUserQuerier = function (_Querier) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = PlanUserQuerier.__proto__ || Object.getPrototypeOf(PlanUserQuerier)).call.apply(_ref, [this].concat(args))), _this), _this.getView = function (onChange, queryData) {
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = PlanUserQuerier.__proto__ || Object.getPrototypeOf(PlanUserQuerier)).call.apply(_ref, [this].concat(args))), _this), _this.cache = undefined, _this.getView = function (onChange, queryData) {
       if (_Cacher2.default.getRole() !== 1) return '';
       var kind = _DataLoader2.default.retrieve(queryData, 'puser.kind') || 'id';
       var rs = _DataLoader2.default.retrieve(queryData, 'puser.rs') || [];
+      _this.cache = rs;
       return _react2.default.createElement(_PlanUserQuerierView2.default, {
         onChange: onChange,
         kind: kind,
@@ -38901,29 +38903,18 @@ var PlanUserQuerier = function (_Querier) {
     }, _this.buildOnModify = function (item) {
       return function (event) {
         if (_Cacher2.default.getRole() !== 1) return undefined;
-        var dto = _this.convertToDto(item);
+        var dto = item;
         _this.dispatch((0, _actions.openModifier)(event, _Constants.PLAN_USER_CODE, dto, function () {}));
-      };
-    }, _this.convertToDto = function (item) {
-      return {
-        puid: item.machu,
-        kind: item.loaichu,
-        personalName: item.ten,
-        groupName: item.ten,
-        birthYear: item.nam,
-        commerceId: item.sogiayto,
-        providDate: item.ngaycap,
-        address: item.diachi,
-        nationality: item.quoctich
       };
     }, _this.buildOnRemove = function (item) {
       return function (event) {
         if (_Cacher2.default.getRole() !== 1) return undefined;
-        _this.dispatch((0, _actions.openConfirmer)('Xác nhận xóa chủ sử dụng `' + item.ten + '` khỏi hệ thống?', function () {
-          return alert('Accepted!');
-        }, function () {
-          return alert('Denied!');
-        }));
+        _this.dispatch((0, _actions.openConfirmer)('Xác nhận xóa chủ sử dụng `' + item.puserId + '` khỏi hệ thống?', function () {
+          fetch(_Constants.host + '/plan-user/' + item.puserId, _RequestPacker2.default.packAsDelete());
+          _this.dispatch((0, _actions.queryFieldChange)('puser.rs', _this.cache.filter(function (e) {
+            return e.puserId !== item.puserId;
+          })));
+        }, function () {}));
       };
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
@@ -38933,7 +38924,7 @@ var PlanUserQuerier = function (_Querier) {
 
 exports.default = new PlanUserQuerier();
 
-},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/DataLoader":70,"../components/PlanUserQuerierView":90,"./Querier":118,"react":61}],118:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"../components/PlanUserQuerierView":90,"./Querier":118,"react":61}],118:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {

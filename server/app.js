@@ -67,7 +67,7 @@ app.get('/certificate', (req, res) => {
 
 app.get('/certificate/:certId', (req, res)=>{
   if ( ! isLoggedAsAdmin(req)) {
-    res.json({code: 403})
+    res.json(UNAUTHOR_PAYLOAD)
     return
   }
   const id = InputHandler.format(req.params.certId, AS_STRING)
@@ -77,6 +77,8 @@ app.get('/certificate/:certId', (req, res)=>{
     () => res.json({code: 500})
   )
 })
+
+const UNAUTHOR_PAYLOAD = {code: 403}
 
 fetchCertificateById = (id, onDone, onErr) => {
   let main = undefined
@@ -321,8 +323,6 @@ app.delete('/certificate/:certiId', (req, res) => {
   }
 })
 
-const UNAUTHOR_PAYLOAD = {code: 403}
-
 app.get('/government-doc', (req, res) => {
   const q = 'SELECT sohieu, noidung, link FROM vanbannhanuoc'
   performQuery(q, objs => res.json(objs), true)
@@ -330,7 +330,7 @@ app.get('/government-doc', (req, res) => {
 
 app.post('/government-doc', (req, res) => {
   if ( ! isLoggedAsAdmin(req)) {
-    res.json({code: 403})
+    res.json(UNAUTHOR_PAYLOAD)
     return
   }
   const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
@@ -353,7 +353,7 @@ const governmentKeyMap = {
 
 app.get('/account', (req, res) => {
   if ( ! isLoggedAsAdmin(req)) {
-    res.json({code: 403})
+    res.json(UNAUTHOR_PAYLOAD)
     return
   }
   const q = 'SELECT id, username, hoten, cmnd, diachi, chucvu'
@@ -442,7 +442,7 @@ app.post('/account/login', (req, res) => {
       }, secret)
       res.json({code: 200, role: rows[0].role, token})
     } else {
-      res.json({code: 403})
+      res.json(UNAUTHOR_PAYLOAD)
     }
   }, () => { res.json({code: 500}) })
 })
@@ -450,7 +450,7 @@ app.post('/account/login', (req, res) => {
 app.post('/account/reset-passwd', (req, res) => {
   const uid = getLoggedId(req)
   if (uid < 0) {
-    res.json({code: 403})
+    res.json(UNAUTHOR_PAYLOAD)
     return
   }
   const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
@@ -478,7 +478,7 @@ app.post('/account/reset-passwd', (req, res) => {
 
 app.get('/plan-user', (req, res) => {
   if ( ! isLoggedAsAdmin(req)) {
-    res.json({code: 403})
+    res.json(UNAUTHOR_PAYLOAD)
     return
   }
   const kind = InputHandler.format(req.query.kind, AS_STRING)
@@ -486,15 +486,10 @@ app.get('/plan-user', (req, res) => {
   const fieldName = getPlanUserFieldNameByKind(kind)
   const condition = getConditionPhase(fieldName, value)
   const queryStr = 'SELECT * FROM chusudung WHERE ' + condition
-  performQuery(queryStr, objs => res.json(objs), true)
+  performQuery(queryStr, objs => res.json(objs.map(toPuserDto)), true)
 })
 
-const isLoggedAsAdmin = req => {
-  const deoken = getDeoken(req)
-  return deoken.role === 1
-}
-
-getPlanUserFieldNameByKind = kind => {
+const getPlanUserFieldNameByKind = kind => {
   switch(kind) {
     case 'name':
       return 'ten'
@@ -504,7 +499,7 @@ getPlanUserFieldNameByKind = kind => {
   }
 }
 
-getConditionPhase = (fieldName, value) => {
+const getConditionPhase = (fieldName, value) => {
   switch(fieldName) {
     case 'ten':
       return "UPPER(ten) like '%"+value.toUpperCase()+"%'"
@@ -515,7 +510,140 @@ getConditionPhase = (fieldName, value) => {
   }
 }
 
-InputHandler = {
+const toPuserDto = payload => {
+  const remapPayload = remapPuserPayload(payload)
+  return reducePuserPayload(remapPayload)
+}
+
+const remapPuserPayload = payload => {
+  let rs = {}
+  Object.keys(puserKeyMap).forEach(key => {
+    const dbFieldName = puserKeyMap[key]
+    if (typeof( payload[dbFieldName] ) !== 'undefined')
+      rs[key] = payload[dbFieldName]
+  })
+  if (!rs.kind)
+    rs.kind = 1
+  return rs
+}
+
+const puserKeyMap = {
+  personalName: 'ten',
+  birthYear: 'nam',
+  idNumber: 'sogiayto',
+  address: 'diachi',
+  nationality: 'quoctich',
+  groupName: 'ten',
+  commerceId: 'sogiayto',
+  provideDate: 'ngaycap',
+  kind: 'loaichu',
+  puserId: 'machu'
+}
+
+const reducePuserPayload = payload => {
+  let fitFields = []
+  switch (payload.kind) {
+    case 2:
+      fitFields = ['puserId', 'groupName', 'address', 'nationality']
+      break
+    case 3:
+      fitFields = ['puserId', 'groupName', 'address', 'commerceId',
+                    'provideDate', 'nationality']
+      break
+    default:
+      fitFields = ['puserId', 'personalName', 'birthYear', 'idNumber',
+                    'address', 'nationality']
+      break
+  }
+  let rs = {kind: payload.kind}
+  fitFields.forEach(field => {
+    if (payload[field])
+      rs[field] = payload[field]
+  })
+  if (typeof(rs.provideDate) === 'number')
+    rs.provideDate = correctDate(rs.provideDate)
+  return rs
+}
+
+app.post('/plan-user', (req, res)=>{
+  if ( ! isLoggedAsAdmin(req)) {
+    res.json(UNAUTHOR_PAYLOAD)
+    return
+  }
+  const body = JSON.parse(InputHandler.format(JSON.stringify(req.body), AS_STRING))
+  if (typeof(body.kind) === 'undefined')
+    body.kind = 1
+  const fitBody = reducePuserPayload(body)
+  const pa = convertPayload(
+    fitBody,
+    puserKeyMap,
+    puserNumberKey,
+    [],
+    puserNullableKey
+  )
+  const q = buildInsertQuery(pa, 'chusudung')
+  performQuery(q, (_, rows)=>{
+    rows === 1
+      ? res.json(SUCCESS_PAYLOAD)
+      : res.json(SERVER_ERROR_PAYLOAD)
+  }, ()=>res.json(SERVER_ERROR_PAYLOAD))
+})
+
+const puserNumberKey = {
+  birthYear: true,
+  kind: true
+}
+
+const puserNullableKey = {
+  provideDate: true
+}
+
+app.put('/plan-user', (req, res)=>{
+  if ( ! isLoggedAsAdmin(req)) {
+    res.json(UNAUTHOR_PAYLOAD)
+    return
+  }
+  const body = JSON.parse(InputHandler.format(JSON.stringify(req.body), AS_STRING))
+  if (typeof(body.kind) === 'undefined')
+    body.kind = 1
+  const puserId = body.puserId
+  delete body.puserId
+  const fitBody = reducePuserPayload(body)
+  const pa = convertPayload(
+    fitBody,
+    puserKeyMap,
+    puserNumberKey,
+    [],
+    puserNullableKey
+  )
+  const q = buildUpdateQuery(pa, 'chusudung', 'machu=\''+puserId+'\'')
+  performQuery(q, (_, rows)=>{
+    rows === 1
+      ? res.json(SUCCESS_PAYLOAD)
+      : res.json(SERVER_ERROR_PAYLOAD)
+  }, ()=>res.json(SERVER_ERROR_PAYLOAD))
+})
+
+app.delete('/plan-user/:puserId', (req, res)=>{
+  if ( ! isLoggedAsAdmin(req) ) {
+    res.json(UNAUTHOR_PAYLOAD)
+    return
+  }
+  const puserId = InputHandler.format(req.params.puserId, AS_STRING)
+  const q = 'delete from chusudung_giaychungnhan where machu=\''+puserId+'\''
+  performQuery(q, ()=>{
+    const p = 'delete from chusudung where machu=\''+puserId+'\''
+    performQuery(p, ()=>{})
+  })
+  res.json(SUCCESS_PAYLOAD)
+})
+
+const isLoggedAsAdmin = req => {
+  const deoken = getDeoken(req)
+  return deoken.role === 1
+}
+
+const InputHandler = {
   format: (input, outputFormat) => {
     switch(outputFormat) {
       case AS_NUMBER:
@@ -530,7 +658,7 @@ InputHandler = {
 
 app.post('/account', (req, res) => {
   if ( ! isLoggedAsAdmin(req)) {
-    res.json({code: 403})
+    res.json(UNAUTHOR_PAYLOAD)
     return
   }
   const flat = InputHandler.format(JSON.stringify(req.body), AS_STRING)
@@ -555,7 +683,7 @@ app.post('/account', (req, res) => {
 
 const performAccountInsert = (payload, res) => {
   const pairArray = convertPayload(
-    payload, accountKeyMap, accountKeyNumber, accountKeyEncrypt)
+    payload, accountKeyMap, accountKeyNumber, accountKeyEncrypt, [])
   const insertQuery = buildInsertQuery(pairArray, 'taikhoan')
   performQuery(insertQuery, (_, rowCount) => {
     rowCount === 1
@@ -619,7 +747,7 @@ const buildInsertQuery = (pairArray, tableName) => {
 
 app.put('/account', (req, res) => {
   if ( ! isLoggedAsAdmin(req)) {
-    res.json({code: 403})
+    res.json(UNAUTHOR_PAYLOAD)
     return
   }
   const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
@@ -632,7 +760,7 @@ app.put('/account', (req, res) => {
   delete body.username
   delete body.id
   delete body.passwd
-  const pairArray = convertPayload(body, accountKeyMap, accountKeyNumber, [])
+  const pairArray = convertPayload(body, accountKeyMap, accountKeyNumber, [], [])
   const q = buildUpdateQuery(pairArray, 'taikhoan', 'id='+id)
   performQuery(q, (_, rowCount) => {
     rowCount === 1

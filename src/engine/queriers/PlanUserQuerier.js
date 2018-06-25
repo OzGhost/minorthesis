@@ -5,14 +5,19 @@ import DataLoader from '../common/DataLoader'
 import { queryFieldChange, showTargetDetail, openConfirmer,
           openModifier } from '../actions'
 import Cacher from '../common/Cacher'
-import { PLAN_USER_CODE } from '../common/Constants'
+import { host, PLAN_USER_CODE } from '../common/Constants'
+import RequestPacker from '../common/RequestPacker'
 
 class PlanUserQuerier extends Querier {
+
+  cache = undefined
+
   getView = (onChange, queryData) => {
     if (Cacher.getRole() !== 1)
       return ''
     const kind = DataLoader.retrieve(queryData, 'puser.kind') || 'id'
     const rs = DataLoader.retrieve(queryData, 'puser.rs') || []
+    this.cache = rs
     return (
       <PlanUserQuerierView
         onChange={onChange}
@@ -48,33 +53,28 @@ class PlanUserQuerier extends Querier {
   buildOnModify = item => event => {
     if (Cacher.getRole() !== 1)
       return undefined
-    const dto = this.convertToDto(item)
+    const dto = item
     this.dispatch(openModifier(
       event, PLAN_USER_CODE, dto, ()=>{} 
     ))
-  }
-
-  convertToDto = item => {
-    return {
-      puid: item.machu,
-      kind: item.loaichu,
-      personalName: item.ten,
-      groupName: item.ten,
-      birthYear: item.nam,
-      commerceId: item.sogiayto,
-      providDate: item.ngaycap,
-      address: item.diachi,
-      nationality: item.quoctich
-    }
   }
 
   buildOnRemove = item => event => {
     if (Cacher.getRole() !== 1)
       return undefined
     this.dispatch(openConfirmer(
-      'Xác nhận xóa chủ sử dụng `'+item.ten+'` khỏi hệ thống?',
-      ()=>alert('Accepted!'),
-      ()=>alert('Denied!')
+      'Xác nhận xóa chủ sử dụng `'+ item.puserId +'` khỏi hệ thống?',
+      ()=>{
+        fetch(
+          host+'/plan-user/'+item.puserId,
+          RequestPacker.packAsDelete()
+        )
+        this.dispatch(queryFieldChange(
+          'puser.rs',
+          this.cache.filter(e=>e.puserId!==item.puserId)
+        ))
+      },
+      ()=>{}
     ))
   }
 }
