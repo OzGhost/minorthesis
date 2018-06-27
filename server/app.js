@@ -32,7 +32,7 @@ const performQuery = (queryStr, resolve, reject) => {
 }
 
 app.get('/plan', (req, res) => {
-  const queryStr = 'SELECT gid, shbando, shthua, dtpl, sonha, tenduong, phuong'
+  const queryStr = 'SELECT gid, shbando, shthua, dtpl, mucdichsudung, sonha, tenduong, phuong'
                   + ' thanhpho, tinh, ST_asGeoJSON(geom) as geo'
                   + ' FROM thuadat'
                   + ' WHERE shbando=' + (Number(req.query.msto) || 0)
@@ -767,6 +767,12 @@ app.put('/account', (req, res) => {
       ? res.json({code: 200})
       : res.json({code: 500})
   }, () => res.json({code: 500}))
+})
+
+app.get('/target-of-use', (req, res) => {
+  const q = 'SELECT maloai as code, tenloai as name'
+          + ' FROM loaidat'
+  performQuery(q, rows => res.json(rows), ()=>res.json(SERVER_ERROR_PAYLOAD))
 })
 
 buildUpdateQuery = (pairArray, tableName, identifyPhase) => {

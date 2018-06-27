@@ -5,6 +5,7 @@ import App from './containers/App'
 import store from './store'
 import { fetchLayers, loadSession } from './actions'
 import mock from './mock'
+import Cacher from './common/Cacher'
 
 render(
   <Provider store={store}>
@@ -17,3 +18,4 @@ store.dispatch(loadSession())
 store.dispatch(fetchLayers())
 
 mock()
+Cacher.loadTOU()

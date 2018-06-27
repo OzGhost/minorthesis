@@ -35,10 +35,12 @@ class DetailDialogView extends Dialog {
 const objectDump = obj => {
   return Object.keys(obj)
     .filter( key => !isSkipField(key) )
-    .map(key => ({
-      key: FIELD_LABELS[key] || key,
-      value: FIELD_MASK[key] ? FIELD_MASK[key](obj[key]) : obj[key]
-    }))
+    .map(key => {
+      return {
+        key: FIELD_LABELS[key] || key,
+        value: FIELD_MASK[key] ? FIELD_MASK[key](obj[key]) : obj[key]
+      }
+    })
 }
 
 const isSkipField = fieldName => {

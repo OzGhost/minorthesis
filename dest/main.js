@@ -34464,33 +34464,63 @@ var closeConfirmer = exports.closeConfirmer = function closeConfirmer() {
 };
 
 },{"../common/Cacher":68,"../common/Constants":69,"../common/Mapper":73,"../common/MouseTrapper":75,"../common/RequestPacker":77,"../common/Ruler":78}],68:[function(require,module,exports){
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Constants = require('./Constants');
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Cacher = function Cacher() {
-  var _this = this;
+var Cacher = function () {
+  function Cacher() {
+    var _this = this;
 
-  _classCallCheck(this, Cacher);
+    _classCallCheck(this, Cacher);
 
-  this.role = -1;
+    this.role = -1;
+    this.targetOfUse = [];
 
-  this.setRole = function (role) {
-    _this.role = role;
-  };
+    this.setRole = function (role) {
+      _this.role = role;
+    };
 
-  this.getRole = function () {
-    return _this.role;
-  };
-};
+    this.getRole = function () {
+      return _this.role;
+    };
+
+    this.getTOUByCode = function (code) {
+      var len = _this.targetOfUse.length;
+      for (var i = 0; i < len; i++) {
+        if (_this.targetOfUse[i].code === code) return _this.targetOfUse[i].name;
+      }return code;
+    };
+  }
+
+  _createClass(Cacher, [{
+    key: 'loadTOU',
+    value: function loadTOU() {
+      var _this2 = this;
+
+      if (this.targetOfUse.length > 1) return;
+      fetch(_Constants.host + '/target-of-use').then(function (res) {
+        return res.json();
+      }).then(function (res) {
+        return _this2.targetOfUse = res;
+      });
+    }
+  }]);
+
+  return Cacher;
+}();
 
 exports.default = new Cacher();
 
-},{}],69:[function(require,module,exports){
+},{"./Constants":69}],69:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34503,6 +34533,10 @@ var _FIELD_LABELS;
 var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
+
+var _Cacher = require('./Cacher');
+
+var _Cacher2 = _interopRequireDefault(_Cacher);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -34538,7 +34572,12 @@ var FIELD_MASK = exports.FIELD_MASK = {
         return 'Cá nhân';
     }
   },
-  dtpl: maskingArea
+  dtpl: function dtpl(area) {
+    return maskingArea(area);
+  },
+  mucdichsudung: function mucdichsudung(code) {
+    return _Cacher2.default.getTOUByCode(code);
+  }
 };
 
 var maskingArea = function maskingArea(area) {
@@ -34551,7 +34590,7 @@ var maskingArea = function maskingArea(area) {
       area + ' m'
     ),
     _react2.default.createElement(
-      'sp',
+      'sup',
       null,
       '2'
     )
@@ -34583,7 +34622,7 @@ var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
 
 var NATIONALITIES = exports.NATIONALITIES = ['United States', 'United Kingdom', 'Afghanistan', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla', 'Antarctica', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Bouvet Island', 'Brazil', 'British Indian Ocean Territory', 'Brunei Darussalam', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Cayman Islands', 'Central African Republic', 'Chad', 'Chile', 'China', 'Christmas Island', 'Cocos (Keeling) Islands', 'Colombia', 'Comoros', 'Congo', 'Congo, The Democratic Republic of The', 'Cook Islands', 'Việt Nam'];
 
-},{"react":61}],70:[function(require,module,exports){
+},{"./Cacher":68,"react":61}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37439,6 +37478,10 @@ var _mock = require('./mock');
 
 var _mock2 = _interopRequireDefault(_mock);
 
+var _Cacher = require('./common/Cacher');
+
+var _Cacher2 = _interopRequireDefault(_Cacher);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 (0, _reactDom.render)(_react2.default.createElement(
@@ -37451,8 +37494,9 @@ _store2.default.dispatch((0, _actions.loadSession)());
 _store2.default.dispatch((0, _actions.fetchLayers)());
 
 (0, _mock2.default)();
+_Cacher2.default.loadTOU();
 
-},{"./actions":67,"./containers/App":95,"./mock":106,"./store":130,"react":61,"react-dom":41,"react-redux":53}],106:[function(require,module,exports){
+},{"./actions":67,"./common/Cacher":68,"./containers/App":95,"./mock":106,"./store":130,"react":61,"react-dom":41,"react-redux":53}],106:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {

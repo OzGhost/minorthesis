@@ -1,4 +1,5 @@
 import React from 'react'
+import Cacher from './Cacher'
 
 export const host = 'http://localhost:8080'
 export const BASE_HASH = 'b4c1db7e5a0dc91b7b739db0c3ece205dd8c9a66'
@@ -30,14 +31,19 @@ export const FIELD_MASK = {
         return 'Cá nhân'
     }
   },
-  dtpl: maskingArea
+  dtpl: area => {
+    return maskingArea(area)
+  },
+  mucdichsudung: code => {
+    return Cacher.getTOUByCode(code)
+  }
 }
 
 const maskingArea = area => {
   return (
     <span>
       <span>{area + ' m'}</span>
-      <sp>2</sp>
+      <sup>2</sup>
     </span>
   )
 }
