@@ -14,7 +14,7 @@ const filterDialog = (state = [], action) => {
       }
 
     case TOGGLE_LAYER:
-      const newState = state.map( layer => 
+      const newState = state.layers.map( layer => 
         layer.value === action.layer
           ? { ...layer, isChecked: !layer.isChecked }
           : layer
@@ -24,7 +24,10 @@ const filterDialog = (state = [], action) => {
           .filter(layer => layer.isChecked)
           .map(layer => layer.value)
       )
-      return newState
+      return {
+        ...state,
+        layers: newState
+      }
   
     case OPEN_DIALOG:
       if (action.dialogName === FILTER_DIALOG)

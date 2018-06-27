@@ -34496,8 +34496,15 @@ exports.default = new Cacher();
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.NATIONALITIES = exports.FIELD_LABELS = exports.FIELD_MASK = exports.ADD_MODE = exports.EDIT_MODE = exports.LOGIN_DIALOG = exports.RULER_DIALOG = exports.FILTER_DIALOG = exports.QUERY_DIALOG = exports.DETAIL_DIALOG = exports.CHPASSWD_DIALOG = exports.MODIFIER_DIALOG = exports.PLAN_USER_CODE = exports.GOVERN_DOC_CODE = exports.CERTIFICATE_CODE = exports.ACCOUNT_CODE = exports.BASE_HASH = exports.host = undefined;
 
 var _FIELD_LABELS;
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -34530,9 +34537,29 @@ var FIELD_MASK = exports.FIELD_MASK = {
       default:
         return 'Cá nhân';
     }
-  }
+  },
+  dtpl: maskingArea
 };
+
+var maskingArea = function maskingArea(area) {
+  return _react2.default.createElement(
+    'span',
+    null,
+    _react2.default.createElement(
+      'span',
+      null,
+      area + ' m'
+    ),
+    _react2.default.createElement(
+      'sp',
+      null,
+      '2'
+    )
+  );
+};
+
 var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
+  mucdichsudung: 'Mục đích sử dụng',
   kind: 'Loại chủ sử dụng',
   puserId: 'Mã chủ sử dụng',
   username: 'Tên tài khoản',
@@ -34556,7 +34583,7 @@ var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
 
 var NATIONALITIES = exports.NATIONALITIES = ['United States', 'United Kingdom', 'Afghanistan', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla', 'Antarctica', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Bouvet Island', 'Brazil', 'British Indian Ocean Territory', 'Brunei Darussalam', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Cayman Islands', 'Central African Republic', 'Chad', 'Chile', 'China', 'Christmas Island', 'Cocos (Keeling) Islands', 'Colombia', 'Comoros', 'Congo', 'Congo, The Democratic Republic of The', 'Cook Islands', 'Việt Nam'];
 
-},{}],70:[function(require,module,exports){
+},{"react":61}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39291,7 +39318,7 @@ var filterDialog = function filterDialog() {
       };
 
     case _actions.TOGGLE_LAYER:
-      var newState = state.map(function (layer) {
+      var newState = state.layers.map(function (layer) {
         return layer.value === action.layer ? _extends({}, layer, { isChecked: !layer.isChecked }) : layer;
       });
       _Mapper2.default.filterLayer(newState.filter(function (layer) {
@@ -39299,7 +39326,9 @@ var filterDialog = function filterDialog() {
       }).map(function (layer) {
         return layer.value;
       }));
-      return newState;
+      return _extends({}, state, {
+        layers: newState
+      });
 
     case _actions.OPEN_DIALOG:
       if (action.dialogName === _Constants.FILTER_DIALOG) return _extends({}, state, {
