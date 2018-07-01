@@ -1,0 +1,15 @@
+
+.extendable-item
+  position: relative
+
+  .extension
+    display: none
+    z-index: 200
+    position: absolute
+    box-shadow: 0 0 8px grey
+    top: 0
+    left: 100%
+
+  .lever:hover + .extension
+    display: block
+

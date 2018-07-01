@@ -32,13 +32,14 @@ const performQuery = (queryStr, resolve, reject) => {
 }
 
 app.get('/plan', (req, res) => {
-  const queryStr = 'SELECT gid, shbando, shthua, dtpl, mucdichsudung, sonha, tenduong, phuong'
+  const queryStr = 'SELECT gid, shbando, shthua, dtpl, mucdichsudung,'
+                  + ' sonha, tenduong, phuong'
                   + ' thanhpho, tinh, ST_asGeoJSON(geom) as geo'
                   + ' FROM thuadat'
                   + ' WHERE shbando=' + (Number(req.query.msto) || 0)
                   + ' AND shthua=' + (Number(req.query.msthua) || 0)
 
-  performQuery(queryStr, (obj) => res.json(obj))
+  performQuery(queryStr, (obj) => throwBack(res)(obj))
 })
 
 app.get('/plan/features/:featureId', (req, res) => {
@@ -47,52 +48,83 @@ app.get('/plan/features/:featureId', (req, res) => {
                   + ' FROM thuadat'
                   + ' WHERE gid=' + (Number(req.params.featureId) || 0)
 
-  performQuery(queryStr, (obj) => res.json(obj))
+  performQuery(queryStr, (obj) => throwBack(res)(obj))
 })
 
 app.get('/certificate', (req, res) => {
-  const role = getLoggedRole(req)
-  const shortInfo = 'c.machu, c.ten, d.shgiaycn,'
-  const fullInfo = shortInfo
-                  + ' c.loaichu, c.nam, c.sogiayto, c.ngaycap,'
-                  + 'c.diachi, c.quoctich, '
-  const additionalInfo = (role===1||role===2) ? fullInfo : shortInfo
-  const val = req.query.value
-  const q = req.query.kind === 'certiNumber'
-            ? buildCertificateQueryByCertificateNumber(val, additionalInfo)
-            : buildCertificateQueryByOwnerId(val, additionalInfo)
-
-  performQuery(q, (obj) => res.json(obj), true)
+  const kind = InputHandler.format(req.query.kind, AS_STRING)
+  const val = InputHandler.format(req.query.value, AS_STRING)
+  findCertificateIds(kind, val, certIds => {
+    if (certIds.length < 1)
+      throwBack(res)([])
+    else if (getLoggedRole(req) !== 1 && getLoggedRole(req) !== 2)
+      throwBack(res)(certIds.map(e=>({id: e})))
+    else
+      loadCertificates(
+        certIds,
+        certs => throwBack(res)(certs),
+        ()=>throwBack(res)(SERVER_ERROR_PAYLOAD)
+      )
+  }, ()=>throwBack(res)(SERVER_ERROR_PAYLOAD))
 })
+
+const findCertificateIds = (kind, val, onDone, onFail) => {
+  const q = kind === 'certiNumber'
+    ? 'SELECT shgiaycn FROM giaychungnhan WHERE shgiaycn=\''+val+'\''
+    : 'SELECT shgiaycn FROM chusudung_giaychungnhan jt'
+        + ' LEFT JOIN chusudung pu ON pu.machu=jt.machu'
+        + ' WHERE pu.sogiayto = \''+val+'\''
+  performQuery(q, rows => {
+    onDone(rows.map(e=>e.shgiaycn))
+  }, onFail)
+}
+
+const loadCertificates = (certIds, onDone, onFail) => {
+  const total = certIds.length
+  let counter = 0
+  let rs = []
+  certIds.forEach((certId, index) => {
+    fetchCertificateById(certId, certificate => {
+      rs[index] = certificate
+      counter++
+      tryToBuildResponse()
+    }, onFail)
+  })
+  const tryToBuildResponse = () => {
+    if (counter != total)
+      return
+    onDone(rs)
+  }
+}
 
 app.get('/certificate/:certId', (req, res)=>{
   if ( ! isLoggedAsAdmin(req)) {
-    res.json(UNAUTHOR_PAYLOAD)
+    throwBack(res)(UNAUTHOR_PAYLOAD)
     return
   }
   const id = InputHandler.format(req.params.certId, AS_STRING)
   fetchCertificateById(
     id,
-    obj => res.json({code: 200, payload: obj}),
-    () => res.json({code: 500})
+    obj => throwBack(res)({code: 200, payload: obj}),
+    () => throwBack(res)({code: 500})
   )
 })
 
 const UNAUTHOR_PAYLOAD = {code: 403}
 
-fetchCertificateById = (id, onDone, onErr) => {
+const fetchCertificateById = (id, onDone, onErr) => {
   let main = undefined
   let pusers = undefined
   let plans = undefined
   const main_q = 'SELECT * FROM giaychungnhan WHERE shgiaycn=\''+id+'\''
-  const pusers_q = 'SELECT c.machu, c.ten'
+  const pusers_q = 'SELECT c.*'
                   + ' FROM chusudung_giaychungnhan b'
                   + ' LEFT JOIN chusudung c ON c.machu = b.machu'
                   + ' WHERE b.shgiaycn=\''+id+'\''
   const plans_q = 'SELECT gid, shthua, shbando FROM thuadat'
                   + ' WHERE shgiaycn=\''+id+'\''
 
-  packResult = () => {
+  const packResult = () => {
     if (typeof(pusers) === 'undefined')
       return
     if (typeof(plans) === 'undefined')
@@ -109,33 +141,14 @@ fetchCertificateById = (id, onDone, onErr) => {
     }
     main = convertToDto(rows[0])
     performQuery(pusers_q, (rows) => {
-      pusers = rows
+      pusers = rows.map(e=>convertToDto(e))
       packResult()
     })
     performQuery(plans_q, (rows) => {
-      plans = rows
+      plans = rows.map(e=>convertToDto(e))
       packResult()
     })
   }, () => {onErr && onErr()})
-}
-
-const buildCertificateQueryByCertificateNumber = (value, additionalInfo) => {
-  return buildCertificateCoreQuery(additionalInfo)
-    + ' WHERE d.shgiaycn=\'' + value + '\''
-}
-
-const buildCertificateQueryByOwnerId = (value, additionalInfo) => {
-  return buildCertificateCoreQuery(additionalInfo)
-    + ' WHERE c.sogiayto=\'' + value + '\''
-}
-
-const buildCertificateCoreQuery = additionalInfo => {
-  return 'SELECT ' + additionalInfo
-            + ' d.gid, d.shbando, d.shthua, d.dtpl, d.sonha, d.tenduong,'
-            + ' d.phuong, d.thanhpho, d.tinh, ST_asGeoJSON(geom) as geo'
-            + ' FROM chusudung c'
-            + ' LEFT JOIN chusudung_giaychungnhan s ON s.machu = c.machu'
-            + ' LEFT JOIN thuadat d ON d.shgiaycn = s.shgiaycn'
 }
 
 app.post('/certificate', (req, res) => {
@@ -146,13 +159,13 @@ app.post('/certificate', (req, res) => {
 
 const preCheckPayload = (payload, res, onPass) => {
   if (typeof(payload.id) !== 'string') {
-    res.json({...INVALID_REQUEST_PAYLOAD, caurse: 'id'})
+    throwBack(res)({...INVALID_REQUEST_PAYLOAD, cause: 'id'})
     return
   }
   const q = 'SELECT shgiaycn FROM giaychungnhan WHERE shgiaycn=\''+payload.id+'\''
   performQuery(q, (_, rows)=>{
     if (rows > 0) {
-      res.json({...INVALID_REQUEST_PAYLOAD, caurse: 'id'})
+      throwBack(res)({...INVALID_REQUEST_PAYLOAD, cause: 'id'})
     } else {
       onPass()
     }
@@ -168,10 +181,10 @@ const performInsertCertificate = (payload, res) => {
     if (rows === 1) {
       connectPuser(payload)
       attachPlan(payload)
-      res.json(SUCCESS_PAYLOAD)
+      throwBack(res)(SUCCESS_PAYLOAD)
     } else
-      res.json(SERVER_ERROR_PAYLOAD)
-  }, ()=>res.json(SERVER_ERROR_PAYLOAD))
+      throwBack(res)(SERVER_ERROR_PAYLOAD)
+  }, ()=>throwBack(res)(SERVER_ERROR_PAYLOAD))
 }
 
 const buildPairArrayForCertificate = payload => {
@@ -234,14 +247,14 @@ app.put('/certificate', (req, res) => {
   )
   performQuery(q, (_, affectedRows)=>{
     if (affectedRows !== 1) {
-      res.json(SERVER_ERROR_PAYLOAD)
+      throwBack(res)(SERVER_ERROR_PAYLOAD)
       return
     }
     updatePlansInCertificate(body)
     updatePusersInCertificate(body)
-    res.json(SUCCESS_PAYLOAD)
+    throwBack(res)(SUCCESS_PAYLOAD)
   }, ()=>{
-    res.json(SERVER_ERROR_PAYLOAD)
+    throwBack(res)(SERVER_ERROR_PAYLOAD)
   })
 })
 
@@ -295,7 +308,7 @@ const buildCleanPusersQueryByCertificateId = certificateId => {
 
 app.delete('/certificate/:certiId', (req, res) => {
   if (! isLoggedAsAdmin(req)) {
-    res.json(UNAUTHOR_PAYLOAD)
+    throwBack(res)(UNAUTHOR_PAYLOAD)
     return
   }
   const certiId = InputHandler.format(req.params.certiId, AS_STRING)
@@ -319,18 +332,18 @@ app.delete('/certificate/:certiId', (req, res) => {
     if ( ! pusers_cleaned)
       return
     performQuery('DELETE FROM giaychungnhan WHERE shgiaycn=\''+certiId+'\'')
-    res.json(SUCCESS_PAYLOAD)
+    throwBack(res)(SUCCESS_PAYLOAD)
   }
 })
 
 app.get('/government-doc', (req, res) => {
   const q = 'SELECT sohieu, noidung, link FROM vanbannhanuoc'
-  performQuery(q, objs => res.json(objs), true)
+  performQuery(q, objs => throwBack(res)(objs), true)
 })
 
 app.post('/government-doc', (req, res) => {
   if ( ! isLoggedAsAdmin(req)) {
-    res.json(UNAUTHOR_PAYLOAD)
+    throwBack(res)(UNAUTHOR_PAYLOAD)
     return
   }
   const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
@@ -339,10 +352,10 @@ app.post('/government-doc', (req, res) => {
   const q = buildInsertQuery(pairArr, 'vanbannhanuoc')
   performQuery(q, (_, rows)=>{
     if ( rows !== 1)
-      res.json(SERVER_ERROR_PAYLOAD)
+      throwBack(res)(SERVER_ERROR_PAYLOAD)
     else
-      res.json(SUCCESS_PAYLOAD)
-  }, ()=>{res.json(SERVER_ERROR_PAYLOAD)})
+      throwBack(res)(SUCCESS_PAYLOAD)
+  }, ()=>{throwBack(res)(SERVER_ERROR_PAYLOAD)})
 })
 
 const governmentKeyMap = {
@@ -353,20 +366,20 @@ const governmentKeyMap = {
 
 app.get('/account', (req, res) => {
   if ( ! isLoggedAsAdmin(req)) {
-    res.json(UNAUTHOR_PAYLOAD)
+    throwBack(res)(UNAUTHOR_PAYLOAD)
     return
   }
   const q = 'SELECT id, username, hoten, cmnd, diachi, chucvu'
           + ' FROM taikhoan'
           + ' ORDER BY username'
-  performQuery(q, objs => res.json(objs.map(convertToDto)), true)
+  performQuery(q, objs => throwBack(res)(objs.map(convertToDto)), true)
 })
 
 const convertToDto = obj => {
   let dto = {}
   let key
   Object.keys(obj).forEach(e => {
-    key = dtoKeyMap[e] ? dtoKeyMap[e] : e
+    key = dtoKeyMap[e] || e
     dto[key] = obj[e]
   })
   return dto
@@ -385,12 +398,22 @@ const dtoKeyMap = {
   dtchung: 'publicArea',
   mucdichsudung: 'targetOfUse',
   nguongocsudung: 'sourceOfUse',
-  thoihansudung: 'goodUntil'
+  thoihansudung: 'goodUntil',
+  chinhly: 'alter',
+  machu: 'id',
+  loaichu: 'role',
+  ten: 'name',
+  nam: 'birthYear',
+  sogiayto: 'idNumber',
+  ngaycap: 'provideDate',
+  quoctich: 'nationality',
+  shthua: 'pid',
+  shbando: 'mid'
 }
 
 app.get('/account/b4c1db7e5a0dc91b7b739db0c3ece205dd8c9a66', (req, res) => {
   const loggedRole = getLoggedRole(req)
-  res.json({code: 200, role: loggedRole})
+  throwBack(res)({code: 200, role: loggedRole})
 })
 
 const getLoggedRole = req => {
@@ -440,17 +463,17 @@ app.post('/account/login', (req, res) => {
         role: rows[0].role,
         ca: (new Date()).getTime()
       }, secret)
-      res.json({code: 200, role: rows[0].role, token})
+      throwBack(res)({code: 200, role: rows[0].role, token})
     } else {
-      res.json(UNAUTHOR_PAYLOAD)
+      throwBack(res)(UNAUTHOR_PAYLOAD)
     }
-  }, () => { res.json({code: 500}) })
+  }, () => { throwBack(res)({code: 500}) })
 })
 
 app.post('/account/reset-passwd', (req, res) => {
   const uid = getLoggedId(req)
   if (uid < 0) {
-    res.json(UNAUTHOR_PAYLOAD)
+    throwBack(res)(UNAUTHOR_PAYLOAD)
     return
   }
   const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
@@ -466,19 +489,19 @@ app.post('/account/reset-passwd', (req, res) => {
     if (rows.length === 1) {
       performQuery(updateScript, (_, rowCount) => {
         if (rowCount === 1)
-          res.json({done: true})
+          throwBack(res)({done: true})
         else
-          res.json({done: false, code: 500})
+          throwBack(res)({done: false, code: 500})
       })
     } else {
-      res.json({done: false, code: 401})
+      throwBack(res)({done: false, code: 401})
     }
   })
 })
 
 app.get('/plan-user', (req, res) => {
   if ( ! isLoggedAsAdmin(req)) {
-    res.json(UNAUTHOR_PAYLOAD)
+    throwBack(res)(UNAUTHOR_PAYLOAD)
     return
   }
   const kind = InputHandler.format(req.query.kind, AS_STRING)
@@ -486,7 +509,7 @@ app.get('/plan-user', (req, res) => {
   const fieldName = getPlanUserFieldNameByKind(kind)
   const condition = getConditionPhase(fieldName, value)
   const queryStr = 'SELECT * FROM chusudung WHERE ' + condition
-  performQuery(queryStr, objs => res.json(objs.map(toPuserDto)), true)
+  performQuery(queryStr, objs => throwBack(res)(objs.map(toPuserDto)), true)
 })
 
 const getPlanUserFieldNameByKind = kind => {
@@ -567,26 +590,40 @@ const reducePuserPayload = payload => {
 
 app.post('/plan-user', (req, res)=>{
   if ( ! isLoggedAsAdmin(req)) {
-    res.json(UNAUTHOR_PAYLOAD)
+    throwBack(res)(UNAUTHOR_PAYLOAD)
     return
   }
   const body = JSON.parse(InputHandler.format(JSON.stringify(req.body), AS_STRING))
   if (typeof(body.kind) === 'undefined')
     body.kind = 1
   const fitBody = reducePuserPayload(body)
-  const pa = convertPayload(
-    fitBody,
-    puserKeyMap,
-    puserNumberKey,
-    [],
-    puserNullableKey
-  )
-  const q = buildInsertQuery(pa, 'chusudung')
-  performQuery(q, (_, rows)=>{
-    rows === 1
-      ? res.json(SUCCESS_PAYLOAD)
-      : res.json(SERVER_ERROR_PAYLOAD)
-  }, ()=>res.json(SERVER_ERROR_PAYLOAD))
+  const idNum = fitBody.idNumber || fitBody.commerceId
+
+  const performPuserInsert = () => {
+    const pa = convertPayload(
+      fitBody,
+      puserKeyMap,
+      puserNumberKey,
+      [],
+      puserNullableKey
+    )
+    const q = buildInsertQuery(pa, 'chusudung')
+    performQuery(q, (_, rows)=>{
+      rows === 1
+        ? throwBack(res)(SUCCESS_PAYLOAD)
+        : throwBack(res)(SERVER_ERROR_PAYLOAD)
+    }, ()=>throwBack(res)(SERVER_ERROR_PAYLOAD))
+  }
+
+  if (idNum) {
+    performQuery('SELECT machu FROM chusudung WHERE sogiayto=\''+idNum+'\'', (_, rowCount) => {
+      rowCount > 0
+        ? throwBack(res)({...INVALID_REQUEST_PAYLOAD, cause: 'idNum'})
+        : performPuserInsert()
+    }, ()=>throwBack(res)(SERVER_ERROR_PAYLOAD))
+  } else
+    performPuserInsert()
+
 })
 
 const puserNumberKey = {
@@ -600,7 +637,7 @@ const puserNullableKey = {
 
 app.put('/plan-user', (req, res)=>{
   if ( ! isLoggedAsAdmin(req)) {
-    res.json(UNAUTHOR_PAYLOAD)
+    throwBack(res)(UNAUTHOR_PAYLOAD)
     return
   }
   const body = JSON.parse(InputHandler.format(JSON.stringify(req.body), AS_STRING))
@@ -619,14 +656,14 @@ app.put('/plan-user', (req, res)=>{
   const q = buildUpdateQuery(pa, 'chusudung', 'machu=\''+puserId+'\'')
   performQuery(q, (_, rows)=>{
     rows === 1
-      ? res.json(SUCCESS_PAYLOAD)
-      : res.json(SERVER_ERROR_PAYLOAD)
-  }, ()=>res.json(SERVER_ERROR_PAYLOAD))
+      ? throwBack(res)(SUCCESS_PAYLOAD)
+      : throwBack(res)(SERVER_ERROR_PAYLOAD)
+  }, ()=>throwBack(res)(SERVER_ERROR_PAYLOAD))
 })
 
 app.delete('/plan-user/:puserId', (req, res)=>{
   if ( ! isLoggedAsAdmin(req) ) {
-    res.json(UNAUTHOR_PAYLOAD)
+    throwBack(res)(UNAUTHOR_PAYLOAD)
     return
   }
   const puserId = InputHandler.format(req.params.puserId, AS_STRING)
@@ -635,7 +672,7 @@ app.delete('/plan-user/:puserId', (req, res)=>{
     const p = 'delete from chusudung where machu=\''+puserId+'\''
     performQuery(p, ()=>{})
   })
-  res.json(SUCCESS_PAYLOAD)
+  throwBack(res)(SUCCESS_PAYLOAD)
 })
 
 const isLoggedAsAdmin = req => {
@@ -658,17 +695,17 @@ const InputHandler = {
 
 app.post('/account', (req, res) => {
   if ( ! isLoggedAsAdmin(req)) {
-    res.json(UNAUTHOR_PAYLOAD)
+    throwBack(res)(UNAUTHOR_PAYLOAD)
     return
   }
   const flat = InputHandler.format(JSON.stringify(req.body), AS_STRING)
   const payload = JSON.parse(flat)
   if (payload.role !== 1 && payload.role !== 2) {
-    res.json({code: 400, cause: 'role'})
+    throwBack(res)({code: 400, cause: 'role'})
     return
   }
   if (!payload.name) {
-    res.json({code: 400, cause: 'name'})
+    throwBack(res)({code: 400, cause: 'name'})
     return
   }
   const q = 'SELECT id FROM taikhoan WHERE username = \'' + payload.username + '\''
@@ -676,7 +713,7 @@ app.post('/account', (req, res) => {
     if (rows.length === 0)
       performAccountInsert(payload, res)
     else
-      res.json({code: 400, cause: 'username'})
+      throwBack(res)({code: 400, cause: 'username'})
 
   })
 })
@@ -687,8 +724,8 @@ const performAccountInsert = (payload, res) => {
   const insertQuery = buildInsertQuery(pairArray, 'taikhoan')
   performQuery(insertQuery, (_, rowCount) => {
     rowCount === 1
-      ? res.json({code: 200})
-      : res.json({code: 500})
+      ? throwBack(res)({code: 200})
+      : throwBack(res)({code: 500})
   })
 }
 
@@ -747,14 +784,14 @@ const buildInsertQuery = (pairArray, tableName) => {
 
 app.put('/account', (req, res) => {
   if ( ! isLoggedAsAdmin(req)) {
-    res.json(UNAUTHOR_PAYLOAD)
+    throwBack(res)(UNAUTHOR_PAYLOAD)
     return
   }
   const bodyStr = InputHandler.format(JSON.stringify(req.body), AS_STRING)
   const body = JSON.parse(bodyStr)
   const id = InputHandler.format(body.id, AS_NUMBER)
   if (!id) {
-    res.json({code: 400})
+    throwBack(res)({code: 400})
     return
   }
   delete body.username
@@ -764,15 +801,15 @@ app.put('/account', (req, res) => {
   const q = buildUpdateQuery(pairArray, 'taikhoan', 'id='+id)
   performQuery(q, (_, rowCount) => {
     rowCount === 1
-      ? res.json({code: 200})
-      : res.json({code: 500})
-  }, () => res.json({code: 500}))
+      ? throwBack(res)({code: 200})
+      : throwBack(res)({code: 500})
+  }, () => throwBack(res)({code: 500}))
 })
 
 app.get('/target-of-use', (req, res) => {
   const q = 'SELECT maloai as code, tenloai as name'
           + ' FROM loaidat'
-  performQuery(q, rows => res.json(rows), ()=>res.json(SERVER_ERROR_PAYLOAD))
+  performQuery(q, rows => throwBack(res)(rows), ()=>throwBack(res)(SERVER_ERROR_PAYLOAD))
 })
 
 buildUpdateQuery = (pairArray, tableName, identifyPhase) => {
@@ -793,9 +830,15 @@ app.get('/map/layers', (req, res) => {
     { value: 'thuadat', label: 'Thửa đất' },
     { value: 'quihoach', label: 'Quy hoạch' }
   ]
-  res.json(layers)
+  throwBack(res)(layers)
 })
 
 var server = app.listen(8080, () => {
   console.log("Server started")
 })
+
+const throwBack = res => payload => {
+  if (res.headersSent)
+    return
+  res.json(payload)
+}

@@ -123,7 +123,7 @@ class CertificateModifier extends Modifier {
                   {
                     store.plans.map(p =>
                       this.buildRemovableItem(
-                        'Tờ: '+p.shbando+' | Thửa: '+p.shthua,
+                        'Tờ: '+p.pid+' | Thửa: '+p.mid,
                         () => this.removePlan(p.gid),
                         p.gid
                       )
@@ -146,9 +146,9 @@ class CertificateModifier extends Modifier {
                   {
                     store.pusers.map(u =>
                       this.buildRemovableItem(
-                        u.ten,
-                        () => this.removePuser(u.machu),
-                        u.machu
+                        '['+u.id+'] '+u.name,
+                        () => this.removePuser(u.id),
+                        u.id
                       )
                     )
                   }

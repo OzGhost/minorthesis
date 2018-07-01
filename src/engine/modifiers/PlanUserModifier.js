@@ -108,6 +108,18 @@ class PlanUserModifier extends Modifier {
     ).then(res=>res.json())
     .then(res => this.handleResult(res, store))
   }
+
+  handleErrorOnResult = (res, payload) => {
+    if (res.cause === 'idNum') {
+      const kind = payload.kind || 1
+      if (kind === 2)
+        return false
+      const fieldName = kind === 1 ? 'CMND/Hộ chiếu' : 'Số giấy phép kinh doanh'
+      this.pushMessage(fieldName + ' đã tồn tại.'
+        +' Vui lòng nhập giá trị khác để tiếp tục')
+      return true
+    }
+  }
 }
 
 export default new PlanUserModifier

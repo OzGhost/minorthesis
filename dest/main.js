@@ -34538,6 +34538,10 @@ var _Cacher = require('./Cacher');
 
 var _Cacher2 = _interopRequireDefault(_Cacher);
 
+var _ExtendableItem = require('../components/ExtendableItem');
+
+var _ExtendableItem2 = _interopRequireDefault(_ExtendableItem);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -34561,7 +34565,7 @@ var LOGIN_DIALOG = exports.LOGIN_DIALOG = 'loginDialog';
 var EDIT_MODE = exports.EDIT_MODE = 'edit_mode_for_modifier';
 var ADD_MODE = exports.ADD_MODE = 'add_mode_for_modifier';
 
-var FIELD_MASK = exports.FIELD_MASK = {
+var FIELD_MASK = {
   kind: function kind(k) {
     switch (k) {
       case 2:
@@ -34577,9 +34581,52 @@ var FIELD_MASK = exports.FIELD_MASK = {
   },
   mucdichsudung: function mucdichsudung(code) {
     return _Cacher2.default.getTOUByCode(code);
+  },
+  role: function role(code) {
+    switch (code) {
+      case 1:
+        return 'Quản trị viên';
+      case 2:
+        return 'Cán bộ';
+      default:
+        return '';
+    }
+  },
+  pusers: function pusers(_pusers) {
+    return _react2.default.createElement(
+      'ul',
+      { className: 'w3-ul' },
+      _pusers.map(function (u) {
+        return _react2.default.createElement(
+          'li',
+          { key: u.id },
+          '[' + u.id + '] ' + u.name
+        );
+      })
+    );
+  },
+  plans: function plans(_plans) {
+    return _react2.default.createElement(
+      'ul',
+      { className: 'w3-ul' },
+      _plans.map(function (p) {
+        return _react2.default.createElement(
+          'li',
+          { key: p.mid + '.' + p.pid },
+          'Tờ: ' + p.mid + '; Thửa: ' + p.pid
+        );
+      })
+    );
+  },
+  signDate: function signDate(dateStr) {
+    return dateFormat(dateStr);
+  },
+  goodUntil: function goodUntil(dateStr) {
+    return dateFormat(dateStr);
   }
 };
 
+exports.FIELD_MASK = FIELD_MASK;
 var maskingArea = function maskingArea(area) {
   return _react2.default.createElement(
     'span',
@@ -34597,8 +34644,25 @@ var maskingArea = function maskingArea(area) {
   );
 };
 
+var dateFormat = function dateFormat(dateStr) {
+  if (!dateStr) return '';
+  var theDate = new Date(dateStr);
+  return '' + twoDigitFormat(theDate.getDate()) + '-' + twoDigitFormat(theDate.getMonth() + 1) + '-' + theDate.getFullYear();
+};
+
+var twoDigitFormat = function twoDigitFormat(n) {
+  return (n < 10 ? '0' : '') + n;
+};
+
 var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
+  signDate: 'Ngày ký',
+  provider: 'Cơ quan cấp',
+  privateArea: 'Diện tích riêng',
+  publicArea: 'Diện tích chung',
+  id: 'Số hiệu',
+  sourceOfUse: 'Nguồn gốc sử dụng',
   mucdichsudung: 'Mục đích sử dụng',
+  goodUntil: 'Hạn sử dụng',
   kind: 'Loại chủ sử dụng',
   puserId: 'Mã chủ sử dụng',
   username: 'Tên tài khoản',
@@ -34618,11 +34682,11 @@ var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
   nam: 'Năm',
   sogiayto: 'CMND',
   ngaycap: 'Ngày cấp'
-}, _defineProperty(_FIELD_LABELS, 'diachi', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'quoctich', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'phuong', 'Phường'), _defineProperty(_FIELD_LABELS, 'passwd', 'Mật khẩu'), _defineProperty(_FIELD_LABELS, 'repasswd', 'Nhập lại mật khẩu'), _defineProperty(_FIELD_LABELS, 'name', 'Tên người dùng'), _defineProperty(_FIELD_LABELS, 'idNumber', 'CMND/Hộ chiếu'), _defineProperty(_FIELD_LABELS, 'address', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'role', 'Chức vụ'), _defineProperty(_FIELD_LABELS, 'docCode', 'Số hiệu văn bản'), _defineProperty(_FIELD_LABELS, 'docContent', 'Nội dung'), _defineProperty(_FIELD_LABELS, 'docLink', 'Liên kết'), _defineProperty(_FIELD_LABELS, 'nationality', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'groupName', 'Tên tổ chức'), _defineProperty(_FIELD_LABELS, 'commerceId', 'Số giấy phép kinh doanh'), _defineProperty(_FIELD_LABELS, 'personalName', 'Tên cá nhân'), _defineProperty(_FIELD_LABELS, 'birthYear', 'Năm sinh'), _FIELD_LABELS);
+}, _defineProperty(_FIELD_LABELS, 'diachi', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'quoctich', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'phuong', 'Phường'), _defineProperty(_FIELD_LABELS, 'passwd', 'Mật khẩu'), _defineProperty(_FIELD_LABELS, 'repasswd', 'Nhập lại mật khẩu'), _defineProperty(_FIELD_LABELS, 'name', 'Tên người dùng'), _defineProperty(_FIELD_LABELS, 'idNumber', 'CMND/Hộ chiếu'), _defineProperty(_FIELD_LABELS, 'address', 'Địa chỉ'), _defineProperty(_FIELD_LABELS, 'role', 'Chức vụ'), _defineProperty(_FIELD_LABELS, 'docCode', 'Số hiệu văn bản'), _defineProperty(_FIELD_LABELS, 'docContent', 'Nội dung'), _defineProperty(_FIELD_LABELS, 'docLink', 'Liên kết'), _defineProperty(_FIELD_LABELS, 'nationality', 'Quốc tịch'), _defineProperty(_FIELD_LABELS, 'groupName', 'Tên tổ chức'), _defineProperty(_FIELD_LABELS, 'commerceId', 'Số giấy phép kinh doanh'), _defineProperty(_FIELD_LABELS, 'personalName', 'Tên cá nhân'), _defineProperty(_FIELD_LABELS, 'birthYear', 'Năm sinh'), _defineProperty(_FIELD_LABELS, 'pusers', 'Chủ sử dụng'), _defineProperty(_FIELD_LABELS, 'plans', 'Thửa đất'), _FIELD_LABELS);
 
 var NATIONALITIES = exports.NATIONALITIES = ['United States', 'United Kingdom', 'Afghanistan', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla', 'Antarctica', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Bouvet Island', 'Brazil', 'British Indian Ocean Territory', 'Brunei Darussalam', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Cayman Islands', 'Central African Republic', 'Chad', 'Chile', 'China', 'Christmas Island', 'Cocos (Keeling) Islands', 'Colombia', 'Comoros', 'Congo', 'Congo, The Democratic Republic of The', 'Cook Islands', 'Việt Nam'];
 
-},{"./Cacher":68,"react":61}],70:[function(require,module,exports){
+},{"../components/ExtendableItem":84,"./Cacher":68,"react":61}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34928,7 +34992,7 @@ var Mapper = function Mapper() {
 
 exports.default = new Mapper();
 
-},{"../actions":67,"../store":130,"./Ruler":78,"openlayers":30}],74:[function(require,module,exports){
+},{"../actions":67,"../store":131,"./Ruler":78,"openlayers":30}],74:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34982,7 +35046,7 @@ var ModifierFactory = function ModifierFactory() {
 
 exports.default = new ModifierFactory();
 
-},{"../common/Constants":69,"../modifiers/AccountModifier":107,"../modifiers/CertificateModifier":108,"../modifiers/EmptyModifier":109,"../modifiers/GovernmentDocumentModifier":110,"../modifiers/PlanUserModifier":112}],75:[function(require,module,exports){
+},{"../common/Constants":69,"../modifiers/AccountModifier":108,"../modifiers/CertificateModifier":109,"../modifiers/EmptyModifier":110,"../modifiers/GovernmentDocumentModifier":111,"../modifiers/PlanUserModifier":113}],75:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -35085,7 +35149,7 @@ var QuerierFactory = function QuerierFactory() {
 
 exports.default = new QuerierFactory();
 
-},{"../queriers/CertificateQuerier":113,"../queriers/EmptyQuerier":114,"../queriers/GovernmentDocumentQuerier":115,"../queriers/PlanQuerier":116,"../queriers/PlanUserQuerier":117,"../queriers/UserQuerier":119}],77:[function(require,module,exports){
+},{"../queriers/CertificateQuerier":114,"../queriers/EmptyQuerier":115,"../queriers/GovernmentDocumentQuerier":116,"../queriers/PlanQuerier":117,"../queriers/PlanUserQuerier":118,"../queriers/UserQuerier":120}],77:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -35410,8 +35474,8 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
         { className: 'w3-ul w3-hoverable' },
         qr.map(function (i) {
           if (buildOnModify || buildOnRemove) return _react2.default.createElement(_ModifiableItem2.default, {
-            key: i.machu + i.shgiaycn,
-            label: '[' + i.machu + '] ' + i.ten,
+            key: i.id,
+            label: i.id,
             onClick: buildOnClick(i),
             onModify: buildOnModify(i),
             onRemove: buildOnRemove(i)
@@ -35419,12 +35483,12 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
           return _react2.default.createElement(
             'li',
             {
-              key: i.machu + i.shgiaycn,
+              key: i.id,
               onClick: function onClick(event) {
                 return buildOnClick(i)(event);
               }
             },
-            '[' + i.machu + '] ' + i.ten
+            i.id
           );
         })
       )
@@ -35434,7 +35498,7 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
 
 exports.default = CertificateQuerierView;
 
-},{"../common/DataLoader":70,"./ModifiableItem":86,"react":61}],80:[function(require,module,exports){
+},{"../common/DataLoader":70,"./ModifiableItem":87,"react":61}],80:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -35694,6 +35758,7 @@ exports.default = ConfirmerView;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.objectDump = undefined;
 
 var _react = require('react');
 
@@ -35781,7 +35846,7 @@ var DetailDialogView = function (_Dialog) {
   return DetailDialogView;
 }(_Dialog3.default);
 
-var objectDump = function objectDump(obj) {
+var objectDump = exports.objectDump = function objectDump(obj) {
   return Object.keys(obj).filter(function (key) {
     return !isSkipField(key);
   }).map(function (key) {
@@ -35795,7 +35860,7 @@ var objectDump = function objectDump(obj) {
 var isSkipField = function isSkipField(fieldName) {
   switch (fieldName) {
     case 'geo':
-    case 'id':
+    case 'alter':
     case 'gid':
       return true;
     default:
@@ -35915,6 +35980,58 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _DetailDialogView = require('./DetailDialogView');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var ExtendableItem = function ExtendableItem(_ref) {
+  var obj = _ref.obj,
+      label = _ref.label;
+
+  return _react2.default.createElement(
+    'div',
+    { className: 'extendable-item' },
+    _react2.default.createElement(
+      'div',
+      { className: 'lever' },
+      label
+    ),
+    _react2.default.createElement(
+      'div',
+      { className: 'extension' },
+      (0, _DetailDialogView.objectDump)(obj).map(function (i) {
+        return _react2.default.createElement(
+          'div',
+          { className: 'w3-row', key: i.key },
+          _react2.default.createElement(
+            'div',
+            { className: 'w3-col s3' },
+            i.key + ':'
+          ),
+          _react2.default.createElement(
+            'div',
+            { className: 'w3-col s9' },
+            i.value
+          )
+        );
+      })
+    )
+  );
+};
+
+exports.default = ExtendableItem;
+
+},{"./DetailDialogView":82,"react":61}],85:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
 var _propTypes = require('prop-types');
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
@@ -36010,7 +36127,7 @@ FilterDialogView.propTypes = {
 };
 exports.default = FilterDialogView;
 
-},{"./Dialog":83,"prop-types":36,"react":61}],85:[function(require,module,exports){
+},{"./Dialog":83,"prop-types":36,"react":61}],86:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36138,7 +36255,7 @@ LoginDialogView.propTypes = {
 };
 exports.default = LoginDialogView;
 
-},{"./Dialog":83,"prop-types":36,"react":61}],86:[function(require,module,exports){
+},{"./Dialog":83,"prop-types":36,"react":61}],87:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36213,7 +36330,7 @@ ModifiableItem.propTypes = {
 
 exports.default = ModifiableItem;
 
-},{"prop-types":36,"react":61}],87:[function(require,module,exports){
+},{"prop-types":36,"react":61}],88:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36334,7 +36451,7 @@ var ModifierDialogView = function (_Dialog) {
 ModifierDialogView.propTypes = {};
 exports.default = ModifierDialogView;
 
-},{"../common/Constants":69,"../common/ModifierFactory":74,"./Dialog":83,"prop-types":36,"react":61}],88:[function(require,module,exports){
+},{"../common/Constants":69,"../common/ModifierFactory":74,"./Dialog":83,"prop-types":36,"react":61}],89:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36391,7 +36508,7 @@ ModifierSimpleRowView.propTypes = {
 
 exports.default = ModifierSimpleRowView;
 
-},{"../common/Constants":69,"prop-types":36,"react":61}],89:[function(require,module,exports){
+},{"../common/Constants":69,"prop-types":36,"react":61}],90:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -36493,7 +36610,7 @@ var PlanQuerierView = function PlanQuerierView(_ref) {
 
 exports.default = PlanQuerierView;
 
-},{"react":61}],90:[function(require,module,exports){
+},{"react":61}],91:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36604,7 +36721,7 @@ var PlanUserQuerierView = function PlanUserQuerierView(_ref) {
 
 exports.default = PlanUserQuerierView;
 
-},{"./ModifiableItem":86,"react":61}],91:[function(require,module,exports){
+},{"./ModifiableItem":87,"react":61}],92:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36752,7 +36869,7 @@ QueryDialogView.propTypes = {
 };
 exports.default = QueryDialogView;
 
-},{"../common/QuerierFactory":76,"./Dialog":83,"prop-types":36,"react":61}],92:[function(require,module,exports){
+},{"../common/QuerierFactory":76,"./Dialog":83,"prop-types":36,"react":61}],93:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36823,7 +36940,7 @@ RulerDialogView.propTypes = {
 
 exports.default = RulerDialogView;
 
-},{"../common/MouseTrapper":75,"prop-types":36,"react":61}],93:[function(require,module,exports){
+},{"../common/MouseTrapper":75,"prop-types":36,"react":61}],94:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36864,7 +36981,7 @@ TaskbarIcon.propTypes = {
 
 exports.default = TaskbarIcon;
 
-},{"prop-types":36,"react":61}],94:[function(require,module,exports){
+},{"prop-types":36,"react":61}],95:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36912,7 +37029,7 @@ TaskbarView.propTypes = {
 
 exports.default = TaskbarView;
 
-},{"../actions":67,"./TaskbarIcon":93,"prop-types":36,"react":61}],95:[function(require,module,exports){
+},{"../actions":67,"./TaskbarIcon":94,"prop-types":36,"react":61}],96:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -36980,7 +37097,7 @@ var App = function App() {
 
 exports.default = App;
 
-},{"../containers/ChangePasswordDialog":96,"../containers/Confirmer":97,"../containers/DetailDialog":98,"../containers/FilterDialog":99,"../containers/LoginDialog":100,"../containers/ModifierDialog":101,"../containers/QueryDialog":102,"../containers/RulerDialog":103,"../containers/Taskbar":104,"react":61}],96:[function(require,module,exports){
+},{"../containers/ChangePasswordDialog":97,"../containers/Confirmer":98,"../containers/DetailDialog":99,"../containers/FilterDialog":100,"../containers/LoginDialog":101,"../containers/ModifierDialog":102,"../containers/QueryDialog":103,"../containers/RulerDialog":104,"../containers/Taskbar":105,"react":61}],97:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37066,7 +37183,7 @@ var handleReject = function handleReject(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_ChangePasswordDialogView2.default);
 
-},{"../actions":67,"../common/Constants":69,"../common/RequestPacker":77,"../components/ChangePasswordDialogView":80,"react-redux":53}],97:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/RequestPacker":77,"../components/ChangePasswordDialogView":80,"react-redux":53}],98:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37093,7 +37210,7 @@ var stateToProps = function stateToProps(state) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps)(_ConfirmerView2.default);
 
-},{"../components/ConfirmerView":81,"react":61,"react-redux":53}],98:[function(require,module,exports){
+},{"../components/ConfirmerView":81,"react":61,"react-redux":53}],99:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37134,7 +37251,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_DetailDialogView2.default);
 
-},{"../actions":67,"../common/Constants":69,"../components/DetailDialogView":82,"react":61,"react-redux":53}],99:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../components/DetailDialogView":82,"react":61,"react-redux":53}],100:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37177,7 +37294,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_FilterDialogView2.default);
 
-},{"../actions":67,"../common/Constants":69,"../components/FilterDialogView":84,"react":61,"react-redux":53}],100:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../components/FilterDialogView":85,"react":61,"react-redux":53}],101:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37228,7 +37345,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_LoginDialogView2.default);
 
-},{"../actions":67,"../common/Constants":69,"../components/LoginDialogView":85,"react":61,"react-redux":53}],101:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../components/LoginDialogView":86,"react":61,"react-redux":53}],102:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37273,7 +37390,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_ModifierDialogView2.default);
 
-},{"../actions":67,"../common/Constants":69,"../components/ModifierDialogView":87,"react-redux":53}],102:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../components/ModifierDialogView":88,"react-redux":53}],103:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37340,7 +37457,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_QueryDialogView2.default);
 
-},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../components/QueryDialogView":91,"react-redux":53}],103:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../components/QueryDialogView":92,"react-redux":53}],104:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37379,7 +37496,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps, actToProps)(_RulerDialogView2.default);
 
-},{"../actions":67,"../common/Constants":69,"../components/RulerDialogView":92,"react":61,"react-redux":53}],104:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../components/RulerDialogView":93,"react":61,"react-redux":53}],105:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37453,7 +37570,7 @@ var actToProps = function actToProps(dispatch) {
 
 exports.default = (0, _reactRedux.connect)(stateToProps)(_TaskbarView2.default);
 
-},{"../actions":67,"../common/Constants":69,"../components/TaskbarView":94,"react":61,"react-redux":53}],105:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../components/TaskbarView":95,"react":61,"react-redux":53}],106:[function(require,module,exports){
 'use strict';
 
 var _react = require('react');
@@ -37496,7 +37613,7 @@ _store2.default.dispatch((0, _actions.fetchLayers)());
 (0, _mock2.default)();
 _Cacher2.default.loadTOU();
 
-},{"./actions":67,"./common/Cacher":68,"./containers/App":95,"./mock":106,"./store":130,"react":61,"react-dom":41,"react-redux":53}],106:[function(require,module,exports){
+},{"./actions":67,"./common/Cacher":68,"./containers/App":96,"./mock":107,"./store":131,"react":61,"react-dom":41,"react-redux":53}],107:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37527,7 +37644,7 @@ var smock = function smock() {
 
 exports.default = mock;
 
-},{"./actions":67,"./common/Constants":69,"./store":130}],107:[function(require,module,exports){
+},{"./actions":67,"./common/Constants":69,"./store":131}],108:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37692,7 +37809,7 @@ var AccountModifier = function (_Modifier) {
 
 exports.default = new AccountModifier();
 
-},{"../common/Constants":69,"../common/RequestPacker":77,"./Modifier":111,"react":61}],108:[function(require,module,exports){
+},{"../common/Constants":69,"../common/RequestPacker":77,"./Modifier":112,"react":61}],109:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -37842,7 +37959,7 @@ var CertificateModifier = function (_Modifier) {
               'div',
               null,
               store.plans.map(function (p) {
-                return _this.buildRemovableItem('Tờ: ' + p.shbando + ' | Thửa: ' + p.shthua, function () {
+                return _this.buildRemovableItem('Tờ: ' + p.pid + ' | Thửa: ' + p.mid, function () {
                   return _this.removePlan(p.gid);
                 }, p.gid);
               })
@@ -37872,9 +37989,9 @@ var CertificateModifier = function (_Modifier) {
               'div',
               null,
               store.pusers.map(function (u) {
-                return _this.buildRemovableItem(u.ten, function () {
-                  return _this.removePuser(u.machu);
-                }, u.machu);
+                return _this.buildRemovableItem('[' + u.id + '] ' + u.name, function () {
+                  return _this.removePuser(u.id);
+                }, u.id);
               })
             ) : _react2.default.createElement(
               'small',
@@ -38039,7 +38156,7 @@ var CertificateModifier = function (_Modifier) {
 
 exports.default = new CertificateModifier();
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"./Modifier":111,"moment":28,"react":61,"react-datepicker":38}],109:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"./Modifier":112,"moment":28,"react":61,"react-datepicker":38}],110:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38082,7 +38199,7 @@ var EmptyModifier = function (_Modifier) {
 
 exports.default = new EmptyModifier();
 
-},{"./Modifier":111}],110:[function(require,module,exports){
+},{"./Modifier":112}],111:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38162,7 +38279,7 @@ var GovernmentDocumentModifier = function (_Modifier) {
 
 exports.default = new GovernmentDocumentModifier();
 
-},{"../common/Constants":69,"../common/RequestPacker":77,"./Modifier":111}],111:[function(require,module,exports){
+},{"../common/Constants":69,"../common/RequestPacker":77,"./Modifier":112}],112:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38330,7 +38447,7 @@ var Modifier = function Modifier() {
 
 exports.default = Modifier;
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/ModifierSimpleRowView":88,"react":61}],112:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/ModifierSimpleRowView":89,"react":61}],113:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38522,6 +38639,14 @@ var PlanUserModifier = function (_Modifier) {
       }).then(function (res) {
         return _this.handleResult(res, store);
       });
+    }, _this.handleErrorOnResult = function (res, payload) {
+      if (res.cause === 'idNum') {
+        var kind = payload.kind || 1;
+        if (kind === 2) return false;
+        var fieldName = kind === 1 ? 'CMND/Hộ chiếu' : 'Số giấy phép kinh doanh';
+        _this.pushMessage(fieldName + ' đã tồn tại.' + ' Vui lòng nhập giá trị khác để tiếp tục');
+        return true;
+      }
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
@@ -38530,7 +38655,7 @@ var PlanUserModifier = function (_Modifier) {
 
 exports.default = new PlanUserModifier();
 
-},{"../common/Constants":69,"../common/RequestPacker":77,"./Modifier":111,"moment":28,"react":61,"react-datepicker":38}],113:[function(require,module,exports){
+},{"../common/Constants":69,"../common/RequestPacker":77,"./Modifier":112,"moment":28,"react":61,"react-datepicker":38}],114:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38603,25 +38728,17 @@ var CertificateQuerier = function (_Querier) {
       if (_Cacher2.default.getRole() !== 1) return undefined;
       return function (event) {
         var cachedEvent = { pageX: event.pageX, pageY: event.pageY };
-        fetch(_Constants.host + '/certificate/' + certi.shgiaycn, { headers: _RequestPacker2.default.buildHeader() }).then(function (e) {
+        fetch(_Constants.host + '/certificate/' + certi.id, { headers: _RequestPacker2.default.buildHeader() }).then(function (e) {
           return e.json();
         }).then(function (e) {
-          _this.dispatch((0, _actions.openModifier)(cachedEvent, _Constants.CERTIFICATE_CODE, _this.preprocessPayload(e.payload), function () {/* do nothing */}));
+          _this.dispatch((0, _actions.openModifier)(cachedEvent, _Constants.CERTIFICATE_CODE, e.payload, function () {/* do nothing */}));
         });
       };
-    }, _this.preprocessPayload = function (payload) {
-      if (typeof payload === 'undefined') return {};
-      var rs = JSON.stringify(payload).replace(/null/g, '""');
-      var ors = JSON.parse(rs);
-      delete ors.chinhly;
-      ors.privateArea = Number(ors.privateArea) || 0;
-      ors.publicArea = Number(ors.publicArea) || 0;
-      return ors;
     }, _this.buildOnRemove = function (certi) {
       if (_Cacher2.default.getRole() !== 1) return undefined;
       return function (e) {
-        _this.dispatch((0, _actions.openConfirmer)('Xác nhận xóa giấy chứng nhận [' + certi.shgiaycn + '] khỏi hệ thống?', function () {
-          fetch(_Constants.host + '/certificate/' + certi.shgiaycn, _RequestPacker2.default.packAsDelete()).then(function (res) {
+        _this.dispatch((0, _actions.openConfirmer)('Xác nhận xóa giấy chứng nhận [' + certi.id + '] khỏi hệ thống?', function () {
+          fetch(_Constants.host + '/certificate/' + certi.id, _RequestPacker2.default.packAsDelete()).then(function (res) {
             return res.json();
           }).then(function () {
             _this.dispatch((0, _actions.queryFieldChange)('certi.cache', []));
@@ -38636,6 +38753,7 @@ var CertificateQuerier = function (_Querier) {
       _this.dispatch((0, _actions.queryFieldChange)('certi.cache', res));
     }, _this.buildOnClick = function (item) {
       return function (event) {
+        if (_Cacher2.default.getRole() !== 1 && _Cacher2.default.getRole() !== 2) return;
         _this.dispatch((0, _actions.showFeatureTarget)(event, item, _Constants.CERTIFICATE_DETAIL_LABELS));
       };
     }, _temp), _possibleConstructorReturn(_this, _ret);
@@ -38646,7 +38764,7 @@ var CertificateQuerier = function (_Querier) {
 
 exports.default = new CertificateQuerier();
 
-},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"../components/CertificateQuerierView":79,"./Querier":118,"react":61}],114:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"../components/CertificateQuerierView":79,"./Querier":119,"react":61}],115:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38699,7 +38817,7 @@ var EmptyQuerier = function (_Querier) {
 
 exports.default = new EmptyQuerier();
 
-},{"./Querier":118,"react":61}],115:[function(require,module,exports){
+},{"./Querier":119,"react":61}],116:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38809,7 +38927,7 @@ var GovernmentDocumentQuerier = function (_Querier) {
 
 exports.default = new GovernmentDocumentQuerier();
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"./Querier":118,"react":61}],116:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"./Querier":119,"react":61}],117:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38885,7 +39003,7 @@ var PlanQuerier = function (_Querier) {
 
 exports.default = new PlanQuerier();
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/PlanQuerierView":89,"./Querier":118,"react":61}],117:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../components/PlanQuerierView":90,"./Querier":119,"react":61}],118:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -38995,7 +39113,7 @@ var PlanUserQuerier = function (_Querier) {
 
 exports.default = new PlanUserQuerier();
 
-},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"../components/PlanUserQuerierView":90,"./Querier":118,"react":61}],118:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/DataLoader":70,"../common/RequestPacker":77,"../components/PlanUserQuerierView":91,"./Querier":119,"react":61}],119:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39058,7 +39176,7 @@ var Querier = function Querier() {
 
 exports.default = Querier;
 
-},{"../actions":67,"../common/Constants":69,"../common/RequestPacker":77,"../components/PlanQuerierView":89}],119:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/RequestPacker":77,"../components/PlanQuerierView":90}],120:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39157,7 +39275,7 @@ var UserQuerier = function (_Querier) {
 
 exports.default = new UserQuerier();
 
-},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/RequestPacker":77,"../components/ModifiableItem":86,"./Querier":118,"react":61}],120:[function(require,module,exports){
+},{"../actions":67,"../common/Cacher":68,"../common/Constants":69,"../common/RequestPacker":77,"../components/ModifiableItem":87,"./Querier":119,"react":61}],121:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39204,7 +39322,7 @@ var chpasswdDialog = function chpasswdDialog() {
 
 exports.default = chpasswdDialog;
 
-},{"../actions":67,"../common/Constants":69}],121:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69}],122:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39237,7 +39355,7 @@ var confirmer = function confirmer() {
 
 exports.default = confirmer;
 
-},{"../actions":67}],122:[function(require,module,exports){
+},{"../actions":67}],123:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39273,7 +39391,7 @@ var detailDialog = function detailDialog() {
 
 exports.default = detailDialog;
 
-},{"../actions":67,"../common/Constants":69}],123:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69}],124:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39325,7 +39443,7 @@ var dialogState = function dialogState() {
 
 exports.default = dialogState;
 
-},{"../actions":67,"../common/Constants":69,"../common/Mapper":73}],124:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/Mapper":73}],125:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39386,7 +39504,7 @@ var filterDialog = function filterDialog() {
 
 exports.default = filterDialog;
 
-},{"../actions":67,"../common/Constants":69,"../common/Mapper":73}],125:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/Mapper":73}],126:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39447,7 +39565,7 @@ var rootReducer = (0, _redux.combineReducers)({
 
 exports.default = rootReducer;
 
-},{"./chpasswdDialog":120,"./confirmer":121,"./detailDialog":122,"./dialogState":123,"./filterDialog":124,"./modifierDialog":126,"./queryDialog":127,"./taskbar":128,"./userIdentify":129,"redux":64}],126:[function(require,module,exports){
+},{"./chpasswdDialog":121,"./confirmer":122,"./detailDialog":123,"./dialogState":124,"./filterDialog":125,"./modifierDialog":127,"./queryDialog":128,"./taskbar":129,"./userIdentify":130,"redux":64}],127:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39482,7 +39600,8 @@ var modifierDialog = function modifierDialog() {
 
   switch (action.type) {
     case _actions.VALUE_CHANGE:
-      if (action.target === _Constants.MODIFIER_DIALOG) return _extends({}, state, _DataLoader2.default.load(state, action.locate, action.value), {
+      if (action.target === _Constants.MODIFIER_DIALOG) if (action.locate === 'planUserCode.birthYear') action.value = ('' + action.value).replace(/[^0-9]/g, '');
+      return _extends({}, state, _DataLoader2.default.load(state, action.locate, action.value), {
         msg: ''
       });
     case _actions.STATE_CHANGE:
@@ -39508,7 +39627,7 @@ var modifierDialog = function modifierDialog() {
 
 exports.default = modifierDialog;
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../common/ModifierFactory":74}],127:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70,"../common/ModifierFactory":74}],128:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39581,7 +39700,7 @@ var queryDialog = function queryDialog() {
 
 exports.default = queryDialog;
 
-},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70}],128:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69,"../common/DataLoader":70}],129:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39610,7 +39729,7 @@ var taskbar = function taskbar() {
 
 exports.default = taskbar;
 
-},{"../actions":67}],129:[function(require,module,exports){
+},{"../actions":67}],130:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39672,7 +39791,7 @@ var userIdentify = function userIdentify() {
 
 exports.default = userIdentify;
 
-},{"../actions":67,"../common/Constants":69}],130:[function(require,module,exports){
+},{"../actions":67,"../common/Constants":69}],131:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -39699,4 +39818,4 @@ var store = (0, _redux.createStore)(_reducers2.default, _redux.applyMiddleware.a
 
 exports.default = store;
 
-},{"./reducers":125,"redux":64,"redux-logger":62,"redux-thunk":63}]},{},[105]);
+},{"./reducers":126,"redux":64,"redux-logger":62,"redux-thunk":63}]},{},[106]);

@@ -1,5 +1,6 @@
 import React from 'react'
 import Cacher from './Cacher'
+import ExtendableItem from '../components/ExtendableItem'
 
 export const host = 'http://localhost:8080'
 export const BASE_HASH = 'b4c1db7e5a0dc91b7b739db0c3ece205dd8c9a66'
@@ -36,7 +37,45 @@ export const FIELD_MASK = {
   },
   mucdichsudung: code => {
     return Cacher.getTOUByCode(code)
-  }
+  },
+  role: code => {
+    switch(code) {
+      case 1:
+        return 'Quản trị viên'
+      case 2:
+        return 'Cán bộ'
+      default:
+        return ''
+    }
+  },
+  pusers: pusers => {
+    return (
+      <ul className="w3-ul">
+        {
+          pusers.map(u =>
+            <li key={u.id}>
+              {'['+u.id+'] '+u.name}
+            </li>
+          )
+        }
+      </ul>
+    )
+  },
+  plans: plans => {
+    return (
+      <ul className="w3-ul">
+        {
+          plans.map(p =>
+            <li key={p.mid+'.'+p.pid}>
+              {'Tờ: '+p.mid+'; Thửa: '+p.pid}
+            </li>
+          )
+        }
+      </ul>
+    )
+  },
+  signDate: dateStr => dateFormat(dateStr),
+  goodUntil: dateStr => dateFormat(dateStr)
 }
 
 const maskingArea = area => {
@@ -48,8 +87,29 @@ const maskingArea = area => {
   )
 }
 
+const dateFormat = dateStr => {
+  if ( ! dateStr)
+    return ''
+  const theDate = new Date(dateStr)
+  return ''
+    + twoDigitFormat(theDate.getDate()) + '-'
+    + twoDigitFormat(theDate.getMonth() + 1) + '-'
+    + theDate.getFullYear()
+}
+
+const twoDigitFormat = n => {
+  return (n < 10 ? '0' : '') + n
+}
+
 export const FIELD_LABELS = {
+  signDate: 'Ngày ký',
+  provider: 'Cơ quan cấp',
+  privateArea: 'Diện tích riêng',
+  publicArea: 'Diện tích chung',
+  id: 'Số hiệu',
+  sourceOfUse: 'Nguồn gốc sử dụng',
   mucdichsudung: 'Mục đích sử dụng',
+  goodUntil: 'Hạn sử dụng',
   kind: 'Loại chủ sử dụng',
   puserId: 'Mã chủ sử dụng',
   username: 'Tên tài khoản',
@@ -85,7 +145,9 @@ export const FIELD_LABELS = {
   groupName: 'Tên tổ chức',
   commerceId: 'Số giấy phép kinh doanh',
   personalName: 'Tên cá nhân',
-  birthYear: 'Năm sinh'
+  birthYear: 'Năm sinh',
+  pusers: 'Chủ sử dụng',
+  plans: 'Thửa đất'
 }
 
 export const NATIONALITIES = [

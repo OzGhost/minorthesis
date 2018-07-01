@@ -47,8 +47,8 @@ const CertificateQuerierView = ({onChange,
                   if (buildOnModify || buildOnRemove)
                     return (
                       <ModifiableItem
-                        key={i.machu+i.shgiaycn}
-                        label={'['+i.machu+'] '+i.ten}
+                        key={i.id}
+                        label={i.id}
                         onClick={buildOnClick(i)}
                         onModify={buildOnModify(i)}
                         onRemove={buildOnRemove(i)}
@@ -56,10 +56,10 @@ const CertificateQuerierView = ({onChange,
                     )
                   return (
                     <li
-                      key={i.machu+i.shgiaycn}
+                      key={i.id}
                       onClick={event => buildOnClick(i)(event)}
                     >
-                      {'['+i.machu+'] '+i.ten}
+                      {i.id}
                     </li>
                   )
                 })

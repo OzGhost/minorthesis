@@ -10,6 +10,8 @@ const modifierDialog = (state = defaultState, action) => {
   switch(action.type) {
     case VALUE_CHANGE:
       if (action.target === MODIFIER_DIALOG)
+        if (action.locate === 'planUserCode.birthYear')
+          action.value = (''+action.value).replace(/[^0-9]/g, '')
         return {
           ...state,
           ...DataLoader.load(state, action.locate, action.value),

@@ -32,7 +32,7 @@ class DetailDialogView extends Dialog {
   }
 }
 
-const objectDump = obj => {
+export const objectDump = obj => {
   return Object.keys(obj)
     .filter( key => !isSkipField(key) )
     .map(key => {
@@ -46,7 +46,7 @@ const objectDump = obj => {
 const isSkipField = fieldName => {
   switch(fieldName) {
     case 'geo':
-    case 'id':
+    case 'alter':
     case 'gid':
       return true
     default:

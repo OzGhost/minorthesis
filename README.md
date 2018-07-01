@@ -18,8 +18,15 @@ Just a Thesis :D
   - plan owner management
   - government doc add
   - certificate manage (adding, delete, edit)
+  - Block certificate detail for guest
+  - Replace role name instead role code
+  - Birth year format number only
+  - [BUG] certificate query
+  - Re-style for certificate detail
+  - Puser idNumber must be unique
 
 [incomming features]
-  - [BUG] certificate query
+  - Hide empty area (detail view)
+  - Certificate 250016326 (stuck)
 
 

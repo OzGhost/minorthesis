@@ -34,7 +34,7 @@ class CertificateQuerier extends Querier {
     return (event) => {
       const cachedEvent = {pageX: event.pageX, pageY: event.pageY}
       fetch(
-        host + '/certificate/'+certi.shgiaycn,
+        host + '/certificate/'+certi.id,
         {headers: RequestPacker.buildHeader()}
       ).then(e=>e.json())
       .then(e => {
@@ -42,23 +42,12 @@ class CertificateQuerier extends Querier {
           openModifier(
             cachedEvent,
             CERTIFICATE_CODE,
-            this.preprocessPayload(e.payload),
+            e.payload,
             () => { /* do nothing */ }
           )
         )
       })
     }
-  }
-
-  preprocessPayload = payload => {
-    if (typeof(payload) === 'undefined')
-      return {}
-    let rs = JSON.stringify(payload).replace(/null/g, '""')
-    let ors = JSON.parse(rs)
-    delete ors.chinhly
-    ors.privateArea = Number(ors.privateArea) || 0
-    ors.publicArea = Number(ors.publicArea) || 0
-    return ors
   }
 
   buildOnRemove = certi => {
@@ -67,10 +56,10 @@ class CertificateQuerier extends Querier {
     return (e) => {
       this.dispatch(
         openConfirmer(
-          'Xác nhận xóa giấy chứng nhận ['+certi.shgiaycn+'] khỏi hệ thống?',
+          'Xác nhận xóa giấy chứng nhận ['+certi.id+'] khỏi hệ thống?',
           () => {
             fetch(
-              host + '/certificate/' + certi.shgiaycn,
+              host + '/certificate/' + certi.id,
               RequestPacker.packAsDelete()
             ).then(res=>res.json())
             .then(()=>{
@@ -95,6 +84,8 @@ class CertificateQuerier extends Querier {
   }
 
   buildOnClick = item => event => {
+    if (Cacher.getRole() !== 1 && Cacher.getRole() !== 2)
+      return
     this.dispatch(showFeatureTarget(event, item, CERTIFICATE_DETAIL_LABELS))
   }
 }
