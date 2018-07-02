@@ -107,7 +107,7 @@ class Mapper {
   }
 
   viewTarget = target => {
-    if (!target.geo)
+    if (!target || !target.geo)
       return
     const feature = this.format.readFeature( JSON.parse(target.geo) )
     this.clearOverlay()

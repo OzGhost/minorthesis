@@ -123,7 +123,7 @@ class CertificateModifier extends Modifier {
                   {
                     store.plans.map(p =>
                       this.buildRemovableItem(
-                        'Tờ: '+p.pid+' | Thửa: '+p.mid,
+                        'Tờ: '+p.mid+' | Thửa: '+p.pid,
                         () => this.removePlan(p.gid),
                         p.gid
                       )
@@ -146,8 +146,8 @@ class CertificateModifier extends Modifier {
                   {
                     store.pusers.map(u =>
                       this.buildRemovableItem(
-                        '['+u.id+'] '+u.name,
-                        () => this.removePuser(u.id),
+                        '['+u.puid+'] '+u.name,
+                        () => this.removePuser(u.puid),
                         u.id
                       )
                     )
@@ -252,21 +252,38 @@ class CertificateModifier extends Modifier {
     const existed = currentPlans.filter(p => p.gid === payload.gid).length > 0
     if (existed)
       return
-    const nextPlans = [...currentPlans, payload]
+    const nextPlans = [...currentPlans, this.convertPlan(payload)]
     this.reactor(
       valueChange(MODIFIER_DIALOG, this.getNamespace()+'.plans', nextPlans)
     )
   }
 
+  convertPlan = ori => {
+    return {
+      pid: ori.pid,
+      mid: ori.shbando,
+      pid: ori.shthua
+    }
+  }
+
   addPuser = payload => {
     const currentPusers = this.cache.pusers || []
-    const existed = currentPusers.filter(u => u.machu === payload.machu).length > 0
+    const existed = currentPusers
+      .filter(u => u.puid === payload.puserId).length > 0
     if (existed)
       return
-    const nextPusers = [...currentPusers, payload]
+    const nextPusers = [...currentPusers, this.convertPuser(payload)]
     this.reactor(
       valueChange(MODIFIER_DIALOG, this.getNamespace()+'.pusers', nextPusers)
     )
+  }
+
+  convertPuser = ori => {
+    console.log('cout << try to convert: ', JSON.stringify(ori))
+    return {
+      puid: ori.puserId,
+      name: ori.personalName || ori.groupName
+    }
   }
 
   buildRemovableItem = (text, onRemove, key) => (
@@ -290,7 +307,7 @@ class CertificateModifier extends Modifier {
 
   removePuser = uid => {
     const currentPusers = this.cache.pusers || []
-    const nextPusers = currentPusers.filter(u => u.machu !== uid)
+    const nextPusers = currentPusers.filter(u => u.puid !== uid)
     this.reactor(
       valueChange(
         MODIFIER_DIALOG,
@@ -304,7 +321,7 @@ class CertificateModifier extends Modifier {
     const payload = {
       ...store,
       pusers: store.pusers
-        ? store.pusers.map(u => u.machu)
+        ? store.pusers.map(u => u.puid)
         : [],
       plans: store.plans
         ? store.plans.map(p => p.gid)

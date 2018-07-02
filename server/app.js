@@ -33,7 +33,7 @@ const performQuery = (queryStr, resolve, reject) => {
 
 app.get('/plan', (req, res) => {
   const queryStr = 'SELECT gid, shbando, shthua, dtpl, mucdichsudung,'
-                  + ' sonha, tenduong, phuong'
+                  + ' sonha, tenduong, phuong,'
                   + ' thanhpho, tinh, ST_asGeoJSON(geom) as geo'
                   + ' FROM thuadat'
                   + ' WHERE shbando=' + (Number(req.query.msto) || 0)
@@ -57,8 +57,8 @@ app.get('/certificate', (req, res) => {
   findCertificateIds(kind, val, certIds => {
     if (certIds.length < 1)
       throwBack(res)([])
-    else if (getLoggedRole(req) !== 1 && getLoggedRole(req) !== 2)
-      throwBack(res)(certIds.map(e=>({id: e})))
+    // else if (getLoggedRole(req) !== 1 && getLoggedRole(req) !== 2)
+      // throwBack(res)(certIds.map(e=>({id: e})))
     else
       loadCertificates(
         certIds,
@@ -121,7 +121,9 @@ const fetchCertificateById = (id, onDone, onErr) => {
                   + ' FROM chusudung_giaychungnhan b'
                   + ' LEFT JOIN chusudung c ON c.machu = b.machu'
                   + ' WHERE b.shgiaycn=\''+id+'\''
-  const plans_q = 'SELECT gid, shthua, shbando FROM thuadat'
+  const plans_q = 'SELECT gid, shbando, shthua, dtpl, mucdichsudung,'
+                  + ' sonha, tenduong, phuong, thanhpho, tinh'
+                  + ' FROM thuadat'
                   + ' WHERE shgiaycn=\''+id+'\''
 
   const packResult = () => {
@@ -400,15 +402,21 @@ const dtoKeyMap = {
   nguongocsudung: 'sourceOfUse',
   thoihansudung: 'goodUntil',
   chinhly: 'alter',
-  machu: 'id',
-  loaichu: 'role',
+  machu: 'puid',
+  loaichu: 'kind',
   ten: 'name',
   nam: 'birthYear',
   sogiayto: 'idNumber',
   ngaycap: 'provideDate',
   quoctich: 'nationality',
   shthua: 'pid',
-  shbando: 'mid'
+  shbando: 'mid',
+  dtpl: 'area',
+  sonha: 'houseNumber',
+  tenduong: 'street',
+  phuong: 'ward',
+  thanhpho: 'city',
+  tinh: 'district'
 }
 
 app.get('/account/b4c1db7e5a0dc91b7b739db0c3ece205dd8c9a66', (req, res) => {

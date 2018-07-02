@@ -1,6 +1,7 @@
 import React from 'react'
 import Cacher from './Cacher'
 import ExtendableItem from '../components/ExtendableItem'
+import { objectDump } from '../components/DetailDialogView'
 
 export const host = 'http://localhost:8080'
 export const BASE_HASH = 'b4c1db7e5a0dc91b7b739db0c3ece205dd8c9a66'
@@ -32,10 +33,22 @@ export const FIELD_MASK = {
         return 'Cá nhân'
     }
   },
+  privateArea: area => {
+    return maskingArea(area)
+  },
+  publicArea: area => {
+    return maskingArea(area)
+  },
+  area: area => {
+    return maskingArea(area)
+  },
   dtpl: area => {
     return maskingArea(area)
   },
   mucdichsudung: code => {
+    return Cacher.getTOUByCode(code)
+  },
+  targetOfUse: code => {
     return Cacher.getTOUByCode(code)
   },
   role: code => {
@@ -54,7 +67,19 @@ export const FIELD_MASK = {
         {
           pusers.map(u =>
             <li key={u.id}>
-              {'['+u.id+'] '+u.name}
+              <p>{u.name}</p>
+              <div className="w3-row">
+                { objectDump(u)
+                  .filter(r=>r.key !== 'Tên người dùng')
+                  .map( row => (
+                  <div key={row.key+row.value} className="w3-row">
+                    <div className="w3-col w3-right-align w3-padding-small" >
+                      {row.key + ':'}
+                    </div>
+                    <div className="w3-col w3-padding-small">{row.value}</div>
+                  </div>
+                ) ) }
+              </div>
             </li>
           )
         }
@@ -67,7 +92,19 @@ export const FIELD_MASK = {
         {
           plans.map(p =>
             <li key={p.mid+'.'+p.pid}>
-              {'Tờ: '+p.mid+'; Thửa: '+p.pid}
+              <p>{'Tờ: '+p.mid+'; Thửa: '+p.pid}</p>
+              <div className="w3-row">
+                { objectDump(p)
+                  .filter(r=>r.key!=='Số tờ'&&r.key!=='Số thửa')
+                  .map( row => (
+                  <div key={row.key+row.value} className="w3-row">
+                    <div className="w3-col w3-right-align w3-padding-small" >
+                      {row.key + ':'}
+                    </div>
+                    <div className="w3-col w3-padding-small">{row.value}</div>
+                  </div>
+                ) ) }
+              </div>
             </li>
           )
         }
@@ -102,8 +139,19 @@ const twoDigitFormat = n => {
 }
 
 export const FIELD_LABELS = {
+  mid: 'Số tờ',
+  pid: 'Số thửa',
+  area: 'Diện tích',
+  targetOfUse: 'Mục đích sử dụng',
+  houseNumber: 'Số nhà',
+  street: 'Tên đường',
+  ward: 'Phường',
+  city: 'Thành phố',
+  district: 'Tỉnh',
+  puid: 'Mã chủ sử dụng',
   signDate: 'Ngày ký',
   provider: 'Cơ quan cấp',
+  provideDate: 'Ngày cấp',
   privateArea: 'Diện tích riêng',
   publicArea: 'Diện tích chung',
   id: 'Số hiệu',

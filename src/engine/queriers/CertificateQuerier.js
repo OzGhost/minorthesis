@@ -84,9 +84,22 @@ class CertificateQuerier extends Querier {
   }
 
   buildOnClick = item => event => {
+    let theItem = item
     if (Cacher.getRole() !== 1 && Cacher.getRole() !== 2)
-      return
-    this.dispatch(showFeatureTarget(event, item, CERTIFICATE_DETAIL_LABELS))
+      theItem = this.reduceCertificate(item)
+    this.dispatch(showFeatureTarget(event, theItem, CERTIFICATE_DETAIL_LABELS))
+  }
+
+  reduceCertificate = item => {
+    let rs = {}
+    rs.id = item.id
+    rs.pusers = item.pusers.map(e=>({name: e.name}))
+    rs.plans = item.plans.map(e=>({
+      mid: e.mid,
+      pid: e.pid,
+      targetOfUse: e.targetOfUse
+    }))
+    return rs
   }
 }
 

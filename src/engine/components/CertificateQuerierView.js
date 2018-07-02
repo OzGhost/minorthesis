@@ -48,7 +48,7 @@ const CertificateQuerierView = ({onChange,
                     return (
                       <ModifiableItem
                         key={i.id}
-                        label={i.id}
+                        label={'Số hiệu: ' + i.id}
                         onClick={buildOnClick(i)}
                         onModify={buildOnModify(i)}
                         onRemove={buildOnRemove(i)}

@@ -34542,6 +34542,8 @@ var _ExtendableItem = require('../components/ExtendableItem');
 
 var _ExtendableItem2 = _interopRequireDefault(_ExtendableItem);
 
+var _DetailDialogView = require('../components/DetailDialogView');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -34576,10 +34578,22 @@ var FIELD_MASK = {
         return 'Cá nhân';
     }
   },
+  privateArea: function privateArea(area) {
+    return maskingArea(area);
+  },
+  publicArea: function publicArea(area) {
+    return maskingArea(area);
+  },
+  area: function area(_area) {
+    return maskingArea(_area);
+  },
   dtpl: function dtpl(area) {
     return maskingArea(area);
   },
   mucdichsudung: function mucdichsudung(code) {
+    return _Cacher2.default.getTOUByCode(code);
+  },
+  targetOfUse: function targetOfUse(code) {
     return _Cacher2.default.getTOUByCode(code);
   },
   role: function role(code) {
@@ -34600,7 +34614,33 @@ var FIELD_MASK = {
         return _react2.default.createElement(
           'li',
           { key: u.id },
-          '[' + u.id + '] ' + u.name
+          _react2.default.createElement(
+            'p',
+            null,
+            u.name
+          ),
+          _react2.default.createElement(
+            'div',
+            { className: 'w3-row' },
+            (0, _DetailDialogView.objectDump)(u).filter(function (r) {
+              return r.key !== 'Tên người dùng';
+            }).map(function (row) {
+              return _react2.default.createElement(
+                'div',
+                { key: row.key + row.value, className: 'w3-row' },
+                _react2.default.createElement(
+                  'div',
+                  { className: 'w3-col w3-right-align w3-padding-small' },
+                  row.key + ':'
+                ),
+                _react2.default.createElement(
+                  'div',
+                  { className: 'w3-col w3-padding-small' },
+                  row.value
+                )
+              );
+            })
+          )
         );
       })
     );
@@ -34613,7 +34653,33 @@ var FIELD_MASK = {
         return _react2.default.createElement(
           'li',
           { key: p.mid + '.' + p.pid },
-          'Tờ: ' + p.mid + '; Thửa: ' + p.pid
+          _react2.default.createElement(
+            'p',
+            null,
+            'Tờ: ' + p.mid + '; Thửa: ' + p.pid
+          ),
+          _react2.default.createElement(
+            'div',
+            { className: 'w3-row' },
+            (0, _DetailDialogView.objectDump)(p).filter(function (r) {
+              return r.key !== 'Số tờ' && r.key !== 'Số thửa';
+            }).map(function (row) {
+              return _react2.default.createElement(
+                'div',
+                { key: row.key + row.value, className: 'w3-row' },
+                _react2.default.createElement(
+                  'div',
+                  { className: 'w3-col w3-right-align w3-padding-small' },
+                  row.key + ':'
+                ),
+                _react2.default.createElement(
+                  'div',
+                  { className: 'w3-col w3-padding-small' },
+                  row.value
+                )
+              );
+            })
+          )
         );
       })
     );
@@ -34655,8 +34721,19 @@ var twoDigitFormat = function twoDigitFormat(n) {
 };
 
 var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
+  mid: 'Số tờ',
+  pid: 'Số thửa',
+  area: 'Diện tích',
+  targetOfUse: 'Mục đích sử dụng',
+  houseNumber: 'Số nhà',
+  street: 'Tên đường',
+  ward: 'Phường',
+  city: 'Thành phố',
+  district: 'Tỉnh',
+  puid: 'Mã chủ sử dụng',
   signDate: 'Ngày ký',
   provider: 'Cơ quan cấp',
+  provideDate: 'Ngày cấp',
   privateArea: 'Diện tích riêng',
   publicArea: 'Diện tích chung',
   id: 'Số hiệu',
@@ -34686,7 +34763,7 @@ var FIELD_LABELS = exports.FIELD_LABELS = (_FIELD_LABELS = {
 
 var NATIONALITIES = exports.NATIONALITIES = ['United States', 'United Kingdom', 'Afghanistan', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla', 'Antarctica', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Aruba', 'Australia', 'Austria', 'Azerbaijan', 'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bermuda', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Bouvet Island', 'Brazil', 'British Indian Ocean Territory', 'Brunei Darussalam', 'Bulgaria', 'Burkina Faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'Cape Verde', 'Cayman Islands', 'Central African Republic', 'Chad', 'Chile', 'China', 'Christmas Island', 'Cocos (Keeling) Islands', 'Colombia', 'Comoros', 'Congo', 'Congo, The Democratic Republic of The', 'Cook Islands', 'Việt Nam'];
 
-},{"../components/ExtendableItem":84,"./Cacher":68,"react":61}],70:[function(require,module,exports){
+},{"../components/DetailDialogView":82,"../components/ExtendableItem":84,"./Cacher":68,"react":61}],70:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34956,7 +35033,7 @@ var Mapper = function Mapper() {
   };
 
   this.viewTarget = function (target) {
-    if (!target.geo) return;
+    if (!target || !target.geo) return;
     var feature = _this.format.readFeature(JSON.parse(target.geo));
     _this.clearOverlay();
     _this.overlaySource.addFeature(feature);
@@ -35475,7 +35552,7 @@ var CertificateQuerierView = function CertificateQuerierView(_ref) {
         qr.map(function (i) {
           if (buildOnModify || buildOnRemove) return _react2.default.createElement(_ModifiableItem2.default, {
             key: i.id,
-            label: i.id,
+            label: 'Số hiệu: ' + i.id,
             onClick: buildOnClick(i),
             onModify: buildOnModify(i),
             onRemove: buildOnRemove(i)
@@ -35815,15 +35892,13 @@ var DetailDialogView = function (_Dialog) {
         title: 'Thông tin chi tiết'
       };
     }, _this.buildDialogContent = function () {
-      var _this$props = _this.props,
-          obj = _this$props.obj,
-          labels = _this$props.labels;
+      var obj = _this.props.obj;
 
       if (typeof obj === 'undefined') return '';
       return _react2.default.createElement(
         'div',
         { className: 'detail-content' },
-        objectDump(obj, labels).map(function (row) {
+        objectDump(obj).map(function (row) {
           return _react2.default.createElement(
             'div',
             { key: row.key, className: 'w3-row' },
@@ -37848,6 +37923,8 @@ var _DataLoader2 = _interopRequireDefault(_DataLoader);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -37959,7 +38036,7 @@ var CertificateModifier = function (_Modifier) {
               'div',
               null,
               store.plans.map(function (p) {
-                return _this.buildRemovableItem('Tờ: ' + p.pid + ' | Thửa: ' + p.mid, function () {
+                return _this.buildRemovableItem('Tờ: ' + p.mid + ' | Thửa: ' + p.pid, function () {
                   return _this.removePlan(p.gid);
                 }, p.gid);
               })
@@ -37989,8 +38066,8 @@ var CertificateModifier = function (_Modifier) {
               'div',
               null,
               store.pusers.map(function (u) {
-                return _this.buildRemovableItem('[' + u.id + '] ' + u.name, function () {
-                  return _this.removePuser(u.id);
+                return _this.buildRemovableItem('[' + u.puid + '] ' + u.name, function () {
+                  return _this.removePuser(u.puid);
                 }, u.id);
               })
             ) : _react2.default.createElement(
@@ -38097,16 +38174,27 @@ var CertificateModifier = function (_Modifier) {
         return p.gid === payload.gid;
       }).length > 0;
       if (existed) return;
-      var nextPlans = [].concat(_toConsumableArray(currentPlans), [payload]);
+      var nextPlans = [].concat(_toConsumableArray(currentPlans), [_this.convertPlan(payload)]);
       _this.reactor((0, _actions.valueChange)(_Constants.MODIFIER_DIALOG, _this.getNamespace() + '.plans', nextPlans));
+    }, _this.convertPlan = function (ori) {
+      return _defineProperty({
+        pid: ori.pid,
+        mid: ori.shbando
+      }, 'pid', ori.shthua);
     }, _this.addPuser = function (payload) {
       var currentPusers = _this.cache.pusers || [];
       var existed = currentPusers.filter(function (u) {
-        return u.machu === payload.machu;
+        return u.puid === payload.puserId;
       }).length > 0;
       if (existed) return;
-      var nextPusers = [].concat(_toConsumableArray(currentPusers), [payload]);
+      var nextPusers = [].concat(_toConsumableArray(currentPusers), [_this.convertPuser(payload)]);
       _this.reactor((0, _actions.valueChange)(_Constants.MODIFIER_DIALOG, _this.getNamespace() + '.pusers', nextPusers));
+    }, _this.convertPuser = function (ori) {
+      console.log('cout << try to convert: ', JSON.stringify(ori));
+      return {
+        puid: ori.puserId,
+        name: ori.personalName || ori.groupName
+      };
     }, _this.buildRemovableItem = function (text, onRemove, key) {
       return _react2.default.createElement(
         'div',
@@ -38127,13 +38215,13 @@ var CertificateModifier = function (_Modifier) {
     }, _this.removePuser = function (uid) {
       var currentPusers = _this.cache.pusers || [];
       var nextPusers = currentPusers.filter(function (u) {
-        return u.machu !== uid;
+        return u.puid !== uid;
       });
       _this.reactor((0, _actions.valueChange)(_Constants.MODIFIER_DIALOG, _this.getNamespace() + '.pusers', nextPusers));
     }, _this.onSubmit = function (store) {
       var payload = _extends({}, store, {
         pusers: store.pusers ? store.pusers.map(function (u) {
-          return u.machu;
+          return u.puid;
         }) : [],
         plans: store.plans ? store.plans.map(function (p) {
           return p.gid;
@@ -38753,9 +38841,24 @@ var CertificateQuerier = function (_Querier) {
       _this.dispatch((0, _actions.queryFieldChange)('certi.cache', res));
     }, _this.buildOnClick = function (item) {
       return function (event) {
-        if (_Cacher2.default.getRole() !== 1 && _Cacher2.default.getRole() !== 2) return;
-        _this.dispatch((0, _actions.showFeatureTarget)(event, item, _Constants.CERTIFICATE_DETAIL_LABELS));
+        var theItem = item;
+        if (_Cacher2.default.getRole() !== 1 && _Cacher2.default.getRole() !== 2) theItem = _this.reduceCertificate(item);
+        _this.dispatch((0, _actions.showFeatureTarget)(event, theItem, _Constants.CERTIFICATE_DETAIL_LABELS));
       };
+    }, _this.reduceCertificate = function (item) {
+      var rs = {};
+      rs.id = item.id;
+      rs.pusers = item.pusers.map(function (e) {
+        return { name: e.name };
+      });
+      rs.plans = item.plans.map(function (e) {
+        return {
+          mid: e.mid,
+          pid: e.pid,
+          targetOfUse: e.targetOfUse
+        };
+      });
+      return rs;
     }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 

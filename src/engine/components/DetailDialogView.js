@@ -14,12 +14,12 @@ class DetailDialogView extends Dialog {
   })
 
   buildDialogContent = () => {
-    const {obj, labels} = this.props
+    const {obj} = this.props
     if (typeof(obj) === 'undefined')
       return ''
     return (
       <div className="detail-content">
-        { objectDump(obj, labels).map( row => (
+        { objectDump(obj).map( row => (
           <div key={row.key} className="w3-row">
             <div className="w3-col w3-right-align w3-padding-small" >
               {row.key + ':'}
